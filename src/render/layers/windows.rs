@@ -12,8 +12,9 @@ use smithay::utils::{Rectangle, Logical, Physical, Scale};
 
 /// Renders all mapped client windows, applying the glass-blur effect where enabled.
 pub struct WindowsLayer {
-    blur_pipeline: Option<BlurPipeline>,
+    pipelines: std::collections::HashMap<smithay::reexports::wayland_server::backend::ObjectId, (BlurPipeline, i32, i32)>,
     rendered_elements: Vec<(
+        Option<smithay::reexports::wayland_server::backend::ObjectId>,
         Rectangle<i32, Logical>,
         bool,
         Vec<WaylandSurfaceRenderElement<GlowRenderer>>,
@@ -23,7 +24,7 @@ pub struct WindowsLayer {
 impl WindowsLayer {
     pub fn new() -> Self {
         Self {
-            blur_pipeline: None,
+            pipelines: std::collections::HashMap::new(),
             rendered_elements: Vec::new(),
         }
     }
@@ -49,6 +50,8 @@ impl WindowsLayer {
         w: i32,
         h: i32,
         tint: [f32; 4],
+        screen_w: i32,
+        screen_h: i32,
     ) {
         gl.use_program(Some(pipeline.composite_program));
 
@@ -67,39 +70,71 @@ impl WindowsLayer {
 
         gl.viewport(x, y, w, h);
         gl.draw_arrays(glow::TRIANGLE_STRIP, 0, 4);
+
+        // Restore viewport to full screen space
+        gl.viewport(0, 0, screen_w, screen_h);
+        gl.use_program(None);
     }
 }
 
 impl RenderLayer for WindowsLayer {
-    fn resize(&mut self, ctx: &RenderContext) {
-        self.blur_pipeline = Some(BlurPipeline::new(ctx.gl.clone(), ctx.width, ctx.height, 4));
-    }
+    fn resize(&mut self, _ctx: &RenderContext) {}
 
     fn prepare(
         &mut self,
-        _ctx: &RenderContext,
+        ctx: &RenderContext,
         state: &State,
         renderer: &mut GlowRenderer,
     ) {
         self.rendered_elements.clear();
+
+        // Clean up unused pipelines
+        let active_ids: std::collections::HashSet<_> = state.windows.space.elements()
+            .filter_map(|w| w.toplevel().map(|t| t.wl_surface().id()))
+            .collect();
+        self.pipelines.retain(|id, _| active_ids.contains(id));
+
         for window in state.windows.space.elements() {
-            let rect = state.windows.space.element_bbox(window).unwrap_or_default();
-            let x = rect.loc.x;
-            let y = rect.loc.y;
+            let loc = state.windows.space.element_location(window).unwrap_or_default();
+            let geo = window.geometry();
+            let rect = Rectangle::new(loc, geo.size);
 
             let id = window.toplevel().map(|t| t.wl_surface().id());
             let blur_enabled = id
-                .and_then(|id| state.windows.windows.get(&id).map(|info| info.blur_enabled))
+                .as_ref()
+                .and_then(|sid| state.windows.windows.get(sid).map(|info| info.blur_enabled))
                 .unwrap_or(true);
 
             let elements: Vec<WaylandSurfaceRenderElement<GlowRenderer>> = window.render_elements(
                 renderer,
-                (x, y).into(),
+                (loc.x, loc.y).into(),
                 Scale::from(1.0),
                 1.0,
             );
 
-            self.rendered_elements.push((rect, blur_enabled, elements));
+            if blur_enabled {
+                if let Some(ref surface_id) = id {
+                    let w = rect.size.w;
+                    let h = rect.size.h;
+                    if w > 0 && h > 0 {
+                        let entry = self.pipelines.entry(surface_id.clone());
+                        match entry {
+                            std::collections::hash_map::Entry::Occupied(mut e) => {
+                                let (_, pw, ph) = e.get();
+                                if *pw != w || *ph != h {
+                                    e.insert((BlurPipeline::new(ctx.gl.clone(), w, h, 4), w, h));
+                                }
+                            }
+                            std::collections::hash_map::Entry::Vacant(e) => {
+                                e.insert((BlurPipeline::new(ctx.gl.clone(), w, h, 4), w, h));
+                            }
+                        }
+                    }
+                }
+            }
+
+            tracing::info!("prepare: window {:?} has {} render elements, rect {:?}", id, elements.len(), rect);
+            self.rendered_elements.push((id, rect, blur_enabled, elements));
         }
     }
 
@@ -117,7 +152,7 @@ impl RenderLayer for WindowsLayer {
             let screen_w = ctx.width;
             let screen_h = ctx.height;
 
-            for &(rect, blur_enabled, ref elements) in &self.rendered_elements {
+            for &(ref id, rect, blur_enabled, ref elements) in &self.rendered_elements {
                 let x = rect.loc.x;
                 let y = rect.loc.y;
                 let w = rect.size.w;
@@ -134,10 +169,12 @@ impl RenderLayer for WindowsLayer {
                         if cw > 0 && ch > 0 {
                             let gl_y = screen_h - (cy + ch);
                             let bg_tex = Self::capture_background(gl, screen_h, cx, cy, cw, ch);
-                            if let Some(ref pipeline) = self.blur_pipeline {
-                                let blurred_bg = pipeline.compute_blur(bg_tex, cw, ch);
-                                Self::composite_glass(gl, pipeline, blurred_bg, cx, gl_y, cw, ch, tint);
-                                gl.delete_texture(blurred_bg);
+                            if let Some(ref surface_id) = id {
+                                if let Some((ref pipeline, _, _)) = self.pipelines.get(surface_id) {
+                                    let blurred_bg = pipeline.compute_blur(bg_tex, cw, ch);
+                                    Self::composite_glass(gl, pipeline, blurred_bg, cx, gl_y, cw, ch, tint, screen_w, screen_h);
+                                    gl.delete_texture(blurred_bg);
+                                }
                             }
                             gl.delete_texture(bg_tex);
                         }
@@ -150,16 +187,16 @@ impl RenderLayer for WindowsLayer {
 
                 if border_width > 0 {
                     let border_top = Rectangle::<i32, Physical>::new((x - border_width, y - border_width).into(), (w + 2 * border_width, border_width).into());
-                    let _ = frame.draw_solid(border_top, &[border_top], border_color);
+                    let _ = frame.draw_solid(border_top, &[Rectangle::from_size(border_top.size)], border_color);
 
                     let border_bottom = Rectangle::<i32, Physical>::new((x - border_width, y + h).into(), (w + 2 * border_width, border_width).into());
-                    let _ = frame.draw_solid(border_bottom, &[border_bottom], border_color);
+                    let _ = frame.draw_solid(border_bottom, &[Rectangle::from_size(border_bottom.size)], border_color);
 
                     let border_left = Rectangle::<i32, Physical>::new((x - border_width, y).into(), (border_width, h).into());
-                    let _ = frame.draw_solid(border_left, &[border_left], border_color);
+                    let _ = frame.draw_solid(border_left, &[Rectangle::from_size(border_left.size)], border_color);
 
                     let border_right = Rectangle::<i32, Physical>::new((x + w, y).into(), (border_width, h).into());
-                    let _ = frame.draw_solid(border_right, &[border_right], border_color);
+                    let _ = frame.draw_solid(border_right, &[Rectangle::from_size(border_right.size)], border_color);
                 }
 
                 for element in elements {
@@ -167,7 +204,8 @@ impl RenderLayer for WindowsLayer {
                     let dst = element.geometry(Scale::from(1.0));
                     let damage = &[Rectangle::from_size(dst.size)];
                     let opaque = &[];
-                    let _ = element.draw(frame, src, dst, damage, opaque);
+                    let res = element.draw(frame, src, dst, damage, opaque);
+                    tracing::info!("element.draw: dst {:?}, res {:?}", dst, res);
                 }
             }
         }

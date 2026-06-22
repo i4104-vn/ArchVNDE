@@ -53,6 +53,7 @@ impl RenderLayer for BackgroundLayer {
                 gl.use_program(Some(program));
                 gl.viewport(rect.loc.x, rect.loc.y, rect.size.w, rect.size.h);
                 gl.draw_arrays(glow::TRIANGLE_STRIP, 0, 4);
+                gl.use_program(None);
             }
         }
     }

@@ -8,14 +8,16 @@ use smithay::utils::{Rectangle, Physical};
 
 /// Renders system UI elements (top bar, dock) above all application windows.
 pub struct SystemUiLayer {
-    blur_pipeline: Option<BlurPipeline>,
+    top_bar_blur: Option<BlurPipeline>,
+    dock_blur: Option<BlurPipeline>,
     ui_program: Option<glow::Program>,
 }
 
 impl SystemUiLayer {
     pub fn new() -> Self {
         Self {
-            blur_pipeline: None,
+            top_bar_blur: None,
+            dock_blur: None,
             ui_program: None,
         }
     }
@@ -41,6 +43,8 @@ impl SystemUiLayer {
         w: i32,
         h: i32,
         tint: [f32; 4],
+        screen_w: i32,
+        screen_h: i32,
     ) {
         gl.use_program(Some(program));
 
@@ -59,12 +63,17 @@ impl SystemUiLayer {
 
         gl.viewport(x, y, w, h);
         gl.draw_arrays(glow::TRIANGLE_STRIP, 0, 4);
+
+        // Restore viewport to full screen space
+        gl.viewport(0, 0, screen_w, screen_h);
+        gl.use_program(None);
     }
 }
 
 impl RenderLayer for SystemUiLayer {
     fn resize(&mut self, ctx: &RenderContext) {
-        self.blur_pipeline = Some(BlurPipeline::new(ctx.gl.clone(), ctx.width, ctx.height, 4));
+        self.top_bar_blur = Some(BlurPipeline::new(ctx.gl.clone(), ctx.width, 32, 4));
+        self.dock_blur = Some(BlurPipeline::new(ctx.gl.clone(), 400, 48, 4));
     }
 
     fn draw(
@@ -91,6 +100,11 @@ impl RenderLayer for SystemUiLayer {
                 self.ui_program = Some(prog);
             }
 
+            if self.top_bar_blur.is_none() || self.dock_blur.is_none() {
+                self.top_bar_blur = Some(BlurPipeline::new(gl.clone(), screen_w, 32, 4));
+                self.dock_blur = Some(BlurPipeline::new(gl.clone(), 400, 48, 4));
+            }
+
             let ui_program = self.ui_program.unwrap();
 
             // 1. Render Top Bar (Height: 32px)
@@ -105,9 +119,9 @@ impl RenderLayer for SystemUiLayer {
                 if cw > 0 && ch > 0 {
                     let gl_y = screen_h - (cy + ch);
                     let bg_tex = Self::capture_background(gl, screen_h, cx, cy, cw, ch);
-                    if let Some(ref pipeline) = self.blur_pipeline {
+                    if let Some(ref pipeline) = self.top_bar_blur {
                         let blurred_bg = pipeline.compute_blur(bg_tex, cw, ch);
-                        Self::composite_glass(gl, ui_program, blurred_bg, cx, gl_y, cw, ch, tint);
+                        Self::composite_glass(gl, ui_program, blurred_bg, cx, gl_y, cw, ch, tint, screen_w, screen_h);
                         gl.delete_texture(blurred_bg);
                     }
                     gl.delete_texture(bg_tex);
@@ -116,10 +130,10 @@ impl RenderLayer for SystemUiLayer {
 
             // Draw Top Bar bottom border
             let top_bar_border_color = parse_hex_color(&config.window.border_color, 0.25).into();
-            let top_bar_border_rect = Rectangle::<i32, Physical>::new((0, 31).into(), (screen_w, 1).into());
+            let top_bar_border_rect = Rectangle::<i32, Physical>::new((0, screen_h - 32).into(), (screen_w, 1).into());
             let _ = frame.draw_solid(
                 top_bar_border_rect,
-                &[top_bar_border_rect],
+                &[Rectangle::from_size(top_bar_border_rect.size)],
                 top_bar_border_color,
             );
 
@@ -140,9 +154,9 @@ impl RenderLayer for SystemUiLayer {
                 if cw > 0 && ch > 0 {
                     let gl_y = screen_h - (cy + ch);
                     let bg_tex = Self::capture_background(gl, screen_h, cx, cy, cw, ch);
-                    if let Some(ref pipeline) = self.blur_pipeline {
+                    if let Some(ref pipeline) = self.dock_blur {
                         let blurred_bg = pipeline.compute_blur(bg_tex, cw, ch);
-                        Self::composite_glass(gl, ui_program, blurred_bg, cx, gl_y, cw, ch, tint);
+                        Self::composite_glass(gl, ui_program, blurred_bg, cx, gl_y, cw, ch, tint, screen_w, screen_h);
                         gl.delete_texture(blurred_bg);
                     }
                     gl.delete_texture(bg_tex);
@@ -152,62 +166,62 @@ impl RenderLayer for SystemUiLayer {
             // Draw Dock border highlight
             let dock_border_color = parse_hex_color(&config.window.border_color, 0.35).into();
             
-            let border_top = Rectangle::<i32, Physical>::new((dock_x, dock_y).into(), (dock_w, 1).into());
-            let _ = frame.draw_solid(border_top, &[border_top], dock_border_color);
+            let border_top = Rectangle::<i32, Physical>::new((dock_x, 59).into(), (dock_w, 1).into());
+            let _ = frame.draw_solid(border_top, &[Rectangle::from_size(border_top.size)], dock_border_color);
             
-            let border_bottom = Rectangle::<i32, Physical>::new((dock_x, dock_y + dock_h - 1).into(), (dock_w, 1).into());
-            let _ = frame.draw_solid(border_bottom, &[border_bottom], dock_border_color);
+            let border_bottom = Rectangle::<i32, Physical>::new((dock_x, 12).into(), (dock_w, 1).into());
+            let _ = frame.draw_solid(border_bottom, &[Rectangle::from_size(border_bottom.size)], dock_border_color);
             
-            let border_left = Rectangle::<i32, Physical>::new((dock_x, dock_y).into(), (1, dock_h).into());
-            let _ = frame.draw_solid(border_left, &[border_left], dock_border_color);
+            let border_left = Rectangle::<i32, Physical>::new((dock_x, 12).into(), (1, 48).into());
+            let _ = frame.draw_solid(border_left, &[Rectangle::from_size(border_left.size)], dock_border_color);
             
-            let border_right = Rectangle::<i32, Physical>::new((dock_x + dock_w - 1, dock_y).into(), (1, dock_h).into());
-            let _ = frame.draw_solid(border_right, &[border_right], dock_border_color);
+            let border_right = Rectangle::<i32, Physical>::new((dock_x + dock_w - 1, 12).into(), (1, 48).into());
+            let _ = frame.draw_solid(border_right, &[Rectangle::from_size(border_right.size)], dock_border_color);
 
             // 3. Render Workspace Indicators (Top-Left)
             // Draw 3 workspace dots (active dot is white, inactive are semi-transparent)
             let active_dot_color = [1.0, 1.0, 1.0, 1.0].into();
             let inactive_dot_color = [1.0, 1.0, 1.0, 0.4].into();
             
-            let dot1 = Rectangle::<i32, Physical>::new((16, 12).into(), (8, 8).into());
-            let _ = frame.draw_solid(dot1, &[dot1], active_dot_color);
+            let dot1 = Rectangle::<i32, Physical>::new((16, screen_h - 20).into(), (8, 8).into());
+            let _ = frame.draw_solid(dot1, &[Rectangle::from_size(dot1.size)], active_dot_color);
             
-            let dot2 = Rectangle::<i32, Physical>::new((30, 12).into(), (8, 8).into());
-            let _ = frame.draw_solid(dot2, &[dot2], inactive_dot_color);
+            let dot2 = Rectangle::<i32, Physical>::new((30, screen_h - 20).into(), (8, 8).into());
+            let _ = frame.draw_solid(dot2, &[Rectangle::from_size(dot2.size)], inactive_dot_color);
             
-            let dot3 = Rectangle::<i32, Physical>::new((44, 12).into(), (8, 8).into());
-            let _ = frame.draw_solid(dot3, &[dot3], inactive_dot_color);
+            let dot3 = Rectangle::<i32, Physical>::new((44, screen_h - 20).into(), (8, 8).into());
+            let _ = frame.draw_solid(dot3, &[Rectangle::from_size(dot3.size)], inactive_dot_color);
 
             // 4. Render Simple Indicators (Top-Right)
             // Clock placeholder
             let indicator_bg_color = [1.0, 1.0, 1.0, 0.15].into();
-            let clock_rect = Rectangle::<i32, Physical>::new((screen_w - 120, 8).into(), (80, 16).into());
-            let _ = frame.draw_solid(clock_rect, &[clock_rect], indicator_bg_color);
+            let clock_rect = Rectangle::<i32, Physical>::new((screen_w - 120, screen_h - 24).into(), (80, 16).into());
+            let _ = frame.draw_solid(clock_rect, &[Rectangle::from_size(clock_rect.size)], indicator_bg_color);
             
             // Battery block
-            let battery_rect = Rectangle::<i32, Physical>::new((screen_w - 30, 8).into(), (18, 16).into());
-            let _ = frame.draw_solid(battery_rect, &[battery_rect], indicator_bg_color);
+            let battery_rect = Rectangle::<i32, Physical>::new((screen_w - 30, screen_h - 24).into(), (18, 16).into());
+            let _ = frame.draw_solid(battery_rect, &[Rectangle::from_size(battery_rect.size)], indicator_bg_color);
 
             // 5. Render Dock Application Icons
             // Icon 1: Terminal (slate blue)
             let icon_color_term = [0.2, 0.4, 0.6, 0.85].into();
-            let icon1 = Rectangle::<i32, Physical>::new((dock_x + 40, dock_y + 8).into(), (32, 32).into());
-            let _ = frame.draw_solid(icon1, &[icon1], icon_color_term);
+            let icon1 = Rectangle::<i32, Physical>::new((dock_x + 40, 20).into(), (32, 32).into());
+            let _ = frame.draw_solid(icon1, &[Rectangle::from_size(icon1.size)], icon_color_term);
             
             // Icon 2: Browser (teal)
             let icon_color_web = [0.1, 0.6, 0.6, 0.85].into();
-            let icon2 = Rectangle::<i32, Physical>::new((dock_x + 130, dock_y + 8).into(), (32, 32).into());
-            let _ = frame.draw_solid(icon2, &[icon2], icon_color_web);
+            let icon2 = Rectangle::<i32, Physical>::new((dock_x + 130, 20).into(), (32, 32).into());
+            let _ = frame.draw_solid(icon2, &[Rectangle::from_size(icon2.size)], icon_color_web);
             
             // Icon 3: Files (gold)
             let icon_color_files = [0.7, 0.5, 0.2, 0.85].into();
-            let icon3 = Rectangle::<i32, Physical>::new((dock_x + 220, dock_y + 8).into(), (32, 32).into());
-            let _ = frame.draw_solid(icon3, &[icon3], icon_color_files);
+            let icon3 = Rectangle::<i32, Physical>::new((dock_x + 220, 20).into(), (32, 32).into());
+            let _ = frame.draw_solid(icon3, &[Rectangle::from_size(icon3.size)], icon_color_files);
             
             // Icon 4: Settings (purple)
             let icon_color_settings = [0.5, 0.3, 0.6, 0.85].into();
-            let icon4 = Rectangle::<i32, Physical>::new((dock_x + 310, dock_y + 8).into(), (32, 32).into());
-            let _ = frame.draw_solid(icon4, &[icon4], icon_color_settings);
+            let icon4 = Rectangle::<i32, Physical>::new((dock_x + 310, 20).into(), (32, 32).into());
+            let _ = frame.draw_solid(icon4, &[Rectangle::from_size(icon4.size)], icon_color_settings);
         }
     }
 }

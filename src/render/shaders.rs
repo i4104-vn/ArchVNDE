@@ -59,7 +59,6 @@ in vec2 v_texcoord;
 out vec4 fragColor;
 
 uniform sampler2D u_blurred_background;
-uniform sampler2D u_window_content;
 uniform vec4 u_tint_color;
 uniform vec2 u_resolution;
 
@@ -71,8 +70,6 @@ bool is_border(vec2 coord, vec2 res) {
 
 void main() {
     vec4 blurred = texture(u_blurred_background, v_texcoord);
-    vec4 client_content = texture(u_window_content, v_texcoord);
-    
     vec4 glass_base = mix(blurred, u_tint_color, u_tint_color.a);
     
     if (is_border(gl_FragCoord.xy, u_resolution)) {
@@ -80,7 +77,7 @@ void main() {
         glass_base = mix(glass_base, border_color, border_color.a);
     }
     
-    fragColor = mix(glass_base, client_content, client_content.a);
+    fragColor = glass_base;
 }
 "#;
 
