@@ -43,6 +43,17 @@ impl BlurCache {
     }
 }
 
+/// The current state of pointer interaction.
+#[derive(Clone)]
+pub enum PointerGrab {
+    None,
+    Move {
+        window: Window,
+        start_cursor_pos: smithay::utils::Point<f64, Logical>,
+        start_window_pos: smithay::utils::Point<i32, Logical>,
+    },
+}
+
 /// Manages window layout, z-ordering, and the GPU blur cache.
 pub struct WindowState {
     /// Smithay desktop space — used for surface mapping and hit-testing.
@@ -54,6 +65,8 @@ pub struct WindowState {
     /// Shared blur-texture cache accessed from the render thread.
     #[allow(dead_code)]
     pub blur_cache: Arc<Mutex<BlurCache>>,
+    /// Current pointer grab (e.g. window dragging).
+    pub pointer_grab: PointerGrab,
 }
 
 impl WindowState {
@@ -63,6 +76,7 @@ impl WindowState {
             windows: HashMap::new(),
             next_z: 0,
             blur_cache: Arc::new(Mutex::new(BlurCache::new())),
+            pointer_grab: PointerGrab::None,
         }
     }
 

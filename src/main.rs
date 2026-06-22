@@ -85,20 +85,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     pending_resize = Some((width as i32, height as i32));
                     current_size = (width as i32, height as i32);
                 }
-                BackendEvent::Redraw => {
-                    if let Some((w, h)) = pending_resize.take() {
-                        renderer.resize(w, h);
-                    }
-                    let rect = smithay::utils::Rectangle::new((0, 0).into(), current_size.into());
-                    
-                    let glow_renderer = winit_backend.renderer();
-                    renderer.prepare(state, glow_renderer);
-
-                    winit_backend.render_with(current_size.0, current_size.1, |frame| {
-                        renderer.render_frame(state, rect, frame);
-                    });
-                    winit_backend.submit();
-                }
+                BackendEvent::Redraw => {}
                 BackendEvent::Input(input_event) => {
                     match input_event {
                         InputEvent::Keyboard { event } => {
@@ -128,6 +115,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             let serial = smithay::utils::SERIAL_COUNTER.next_serial();
                             let time = event.time_msec();
                             let pos = event.position_transformed(smithay::utils::Size::from(current_size));
+
+                            // Update window position if dragging
+                            if let crate::state::window::PointerGrab::Move { ref window, start_cursor_pos, start_window_pos } = state.windows.pointer_grab {
+                                let delta = pos - start_cursor_pos;
+                                let new_pos = start_window_pos + smithay::utils::Point::from((delta.x as i32, delta.y as i32));
+                                state.windows.space.map_element(window.clone(), new_pos, true);
+                            }
+
                             let under = state.windows.space.element_under(pos).and_then(|(window, rel_pos)| {
                                 window.surface_under(
                                     smithay::utils::Point::<f64, smithay::utils::Logical>::from((rel_pos.x as f64, rel_pos.y as f64)),
@@ -165,23 +160,91 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             );
                             pointer.frame(state);
 
+                            if state_btn == ButtonState::Released && button == 272 {
+                                state.windows.pointer_grab = crate::state::window::PointerGrab::None;
+                            }
+
                             if state_btn == ButtonState::Pressed && button == 272 {
                                 let pos = pointer.current_location();
-                                let window = state.windows.space.element_under(pos).map(|(w, _)| w.clone());
-                                if let Some(window) = window {
-                                    state.windows.space.raise_element(&window, true);
-                                    if let Some(toplevel) = window.toplevel() {
-                                        toplevel.send_configure();
+                                let screen_w = current_size.0 as f64;
+                                let screen_h = current_size.1 as f64;
+
+                                // Dock geometry
+                                let dock_w = 400.0;
+                                let dock_h = 48.0;
+                                let dock_x = (screen_w - dock_w) / 2.0;
+                                let dock_y = screen_h - 60.0;
+
+                                let in_dock = pos.x >= dock_x
+                                    && pos.x <= dock_x + dock_w
+                                    && pos.y >= dock_y
+                                    && pos.y <= dock_y + dock_h;
+
+                                if in_dock {
+                                    let rel_x = pos.x - dock_x;
+                                    if rel_x >= 40.0 && rel_x <= 72.0 {
+                                        // Terminal
+                                        let config = state.config.load();
+                                        let _ = std::process::Command::new(&*config.shortcut.launch_terminal).spawn();
+                                    } else if rel_x >= 130.0 && rel_x <= 162.0 {
+                                        // Browser
+                                        if std::process::Command::new("firefox").spawn().is_err() {
+                                            if std::process::Command::new("chromium-browser").spawn().is_err() {
+                                                let _ = std::process::Command::new("google-chrome").spawn();
+                                            }
+                                        }
+                                    } else if rel_x >= 220.0 && rel_x <= 252.0 {
+                                        // Files
+                                        if std::process::Command::new("nautilus").spawn().is_err() {
+                                            if std::process::Command::new("thunar").spawn().is_err() {
+                                                let _ = std::process::Command::new("pcmanfm").spawn();
+                                            }
+                                        }
+                                    } else if rel_x >= 310.0 && rel_x <= 342.0 {
+                                        // Settings
+                                        if std::process::Command::new("gnome-control-center").spawn().is_err() {
+                                            let config = state.config.load();
+                                            let _ = std::process::Command::new(&*config.shortcut.launch_terminal)
+                                                .arg("-e")
+                                                .arg("htop")
+                                                .spawn();
+                                        }
                                     }
-                                    let keyboard = state.input.seat.get_keyboard().unwrap();
-                                    keyboard.set_focus(
-                                        state,
-                                        Some(window.toplevel().unwrap().wl_surface().clone()),
-                                        serial,
-                                    );
                                 } else {
-                                    let keyboard = state.input.seat.get_keyboard().unwrap();
-                                    keyboard.set_focus(state, None, serial);
+                                    let window = state.windows.space.element_under(pos).map(|(w, _)| w.clone());
+                                    if let Some(window) = window {
+                                        state.windows.space.raise_element(&window, true);
+                                        if let Some(toplevel) = window.toplevel() {
+                                            toplevel.send_configure();
+                                        }
+                                        let keyboard = state.input.seat.get_keyboard().unwrap();
+                                        keyboard.set_focus(
+                                            state,
+                                            Some(window.toplevel().unwrap().wl_surface().clone()),
+                                            serial,
+                                        );
+
+                                        // Try starting a window drag grab
+                                        let modifiers = keyboard.modifier_state();
+                                        let is_header_click = if let Some(bbox) = state.windows.space.element_bbox(&window) {
+                                            let rel_y = pos.y - bbox.loc.y as f64;
+                                            rel_y >= 0.0 && rel_y <= 32.0
+                                        } else {
+                                            false
+                                        };
+
+                                        if modifiers.logo || is_header_click {
+                                            let start_window_pos = state.windows.space.element_location(&window).unwrap_or_default();
+                                            state.windows.pointer_grab = crate::state::window::PointerGrab::Move {
+                                                window: window.clone(),
+                                                start_cursor_pos: pos,
+                                                start_window_pos,
+                                            };
+                                        }
+                                    } else {
+                                        let keyboard = state.input.seat.get_keyboard().unwrap();
+                                        keyboard.set_focus(state, None, serial);
+                                    }
                                 }
                             }
                         }
@@ -193,6 +256,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     std::process::exit(0);
                 }
             }
+        }
+
+        // Redraw on every event loop iteration (60 FPS) to ensure smooth animations, cursor, and client updates
+        {
+            if let Some((w, h)) = pending_resize.take() {
+                renderer.resize(w, h);
+            }
+            let rect = smithay::utils::Rectangle::new((0, 0).into(), current_size.into());
+            
+            state.windows.space.refresh();
+
+            let glow_renderer = winit_backend.renderer();
+            renderer.prepare(state, glow_renderer);
+
+            winit_backend.render_with(current_size.0, current_size.1, |frame| {
+                renderer.render_frame(state, rect, frame);
+            });
+            winit_backend.submit();
         }
     })?;
 
