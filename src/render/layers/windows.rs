@@ -135,7 +135,9 @@ impl RenderLayer for WindowsLayer {
                             let gl_y = screen_h - (cy + ch);
                             let bg_tex = Self::capture_background(gl, screen_h, cx, cy, cw, ch);
                             if let Some(ref pipeline) = self.blur_pipeline {
-                                Self::composite_glass(gl, pipeline, bg_tex, cx, gl_y, cw, ch, tint);
+                                let blurred_bg = pipeline.compute_blur(bg_tex, cw, ch);
+                                Self::composite_glass(gl, pipeline, blurred_bg, cx, gl_y, cw, ch, tint);
+                                gl.delete_texture(blurred_bg);
                             }
                             gl.delete_texture(bg_tex);
                         }
@@ -147,26 +149,17 @@ impl RenderLayer for WindowsLayer {
                 let border_width = config.window.border_width as i32;
 
                 if border_width > 0 {
-                    let _ = frame.draw_solid(
-                        Rectangle::<i32, Physical>::new((x - border_width, y - border_width).into(), (w + 2 * border_width, border_width).into()),
-                        &[Rectangle::<i32, Physical>::from_size((w + 2 * border_width, border_width).into())],
-                        border_color,
-                    );
-                    let _ = frame.draw_solid(
-                        Rectangle::<i32, Physical>::new((x - border_width, y + h).into(), (w + 2 * border_width, border_width).into()),
-                        &[Rectangle::<i32, Physical>::from_size((w + 2 * border_width, border_width).into())],
-                        border_color,
-                    );
-                    let _ = frame.draw_solid(
-                        Rectangle::<i32, Physical>::new((x - border_width, y).into(), (border_width, h).into()),
-                        &[Rectangle::<i32, Physical>::from_size((border_width, h).into())],
-                        border_color,
-                    );
-                    let _ = frame.draw_solid(
-                        Rectangle::<i32, Physical>::new((x + w, y).into(), (border_width, h).into()),
-                        &[Rectangle::<i32, Physical>::from_size((border_width, h).into())],
-                        border_color,
-                    );
+                    let border_top = Rectangle::<i32, Physical>::new((x - border_width, y - border_width).into(), (w + 2 * border_width, border_width).into());
+                    let _ = frame.draw_solid(border_top, &[border_top], border_color);
+
+                    let border_bottom = Rectangle::<i32, Physical>::new((x - border_width, y + h).into(), (w + 2 * border_width, border_width).into());
+                    let _ = frame.draw_solid(border_bottom, &[border_bottom], border_color);
+
+                    let border_left = Rectangle::<i32, Physical>::new((x - border_width, y).into(), (border_width, h).into());
+                    let _ = frame.draw_solid(border_left, &[border_left], border_color);
+
+                    let border_right = Rectangle::<i32, Physical>::new((x + w, y).into(), (border_width, h).into());
+                    let _ = frame.draw_solid(border_right, &[border_right], border_color);
                 }
 
                 for element in elements {

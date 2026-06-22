@@ -83,3 +83,31 @@ void main() {
     fragColor = mix(glass_base, client_content, client_content.a);
 }
 "#;
+
+pub const UI_GLASS_COMPOSITION_FRAG_SHADER: &str = r#"#version 300 es
+precision mediump float;
+in vec2 v_texcoord;
+out vec4 fragColor;
+
+uniform sampler2D u_blurred_background;
+uniform vec4 u_tint_color;
+uniform vec2 u_resolution;
+
+bool is_border(vec2 coord, vec2 res) {
+    float border_width = 1.0;
+    return coord.x < border_width || coord.x > (res.x - border_width) ||
+           coord.y < border_width || coord.y > (res.y - border_width);
+}
+
+void main() {
+    vec4 blurred = texture(u_blurred_background, v_texcoord);
+    vec4 glass_base = mix(blurred, u_tint_color, u_tint_color.a);
+    
+    if (is_border(gl_FragCoord.xy, u_resolution)) {
+        vec4 border_color = vec4(1.0, 1.0, 1.0, 0.15); // 15% white border highlight
+        glass_base = mix(glass_base, border_color, border_color.a);
+    }
+    
+    fragColor = glass_base;
+}
+"#;
