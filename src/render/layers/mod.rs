@@ -35,10 +35,20 @@ pub trait RenderLayer {
     ///
     /// Use this to update GPU resources that must be ready before drawing
     /// (e.g. uploading dirty textures, computing animations).
-    fn prepare(&mut self, _ctx: &RenderContext, _state: &State) {}
+    fn prepare(
+        &mut self,
+        _ctx: &RenderContext,
+        _state: &State,
+        _renderer: &mut smithay::backend::renderer::glow::GlowRenderer,
+    ) {}
 
     /// Emits draw calls for this layer.
-    fn draw(&mut self, ctx: &RenderContext, state: &State);
+    fn draw(
+        &mut self,
+        ctx: &RenderContext,
+        state: &State,
+        frame: &mut smithay::backend::renderer::glow::GlowFrame<'_, '_>,
+    );
 
     /// Called when the output dimensions change.
     ///

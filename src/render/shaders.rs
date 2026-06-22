@@ -1,11 +1,11 @@
 pub const VERTEX_SHADER: &str = r#"#version 300 es
-in vec2 position;
-in vec2 texcoord;
 out vec2 v_texcoord;
 
 void main() {
-    v_texcoord = texcoord;
-    gl_Position = vec4(position, 0.0, 1.0);
+    float x = float((gl_VertexID & 1) * 2 - 1);
+    float y = float((gl_VertexID & 2) - 1);
+    v_texcoord = vec2(x, y) * 0.5 + 0.5;
+    gl_Position = vec4(x, y, 0.0, 1.0);
 }
 "#;
 

@@ -95,6 +95,7 @@ impl BlurPipeline {
     ///
     /// # Safety
     /// Caller must ensure a valid OpenGL context is current.
+    #[allow(dead_code)]
     pub unsafe fn compute_blur(
         &self,
         source_texture: glow::Texture,

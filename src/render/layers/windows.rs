@@ -3,21 +3,37 @@ use crate::state::State;
 use crate::render::pipeline::BlurPipeline;
 use super::{RenderLayer, RenderContext};
 
+use smithay::backend::renderer::element::{AsRenderElements, RenderElement, Element};
+use smithay::backend::renderer::element::surface::WaylandSurfaceRenderElement;
+use smithay::backend::renderer::Frame;
+use smithay::backend::renderer::glow::{GlowRenderer, GlowFrame};
+use smithay::reexports::wayland_server::Resource;
+use smithay::utils::{Rectangle, Logical, Physical, Scale};
+
 /// Renders all mapped client windows, applying the glass-blur effect where enabled.
 pub struct WindowsLayer {
     blur_pipeline: Option<BlurPipeline>,
+    rendered_elements: Vec<(
+        Rectangle<i32, Logical>,
+        bool,
+        Vec<WaylandSurfaceRenderElement<GlowRenderer>>,
+    )>,
 }
 
 impl WindowsLayer {
     pub fn new() -> Self {
-        Self { blur_pipeline: None }
+        Self {
+            blur_pipeline: None,
+            rendered_elements: Vec::new(),
+        }
     }
 
     /// Copies the screen region behind a window into a fresh RGBA texture.
-    unsafe fn capture_background(gl: &glow::Context, x: i32, y: i32, w: i32, h: i32) -> glow::Texture {
+    unsafe fn capture_background(gl: &glow::Context, screen_h: i32, x: i32, y: i32, w: i32, h: i32) -> glow::Texture {
         let tex = gl.create_texture().unwrap();
         gl.bind_texture(glow::TEXTURE_2D, Some(tex));
-        gl.copy_tex_image_2d(glow::TEXTURE_2D, 0, glow::RGBA, x, y, w, h, 0);
+        let gl_y = screen_h - (y + h);
+        gl.copy_tex_image_2d(glow::TEXTURE_2D, 0, glow::RGBA, x, gl_y, w, h, 0);
         gl.tex_parameter_i32(glow::TEXTURE_2D, glow::TEXTURE_MIN_FILTER, glow::LINEAR as i32);
         gl.tex_parameter_i32(glow::TEXTURE_2D, glow::TEXTURE_MAG_FILTER, glow::LINEAR as i32);
         tex
@@ -59,28 +75,106 @@ impl RenderLayer for WindowsLayer {
         self.blur_pipeline = Some(BlurPipeline::new(ctx.gl.clone(), ctx.width, ctx.height, 4));
     }
 
-    fn draw(&mut self, ctx: &RenderContext, state: &State) {
+    fn prepare(
+        &mut self,
+        _ctx: &RenderContext,
+        state: &State,
+        renderer: &mut GlowRenderer,
+    ) {
+        self.rendered_elements.clear();
+        for window in state.windows.space.elements() {
+            let rect = state.windows.space.element_bbox(window).unwrap_or_default();
+            let x = rect.loc.x;
+            let y = rect.loc.y;
+
+            let id = window.toplevel().map(|t| t.wl_surface().id());
+            let blur_enabled = id
+                .and_then(|id| state.windows.windows.get(&id).map(|info| info.blur_enabled))
+                .unwrap_or(true);
+
+            let elements: Vec<WaylandSurfaceRenderElement<GlowRenderer>> = window.render_elements(
+                renderer,
+                (x, y).into(),
+                Scale::from(1.0),
+                1.0,
+            );
+
+            self.rendered_elements.push((rect, blur_enabled, elements));
+        }
+    }
+
+    fn draw(
+        &mut self,
+        ctx: &RenderContext,
+        state: &State,
+        frame: &mut GlowFrame<'_, '_>,
+    ) {
         let config = state.config.load();
         let tint = parse_hex_color(&config.theme.blur_tint, config.theme.blur_opacity);
 
         unsafe {
             let gl = &ctx.gl;
-            for (_id, info) in state.windows.sorted_windows() {
-                let x = info.rect.loc.x;
-                let y = info.rect.loc.y;
-                let w = info.rect.size.w;
-                let h = info.rect.size.h;
+            let screen_w = ctx.width;
+            let screen_h = ctx.height;
 
-                if info.blur_enabled {
-                    if let Some(ref pipeline) = self.blur_pipeline {
-                        let bg_tex = Self::capture_background(gl, x, y, w, h);
-                        let blurred = pipeline.compute_blur(bg_tex, w, h);
-                        Self::composite_glass(gl, pipeline, blurred, x, y, w, h, tint);
-                        gl.delete_texture(bg_tex);
+            for &(rect, blur_enabled, ref elements) in &self.rendered_elements {
+                let x = rect.loc.x;
+                let y = rect.loc.y;
+                let w = rect.size.w;
+                let h = rect.size.h;
+
+                if blur_enabled {
+                    let intersection = Rectangle::new((0, 0).into(), (screen_w, screen_h).into()).intersection(rect);
+                    if let Some(clamped) = intersection {
+                        let cx = clamped.loc.x;
+                        let cy = clamped.loc.y;
+                        let cw = clamped.size.w;
+                        let ch = clamped.size.h;
+
+                        if cw > 0 && ch > 0 {
+                            let gl_y = screen_h - (cy + ch);
+                            let bg_tex = Self::capture_background(gl, screen_h, cx, cy, cw, ch);
+                            if let Some(ref pipeline) = self.blur_pipeline {
+                                Self::composite_glass(gl, pipeline, bg_tex, cx, gl_y, cw, ch, tint);
+                            }
+                            gl.delete_texture(bg_tex);
+                        }
                     }
-                } else {
-                    // TODO: blit wl_surface client buffer
-                    gl.viewport(x, y, w, h);
+                }
+
+                // Draw window border highlight
+                let border_color = parse_hex_color(&config.window.border_color, 0.4).into();
+                let border_width = config.window.border_width as i32;
+
+                if border_width > 0 {
+                    let _ = frame.draw_solid(
+                        Rectangle::<i32, Physical>::new((x - border_width, y - border_width).into(), (w + 2 * border_width, border_width).into()),
+                        &[Rectangle::<i32, Physical>::from_size((w + 2 * border_width, border_width).into())],
+                        border_color,
+                    );
+                    let _ = frame.draw_solid(
+                        Rectangle::<i32, Physical>::new((x - border_width, y + h).into(), (w + 2 * border_width, border_width).into()),
+                        &[Rectangle::<i32, Physical>::from_size((w + 2 * border_width, border_width).into())],
+                        border_color,
+                    );
+                    let _ = frame.draw_solid(
+                        Rectangle::<i32, Physical>::new((x - border_width, y).into(), (border_width, h).into()),
+                        &[Rectangle::<i32, Physical>::from_size((border_width, h).into())],
+                        border_color,
+                    );
+                    let _ = frame.draw_solid(
+                        Rectangle::<i32, Physical>::new((x + w, y).into(), (border_width, h).into()),
+                        &[Rectangle::<i32, Physical>::from_size((border_width, h).into())],
+                        border_color,
+                    );
+                }
+
+                for element in elements {
+                    let src = element.src();
+                    let dst = element.geometry(Scale::from(1.0));
+                    let damage = &[Rectangle::from_size(dst.size)];
+                    let opaque = &[];
+                    let _ = element.draw(frame, src, dst, damage, opaque);
                 }
             }
         }

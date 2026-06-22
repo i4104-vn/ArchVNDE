@@ -48,10 +48,26 @@ impl GlassRenderer {
         }
     }
 
+    /// Runs the preparation pass for all layers (runs with the renderer).
+    pub fn prepare(
+        &mut self,
+        state: &State,
+        renderer: &mut smithay::backend::renderer::glow::GlowRenderer,
+    ) {
+        for layer in &mut self.layers {
+            layer.prepare(&self.ctx, state, renderer);
+        }
+    }
+
     /// Clears the framebuffer and runs all layers in order.
     ///
     /// `_output_rect` is currently unused but kept for future sub-region rendering.
-    pub fn render_frame(&mut self, state: &mut State, _output_rect: Rectangle<i32, Logical>) {
+    pub fn render_frame(
+        &mut self,
+        state: &mut State,
+        _output_rect: Rectangle<i32, Logical>,
+        frame: &mut smithay::backend::renderer::glow::GlowFrame<'_, '_>,
+    ) {
         unsafe {
             let gl = &self.ctx.gl;
             gl.clear_color(0.04, 0.08, 0.16, 1.0);
@@ -61,8 +77,7 @@ impl GlassRenderer {
         }
 
         for layer in &mut self.layers {
-            layer.prepare(&self.ctx, state);
-            layer.draw(&self.ctx, state);
+            layer.draw(&self.ctx, state, frame);
         }
     }
 }
