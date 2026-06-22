@@ -15,6 +15,7 @@ pub enum Layer {
 
 /// Per-window metadata used by the render pipeline.
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct WindowInfo {
     /// Position and size in logical coordinates.
     pub rect: Rectangle<i32, Logical>,
@@ -30,11 +31,13 @@ pub struct WindowInfo {
 ///
 /// Each entry contains the blur [`glow::Texture`] handle and a generation
 /// counter used to invalidate stale cache entries.
+#[allow(dead_code)]
 pub struct BlurCache {
     pub map: HashMap<ObjectId, (glow::Texture, u64)>,
 }
 
 impl BlurCache {
+    #[allow(dead_code)]
     pub fn new() -> Self {
         Self { map: HashMap::new() }
     }
@@ -49,6 +52,7 @@ pub struct WindowState {
     /// Monotonically increasing z-index counter.
     pub next_z: i32,
     /// Shared blur-texture cache accessed from the render thread.
+    #[allow(dead_code)]
     pub blur_cache: Arc<Mutex<BlurCache>>,
 }
 
@@ -84,6 +88,7 @@ impl WindowState {
     }
 
     /// Returns all windows sorted by ascending z-index (bottom → top).
+    #[allow(dead_code)]
     pub fn sorted_windows(&self) -> Vec<(&ObjectId, &WindowInfo)> {
         let mut sorted: Vec<_> = self.windows.iter().collect();
         sorted.sort_by_key(|(_, info)| info.z_index);

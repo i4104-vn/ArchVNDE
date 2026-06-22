@@ -14,7 +14,12 @@ impl InputState {
     /// Creates the compositor's single Wayland seat named `"glass-seat-0"`.
     pub fn new(display_handle: &DisplayHandle) -> Self {
         let mut seat_state = SeatState::new();
-        let seat = seat_state.new_wl_seat(display_handle, "glass-seat-0");
+        let mut seat = seat_state.new_wl_seat(display_handle, "glass-seat-0");
+
+        let _keyboard = seat.add_keyboard(Default::default(), 200, 25)
+            .expect("Failed to initialize seat keyboard");
+        let _pointer = seat.add_pointer();
+
         Self { seat, seat_state }
     }
 }

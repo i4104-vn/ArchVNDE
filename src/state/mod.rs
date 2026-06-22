@@ -31,6 +31,7 @@ impl smithay::reexports::wayland_server::backend::ClientData for ClientState {}
 /// - [`WindowState`] — window layout, z-ordering, blur cache
 pub struct State {
     pub display_handle: DisplayHandle,
+    #[allow(dead_code)]
     pub loop_handle: LoopHandle<'static, State>,
     pub wayland: WaylandState,
     pub input: InputState,
