@@ -32,15 +32,25 @@ impl WinitBackend {
         (s.w as u32, s.h as u32)
     }
 
+    /// Exposes a mutable reference to the underlying GlowRenderer.
+    pub fn renderer(&mut self) -> &mut GlowRenderer {
+        self.backend.renderer()
+    }
+
     /// Binds the EGL surface, executes `render_fn`, then finalises the frame.
     ///
     /// The Frame guard is held for the duration of `render_fn` so all GL calls
     /// inside it target the correct framebuffer.
-    pub fn render_with<F: FnOnce()>(&mut self, width: i32, height: i32, render_fn: F) {
+    pub fn render_with<F>(&mut self, width: i32, height: i32, render_fn: F)
+    where
+        F: for<'frame, 'buffer> FnOnce(
+            &mut smithay::backend::renderer::glow::GlowFrame<'frame, 'buffer>,
+        ),
+    {
         if let Ok((glow_renderer, mut target)) = self.backend.bind() {
             let size = Size::<i32, smithay::utils::Physical>::from((width, height));
-            if let Ok(frame) = glow_renderer.render(&mut target, size, Transform::Normal) {
-                render_fn();
+            if let Ok(mut frame) = glow_renderer.render(&mut target, size, Transform::Normal) {
+                render_fn(&mut frame);
                 let _ = frame.finish();
             }
         }
@@ -56,6 +66,7 @@ impl CompositorBackend for WinitBackend {
             }),
             WinitEvent::Redraw => handler(BackendEvent::Redraw),
             WinitEvent::CloseRequested => handler(BackendEvent::CloseRequested),
+            WinitEvent::Input(input_event) => handler(BackendEvent::Input(input_event)),
             _ => {}
         });
     }
