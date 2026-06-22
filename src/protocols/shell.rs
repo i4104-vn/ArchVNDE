@@ -18,10 +18,15 @@ impl XdgShellHandler for State {
     }
 
     fn new_toplevel(&mut self, surface: ToplevelSurface) {
+        tracing::info!("new_toplevel: surface {:?}", surface);
         let window = Window::new_wayland_window(surface.clone());
         self.windows.space.map_element(window, Point::default(), true);
         let id = surface.wl_surface().id();
         self.add_window(id, Rectangle::new((50, 50).into(), (800, 600).into()), true, Layer::Top);
+        surface.with_pending_state(|state| {
+            state.states.set(smithay::reexports::wayland_protocols::xdg::shell::server::xdg_toplevel::State::Activated);
+            state.size = Some((800, 600).into());
+        });
         surface.send_configure();
     }
 
@@ -40,6 +45,26 @@ impl XdgShellHandler for State {
         _positioner: PositionerState,
         _token: u32,
     ) {}
+
+    fn move_request(
+        &mut self,
+        surface: ToplevelSurface,
+        _seat: wl_seat::WlSeat,
+        _serial: smithay::utils::Serial,
+    ) {
+        let pointer = self.input.seat.get_pointer().unwrap();
+        let pos = pointer.current_location();
+        if let Some(window) = self.windows.space.elements().find(|w| {
+            w.toplevel().map(|t| t.wl_surface() == surface.wl_surface()).unwrap_or(false)
+        }) {
+            let start_window_pos = self.windows.space.element_location(window).unwrap_or_default();
+            self.windows.pointer_grab = crate::state::window::PointerGrab::Move {
+                window: window.clone(),
+                start_cursor_pos: pos,
+                start_window_pos,
+            };
+        }
+    }
 }
 
 impl WlrLayerShellHandler for State {

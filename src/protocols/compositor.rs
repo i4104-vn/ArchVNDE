@@ -1,6 +1,7 @@
 use crate::state::State;
 use smithay::wayland::compositor::{CompositorHandler, CompositorState, CompositorClientState};
 use smithay::wayland::shm::{ShmHandler, ShmState};
+use smithay::wayland::seat::WaylandFocus;
 use smithay::wayland::buffer::BufferHandler;
 use smithay::reexports::wayland_server::protocol::wl_surface::WlSurface;
 use smithay::reexports::wayland_server::protocol::wl_buffer::WlBuffer;
@@ -19,7 +20,20 @@ impl CompositorHandler for State {
         &client.get_data::<crate::state::ClientState>().unwrap().compositor_state
     }
 
-    fn commit(&mut self, _surface: &WlSurface) {}
+    fn commit(&mut self, surface: &WlSurface) {
+        tracing::debug!("commit surface: {:?}", surface);
+        smithay::backend::renderer::utils::on_commit_buffer_handler::<Self>(surface);
+
+        if let Some(window) = self.windows.space.elements().find(|w| {
+            w.wl_surface().as_ref().map(|cow| &**cow == surface).unwrap_or(false)
+        }) {
+            tracing::info!("commit: found window in space, calling window.on_commit()");
+            window.on_commit();
+        } else {
+            // Check if it's a subsurface or popup
+            tracing::debug!("commit: surface {:?} not directly mapped as window", surface);
+        }
+    }
 }
 
 impl BufferHandler for State {
