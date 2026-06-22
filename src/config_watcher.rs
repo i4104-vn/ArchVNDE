@@ -5,61 +5,65 @@ use arc_swap::ArcSwap;
 use notify::{Watcher, RecommendedWatcher, RecursiveMode, EventKind};
 use crate::config::Config;
 
+/// Reads and parses the TOML config at `path`.
+///
+/// If the file does not exist it is created with default values.
+/// Falls back to [`Config::default`] on any parse or I/O error.
 pub fn load_config(path: &Path) -> Config {
     if !path.exists() {
-        // Tạo file cấu hình mặc định nếu chưa tồn tại
         if let Some(parent) = path.parent() {
             let _ = std::fs::create_dir_all(parent);
         }
-        let default_config = Config::default();
-        if let Ok(toml_str) = toml::to_string_pretty(&default_config) {
-            let _ = std::fs::write(path, toml_str);
+        let default = Config::default();
+        if let Ok(s) = toml::to_string_pretty(&default) {
+            let _ = std::fs::write(path, s);
         }
-        return default_config;
+        return default;
     }
 
     match std::fs::read_to_string(path) {
         Ok(content) => match toml::from_str::<Config>(&content) {
             Ok(config) => {
-                tracing::info!("Cấu hình loaded thành công từ {:?}", path);
+                tracing::info!("config loaded from {:?}", path);
                 config
             }
             Err(err) => {
-                tracing::error!("Lỗi cú pháp TOML trong {:?}: {}. Sử dụng cấu hình mặc định.", path, err);
+                tracing::error!("TOML parse error in {:?}: {}", path, err);
                 Config::default()
             }
         },
         Err(err) => {
-            tracing::error!("Không thể đọc tệp cấu hình {:?}: {}. Sử dụng cấu hình mặc định.", path, err);
+            tracing::error!("cannot read config {:?}: {}", path, err);
             Config::default()
         }
     }
 }
 
-pub fn spawn_config_watcher(path: PathBuf, shared_config: Arc<ArcSwap<Config>>) -> RecommendedWatcher {
+/// Spawns a filesystem watcher that hot-reloads the config on every file save.
+///
+/// The returned [`RecommendedWatcher`] must be kept alive for the duration of
+/// the compositor; dropping it stops the watcher.
+pub fn spawn_config_watcher(path: PathBuf, config: Arc<ArcSwap<Config>>) -> RecommendedWatcher {
     let path_clone = path.clone();
-    let config_clone = shared_config.clone();
 
-    // Tạo watcher từ notify crate
     let mut watcher = RecommendedWatcher::new(
         move |res: Result<notify::Event, notify::Error>| {
             if let Ok(event) = res {
-                // Chỉ xử lý các sự kiện ghi đè/lưu file (Modify)
                 if matches!(event.kind, EventKind::Modify(_)) {
-                    // Debounce đơn giản: đợi file lưu xong hẳn
                     std::thread::sleep(Duration::from_millis(100));
-                    
-                    tracing::info!("Phát hiện thay đổi cấu hình. Đang tải lại...");
-                    let new_config = load_config(&path_clone);
-                    config_clone.store(Arc::new(new_config));
-                    tracing::info!("Đã tải lại cấu hình hệ thống thành công!");
+                    let new = load_config(&path_clone);
+                    config.store(Arc::new(new));
+                    tracing::info!("config reloaded");
                 }
             }
         },
         notify::Config::default(),
-    ).expect("Không thể tạo trình theo dõi file Config");
+    )
+    .expect("failed to create config watcher");
 
-    watcher.watch(&path, RecursiveMode::NonRecursive).expect("Lỗi thiết lập watcher");
-    
+    watcher
+        .watch(&path, RecursiveMode::NonRecursive)
+        .expect("failed to watch config path");
+
     watcher
 }

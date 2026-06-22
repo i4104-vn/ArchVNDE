@@ -1,25 +1,36 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+/// Visual theme settings (blur tint colour and opacity).
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ThemeConfig {
+    /// Background tint colour for glass windows, as a `#RRGGBB` hex string.
     pub blur_tint: String,
+    /// Alpha channel applied on top of the blurred background (`0.0`–`1.0`).
     pub blur_opacity: f32,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+/// Window decoration defaults applied to all client surfaces.
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WindowConfig {
+    /// Corner rounding radius in logical pixels.
     pub corner_radius: u32,
+    /// Border thickness in logical pixels.
     pub border_width: u32,
+    /// Border colour as a `#RRGGBB` hex string.
     pub border_color: String,
+    /// Whether glassmorphism blur is enabled by default for new windows.
     pub blur_enabled: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+/// Keyboard shortcut configuration.
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ShortcutConfig {
+    /// Executable launched by the Super+Return binding.
     pub launch_terminal: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+/// Root compositor configuration, loaded from `~/.config/glass-wm/config.toml`.
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
     pub theme: ThemeConfig,
     pub window: WindowConfig,
