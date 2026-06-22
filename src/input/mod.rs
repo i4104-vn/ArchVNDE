@@ -4,4 +4,4 @@ pub mod gestures;
 pub mod keybindings;
 
 // pub use keyboard::KeyboardManager;
-pub use keybindings::KeyBindings;
+// pub use keybindings::KeyBindings;

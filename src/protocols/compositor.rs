@@ -9,16 +9,17 @@ use smithay::delegate_shm;
 
 impl CompositorHandler for State {
     fn compositor_state(&mut self) -> &mut CompositorState {
-        &mut self.compositor_state
+        &mut self.wayland.compositor_state
     }
 
-    fn client_compositor_state<'a>(&self, client: &'a smithay::reexports::wayland_server::Client) -> &'a CompositorClientState {
+    fn client_compositor_state<'a>(
+        &self,
+        client: &'a smithay::reexports::wayland_server::Client,
+    ) -> &'a CompositorClientState {
         &client.get_data::<crate::state::ClientState>().unwrap().compositor_state
     }
 
-    fn commit(&mut self, _surface: &WlSurface) {
-        // Xử lý khi client submit buffer mới cho surface (ví dụ: cập nhật hình học hoặc render damage)
-    }
+    fn commit(&mut self, _surface: &WlSurface) {}
 }
 
 impl BufferHandler for State {
@@ -27,7 +28,7 @@ impl BufferHandler for State {
 
 impl ShmHandler for State {
     fn shm_state(&self) -> &ShmState {
-        &self.shm_state
+        &self.wayland.shm_state
     }
 }
 
