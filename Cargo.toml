@@ -1,14 +1,10 @@
 [workspace]
 resolver = "2"
 members = [
-    "libs/archvnde-common",
+    "crates/archvnde-common",
+    "crates/archvnde-animation",
     "crates/archvnde-panel",
-    "libs/archvnde-launcher",
-    "libs/archvnde-island",
-    "libs/archvnde-wallpaper",
-    "crates/archvnde-menu",
-    "crates/archvnde-switcher",
-    "crates/archvnde-screenshot",
-    "crates/archvnde-lock",
+    "crates/archvnde-launcher",
+    "crates/archvnde-notification",
+    "crates/archvnde-wallpaper",
 ]
-
