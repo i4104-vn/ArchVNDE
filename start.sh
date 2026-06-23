@@ -7,11 +7,17 @@ export PATH="$HOME/.local/bin:$PATH"
 mkdir -p "$HOME/.config/labwc"
 AUTOSTART_FILE="$HOME/.config/labwc/autostart"
 
-# Setup default autostart if missing
-if [ ! -f "$AUTOSTART_FILE" ]; then
-    cat << 'EOF' > "$AUTOSTART_FILE"
+# Setup default autostart
+cat << 'EOF' > "$AUTOSTART_FILE"
 #!/bin/bash
 # Autostart configuration for labwc with ArchVNDE shell
+
+# Start Wayland wallpaper daemon
+swww-daemon &
+sleep 0.5
+
+# Set the default wallpaper
+swww img /home/tdkhoa-01/Documents/src/I4104/ArchVNDE/wallpaper.png &
 
 # Start ArchVNDE status panel
 archvnde-panel &
@@ -19,9 +25,8 @@ archvnde-panel &
 # Start ArchVNDE notification daemon
 archvnde-notification &
 EOF
-    chmod +x "$AUTOSTART_FILE"
-    echo "Configured labwc autostart at $AUTOSTART_FILE"
-fi
+chmod +x "$AUTOSTART_FILE"
+echo "Configured labwc autostart at $AUTOSTART_FILE"
 
 # Run labwc with software rendering variables for virtual machine compatibility
 export WLR_RENDERER=pixman
