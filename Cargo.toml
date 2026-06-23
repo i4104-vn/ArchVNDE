@@ -6,4 +6,6 @@ members = [
     "crates/archvnde-panel",
     "crates/archvnde-launcher",
     "crates/archvnde-notification",
+    "crates/archvnde-wallpaper",
+    "crates/archvnde-icon",
 ]
