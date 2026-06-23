@@ -72,10 +72,10 @@ impl NotificationWindow {
             if icon.starts_with('/') {
                 self.icon_widget.set_from_file(Some(icon));
             } else {
-                self.icon_widget.set_from_icon_name(Some(icon));
+                self.icon_widget.set_icon_name(Some(icon));
             }
         } else {
-            self.icon_widget.set_from_icon_name(Some("dialog-information"));
+            self.icon_widget.set_icon_name(Some("dialog-information"));
         }
     }
 

@@ -19,3 +19,5 @@ zbus = "4.0"
 # Async & utilities
 tokio = { version = "1.0", features = ["full"] }
 tracing = "0.1"
+glib = "0.20"
+
