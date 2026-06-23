@@ -1,22 +1,8 @@
-[package]
-name = "glass-wm"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-# GUI & Layer Shell bindings
-gtk4 = { version = "0.9", features = ["v4_10"] }
-gtk4-layer-shell = "0.4.0"
-
-# Async & Event Loops
-tokio = { version = "1.0", features = ["full"] }
-glib = "0.20"
-
-# DBus & IPC (essential for Notification daemon & communication)
-zbus = "4.0"
-
-# Configurations & Utilities
-serde = { version = "1.0", features = ["derive"] }
-toml = "0.8"
-tracing = "0.1"
-tracing-subscriber = "0.3"
+[workspace]
+resolver = "2"
+members = [
+    "crates/archvnde-common",
+    "crates/archvnde-panel",
+    "crates/archvnde-launcher",
+    "crates/archvnde-notification",
+]
