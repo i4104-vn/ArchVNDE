@@ -11,18 +11,17 @@ use toggle_grid::create_quick_settings_grid;
 use sliders::create_slider_row;
 use power_actions::create_header_row;
 
-pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Button {
-    let settings_button = gtk4::Button::new();
-    settings_button.add_css_class("panel-settings-btn");
+/// Creates a status indicator area with individually placed icons and labels.
+/// These are passive display items, not clickable.
+pub fn create_status_indicators() -> gtk4::Box {
+    let status_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
+    status_box.set_valign(gtk4::Align::Center);
 
-    let content_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
-    content_box.set_valign(gtk4::Align::Center);
-
-    // Language label
+    // Language indicator
     let lang_label = gtk4::Label::new(Some("US"));
     lang_label.add_css_class("status-text");
 
-    // Network speed label
+    // Network speed
     let net_label = gtk4::Label::new(Some("844 B/s"));
     net_label.add_css_class("status-text");
 
@@ -34,32 +33,42 @@ pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Button {
     let wifi_icon = archvnde_icon::get_icon("wifi", 14);
     wifi_icon.add_css_class("status-icon");
 
-    // Battery layout (battery icon + percentage)
-    let battery_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 2);
+    // Battery with percentage
     let battery_icon = archvnde_icon::get_icon("battery", 14);
     battery_icon.add_css_class("status-icon");
     let battery_percent = gtk4::Label::new(Some("100%"));
     battery_percent.add_css_class("status-text");
-    battery_box.append(&battery_icon);
-    battery_box.append(&battery_percent);
 
-    // Settings icon
+    status_box.append(&lang_label);
+    status_box.append(&net_label);
+    status_box.append(&bluetooth_icon);
+    status_box.append(&wifi_icon);
+    status_box.append(&battery_icon);
+    status_box.append(&battery_percent);
+
+    status_box
+}
+
+/// Creates a clickable settings trigger button (gear + power) that opens Quick Settings.
+pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Box {
+    let action_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
+    action_box.set_valign(gtk4::Align::Center);
+
+    // Settings gear button — opens quick settings popup
+    let settings_button = gtk4::Button::new();
+    settings_button.add_css_class("panel-action-btn");
     let settings_icon = archvnde_icon::get_icon("settings", 14);
-    settings_icon.add_css_class("status-icon");
+    settings_button.set_child(Some(&settings_icon));
 
-    // Power icon
+    // Power button on the bar
+    let power_button = gtk4::Button::new();
+    power_button.add_css_class("panel-action-btn");
+    power_button.add_css_class("power-btn");
     let power_icon = archvnde_icon::get_icon("power", 14);
-    power_icon.add_css_class("status-icon");
-
-    content_box.append(&lang_label);
-    content_box.append(&net_label);
-    content_box.append(&bluetooth_icon);
-    content_box.append(&wifi_icon);
-    content_box.append(&battery_box);
-    content_box.append(&settings_icon);
-    content_box.append(&power_icon);
-
-    settings_button.set_child(Some(&content_box));
+    power_button.set_child(Some(&power_icon));
+    power_button.connect_clicked(|_| {
+        crate::widgets::power::trigger_shutdown();
+    });
 
     let quick_settings_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>> = Rc::new(RefCell::new(None));
 
@@ -122,5 +131,8 @@ pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Button {
         }
     });
 
-    settings_button
+    action_box.append(&settings_button);
+    action_box.append(&power_button);
+
+    action_box
 }
