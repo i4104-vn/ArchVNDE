@@ -397,3 +397,75 @@ scale trough slider:hover {
     color: rgba(255, 255, 255, 0.72);
     font-size: 12px;
 }
+
+/* ================================================================
+   CALENDAR POPUP CARD
+   ================================================================ */
+
+.calendar-box {
+    background-color: rgba(14, 18, 30, 0.82);
+    background-image: linear-gradient(135deg, rgba(22, 28, 45, 0.85) 0%, rgba(14, 18, 30, 0.90) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 20px;
+    color: rgba(255, 255, 255, 0.95);
+    padding: 16px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.60);
+    min-width: 300px;
+}
+
+.calendar-header-time {
+    font-size: 24px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-top: 4px;
+}
+
+.calendar-header-date {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.60);
+    margin-bottom: 6px;
+}
+
+.calendar-divider {
+    background-color: rgba(255, 255, 255, 0.10);
+    margin: 4px 0;
+}
+
+/* Style GTK Calendar Widget */
+calendar.calendar-widget {
+    background-color: transparent;
+    background-image: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 12px;
+    padding: 4px;
+}
+
+calendar.calendar-widget header {
+    background-color: transparent;
+    color: #ffffff;
+    font-weight: 700;
+    padding-bottom: 6px;
+}
+
+calendar.calendar-widget button {
+    background-color: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    border: none;
+}
+
+calendar.calendar-widget button:hover {
+    background-color: rgba(255, 255, 255, 0.10);
+    border-radius: 6px;
+}
+
+/* Highlighting today's day */
+calendar.calendar-widget :selected {
+    background-color: #2563eb;
+    background-image: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: #ffffff;
+    border-radius: 8px;
+    font-weight: 700;
+}
