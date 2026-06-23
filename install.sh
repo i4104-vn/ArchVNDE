@@ -19,7 +19,13 @@ cargo build --release
 LOCAL_BIN="$HOME/.local/bin"
 mkdir -p "$LOCAL_BIN"
 
-# 4. Install the binaries
+# 4. Kill any running instances first so the new binaries can be loaded
+echo "Stopping any running shell processes..."
+killall archvnde-panel || true
+killall archvnde-launcher || true
+killall archvnde-notification || true
+
+# 5. Install the binaries
 echo "Installing binaries to $LOCAL_BIN..."
 cp target/release/archvnde-panel "$LOCAL_BIN/archvnde-panel"
 cp target/release/archvnde-launcher "$LOCAL_BIN/archvnde-launcher"

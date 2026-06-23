@@ -23,7 +23,13 @@ cargo build --release
 LOCAL_BIN="$HOME/.local/bin"
 mkdir -p "$LOCAL_BIN"
 
-# 5. Reinstall the binaries
+# 5. Kill any running instances first so the new binaries can be loaded
+echo "Stopping any running shell processes..."
+killall archvnde-panel || true
+killall archvnde-launcher || true
+killall archvnde-notification || true
+
+# 6. Reinstall the binaries
 echo "Overwriting binaries in $LOCAL_BIN..."
 cp target/release/archvnde-panel "$LOCAL_BIN/archvnde-panel"
 cp target/release/archvnde-launcher "$LOCAL_BIN/archvnde-launcher"
