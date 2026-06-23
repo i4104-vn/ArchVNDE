@@ -311,14 +311,13 @@ pub fn init_theme() {
     // Connect to parsing-error to catch and print any CSS syntax errors to stderr
     provider.connect_parsing_error(|_provider, section, error| {
         eprintln!(
-            "GTK CSS Parsing Error: {} at line {}, col {}",
+            "GTK CSS Parsing Error: {} in section {:?}",
             error.message(),
-            section.start_line() + 1,
-            section.start_char() + 1
+            section
         );
     });
 
-    provider.load_from_string(DEFAULT_CSS);
+    provider.load_from_path(css_path);
 
     if let Some(display) = gtk4::gdk::Display::default() {
         gtk4::style_context_add_provider_for_display(
