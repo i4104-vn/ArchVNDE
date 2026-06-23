@@ -33,10 +33,7 @@ pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Button {
             q_win.add_css_class("quick-settings-window");
 
             let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 15);
-            main_box.set_margin_start(15);
-            main_box.set_margin_end(15);
-            main_box.set_margin_top(15);
-            main_box.set_margin_bottom(15);
+            main_box.set_margin_all(15);
 
             let title = gtk4::Label::new(Some("Quick Settings"));
             title.add_css_class("quick-settings-title");
@@ -51,34 +48,19 @@ pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Button {
             let wifi_btn = gtk4::Button::with_label("Wi-Fi");
             wifi_btn.add_css_class("quick-tile");
             wifi_btn.add_css_class("active");
+            grid.attach(&wifi_btn, 0, 0, 1, 1);
 
             let bt_btn = gtk4::Button::with_label("Bluetooth");
             bt_btn.add_css_class("quick-tile");
+            grid.attach(&bt_btn, 1, 0, 1, 1);
 
             let dark_btn = gtk4::Button::with_label("Dark Mode");
             dark_btn.add_css_class("quick-tile");
             dark_btn.add_css_class("active");
+            grid.attach(&dark_btn, 0, 1, 1, 1);
 
             let night_btn = gtk4::Button::with_label("Night Light");
             night_btn.add_css_class("quick-tile");
-
-            let toggle_active = |btn: &gtk4::Button| {
-                btn.connect_clicked(move |b| {
-                    if b.has_css_class("active") {
-                        b.remove_css_class("active");
-                    } else {
-                        b.add_css_class("active");
-                    }
-                });
-            };
-            toggle_active(&wifi_btn);
-            toggle_active(&bt_btn);
-            toggle_active(&dark_btn);
-            toggle_active(&night_btn);
-
-            grid.attach(&wifi_btn, 0, 0, 1, 1);
-            grid.attach(&bt_btn, 1, 0, 1, 1);
-            grid.attach(&dark_btn, 0, 1, 1, 1);
             grid.attach(&night_btn, 1, 1, 1, 1);
 
             main_box.append(&grid);
@@ -89,9 +71,6 @@ pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Button {
             let vol_scale = gtk4::Scale::with_range(gtk4::Orientation::Horizontal, 0.0, 100.0, 5.0);
             vol_scale.set_value(80.0);
             vol_scale.set_hexpand(true);
-            vol_scale.connect_value_changed(move |scale| {
-                println!("Volume changed: {}%", scale.value() as i32);
-            });
             volume_box.append(&vol_label);
             volume_box.append(&vol_scale);
             main_box.append(&volume_box);
@@ -102,9 +81,6 @@ pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Button {
             let bri_scale = gtk4::Scale::with_range(gtk4::Orientation::Horizontal, 0.0, 100.0, 5.0);
             bri_scale.set_value(60.0);
             bri_scale.set_hexpand(true);
-            bri_scale.connect_value_changed(move |scale| {
-                println!("Brightness changed: {}%", scale.value() as i32);
-            });
             brightness_box.append(&bri_label);
             brightness_box.append(&bri_scale);
             main_box.append(&brightness_box);
@@ -113,20 +89,8 @@ pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Button {
             let power_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 10);
             let power_off = gtk4::Button::with_label("Power Off");
             power_off.add_css_class("quick-tile");
-            power_off.connect_clicked(move |_| {
-                println!("Power Off requested...");
-                let _ = std::process::Command::new("systemctl").arg("poweroff").spawn();
-            });
-            
             let logout = gtk4::Button::with_label("Log Out");
             logout.add_css_class("quick-tile");
-            logout.connect_clicked(move |_| {
-                println!("Log Out requested...");
-                if let Ok(user) = std::env::var("USER") {
-                    let _ = std::process::Command::new("loginctl").args(["terminate-user", &user]).spawn();
-                }
-            });
-            
             power_box.append(&power_off);
             power_box.append(&logout);
             main_box.append(&power_box);

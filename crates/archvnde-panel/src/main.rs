@@ -1,12 +1,10 @@
-mod clock;
-mod quick_settings;
-mod workspace;
+mod widgets;
 
-use clock::create_clock_widget;
 use gtk4::prelude::*;
 use gtk4_layer_shell::{Edge, Layer, LayerShell};
-use quick_settings::create_settings_button;
-use workspace::create_workspace_switcher;
+use widgets::clock::create_clock_widget;
+use widgets::quick_settings::create_settings_button;
+use widgets::workspace::create_workspace_switcher;
 
 fn main() {
     println!("Starting ArchVNDE Panel...");
@@ -51,13 +49,13 @@ fn main() {
         let title_label = gtk4::Label::new(Some("ArchVNDE"));
         title_label.add_css_class("panel-title");
 
-        // 2. Workspace Switcher (from workspace module)
+        // 2. Workspace Switcher (from widgets::workspace)
         let workspace_box = create_workspace_switcher();
 
-        // 3. Clock Widget (from clock module)
+        // 3. Clock Widget (from widgets::clock)
         let clock_label = create_clock_widget();
 
-        // 4. Quick Settings Button (from quick_settings module)
+        // 4. Quick Settings Button (from widgets::quick_settings)
         let settings_button = create_settings_button(app);
 
         // Assemble status bar components

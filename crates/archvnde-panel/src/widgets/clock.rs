@@ -10,7 +10,7 @@ pub fn create_clock_widget() -> gtk4::Label {
         let clock_label = clock_label.clone();
         move || {
             let now = chrono::Local::now();
-            let time_str = format!("26°C  |  {}", now.format("%a %b %d  |  %I:%M %p").to_string().to_uppercase());
+            let time_str = now.format("%a %b %d | %I:%M %p").to_string().to_uppercase();
             clock_label.set_text(&time_str);
             glib::ControlFlow::Continue
         }

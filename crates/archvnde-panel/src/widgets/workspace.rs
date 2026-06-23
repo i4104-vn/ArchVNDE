@@ -1,6 +1,6 @@
 use gtk4::prelude::*;
 
-/// Creates and returns a workspace switcher switcher container containing 4 workspace buttons.
+/// Creates and returns a workspace switcher container containing 4 workspace buttons.
 pub fn create_workspace_switcher() -> gtk4::Box {
     let workspace_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 5);
     workspace_box.add_css_class("workspace-box");
