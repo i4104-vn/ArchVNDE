@@ -10,6 +10,9 @@ fn main() {
     );
 
     application.connect_activate(|app| {
+        // Initialize style provider
+        archvnde_common::init_theme();
+
         let window = gtk4::ApplicationWindow::new(app);
 
         // Initialize layer shell properties on the window
