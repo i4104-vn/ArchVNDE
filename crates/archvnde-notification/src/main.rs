@@ -1,10 +1,10 @@
-mod dbus;
-mod window;
+mod services;
+mod ui;
 
-use dbus::{spawn_dbus_listener, NotificationMsg};
+use services::{spawn_dbus_listener, NotificationMsg};
 use gtk4::prelude::*;
 use std::rc::Rc;
-use window::NotificationWindow;
+use ui::NotificationWindow;
 
 fn main() {
     println!("Starting ArchVNDE Notification Daemon...");
@@ -12,7 +12,7 @@ fn main() {
     // Create a thread-safe GLib channel to send messages from D-Bus thread to GTK thread
     let (tx, rx) = glib::MainContext::channel::<NotificationMsg>(glib::Priority::default());
 
-    // Spawn the D-Bus daemon thread (from dbus module)
+    // Spawn the D-Bus daemon thread (from services module)
     spawn_dbus_listener(tx);
 
     let application = gtk4::Application::new(
@@ -24,7 +24,7 @@ fn main() {
         // Initialize style provider
         archvnde_common::init_theme();
 
-        // Create the notification window wrapper (from window module)
+        // Create the notification window wrapper (from ui module)
         let notif_window = Rc::new(NotificationWindow::new(app));
 
         // Connect the message receiver from DBus
