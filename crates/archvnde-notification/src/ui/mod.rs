@@ -25,6 +25,7 @@ impl NotificationWindow {
         window.add_css_class("notification-card");
 
         let box_layout = gtk4::Box::new(gtk4::Orientation::Horizontal, 12);
+        box_layout.add_css_class("notification-box");
         box_layout.set_margin_start(12);
         box_layout.set_margin_end(12);
         box_layout.set_margin_top(12);
