@@ -21,121 +21,120 @@ window.notification-card {
 }
 
 /* ================================================================
-   TOP STATUS BAR (PANEL) — Glassmorphism
+   TOP STATUS BAR (PANEL) — Transparent HUD Overlay
+   The bar is fully transparent, items float directly on the desktop
+   like a heads-up display with no visible container.
    ================================================================ */
 
 .panel-box {
-    background-color: rgba(12, 15, 23, 0.38);
-    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(12, 15, 23, 0.42) 100%);
+    background-color: transparent;
+    background-image: none;
     color: rgba(255, 255, 255, 0.95);
     margin: 0px;
-    padding: 0px 24px;
-    min-height: 40px;
+    padding: 0px 18px;
+    min-height: 36px;
     border-radius: 0px;
     border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.10);
-    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.20),
-                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    box-shadow: none;
 }
 
 /* Brand logo / title */
 .panel-title {
-    font-weight: 900;
+    font-weight: 800;
     color: #ffffff;
-    font-size: 14px;
-    margin-right: 16px;
-    text-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+    font-size: 13px;
+    margin-right: 12px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.50);
 }
 
 .workspace-box {
-    margin-left: 8px;
-    margin-right: 8px;
+    margin-left: 6px;
+    margin-right: 6px;
 }
 
-/* Workspace Pills — Glass */
+/* Workspace Pills — Subtle floating pills */
 button.workspace-button {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.08);
     background-image: none;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 9999px;
-    color: rgba(255, 255, 255, 0.65);
-    padding: 4px 16px;
+    color: rgba(255, 255, 255, 0.70);
+    padding: 3px 14px;
     font-size: 11px;
     font-weight: 600;
-    margin-right: 8px;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    min-height: 26px;
+    margin-right: 6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.20);
+    min-height: 24px;
 }
 
 button.workspace-button:hover {
-    background-color: rgba(255, 255, 255, 0.12);
+    background-color: rgba(255, 255, 255, 0.16);
     background-image: none;
     color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.18);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10),
-                0 2px 8px rgba(0, 0, 0, 0.15);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 button.workspace-button.active {
-    background-color: rgba(37, 99, 235, 0.55);
+    background-color: rgba(37, 99, 235, 0.60);
     background-image: linear-gradient(135deg, rgba(59, 130, 246, 0.65) 0%, rgba(29, 78, 216, 0.55) 100%);
-    border-color: rgba(96, 165, 250, 0.40);
+    border-color: rgba(96, 165, 250, 0.35);
     color: #ffffff;
     font-weight: 700;
-    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    box-shadow: 0 3px 12px rgba(37, 99, 235, 0.40);
 }
 
 /* System Clock */
 .panel-clock {
-    font-weight: 700;
+    font-weight: 600;
     font-size: 12px;
     color: #ffffff;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.50);
 }
 
-/* Quick Settings Trigger Button — Glass */
+/* Quick Settings Trigger Button — Transparent floating */
 button.panel-settings-btn {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: transparent;
     background-image: none;
-    border: 1px solid rgba(255, 255, 255, 0.10);
+    border: none;
     border-radius: 9999px;
-    color: rgba(255, 255, 255, 0.85);
-    padding: 2px 10px;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.90);
+    padding: 2px 8px;
+    box-shadow: none;
     min-height: 24px;
 }
 
 button.panel-settings-btn:hover {
-    background-color: rgba(255, 255, 255, 0.12);
+    background-color: rgba(255, 255, 255, 0.10);
     background-image: none;
     color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.20);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10),
-                0 2px 10px rgba(0, 0, 0, 0.20);
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .status-text {
     font-size: 11px;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(255, 255, 255, 0.90);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
     margin-left: 2px;
     margin-right: 2px;
 }
 
 .status-icon {
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(255, 255, 255, 0.90);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
     margin-left: 6px;
     margin-right: 6px;
 }
 
-/* Clock trigger button */
+/* Clock trigger button — Fully transparent */
 button.panel-clock-btn {
     background-color: transparent;
     background-image: none;
     border: none;
     color: #ffffff;
-    padding: 2px 14px;
+    padding: 2px 12px;
     box-shadow: none;
     min-height: 24px;
     border-radius: 8px;
