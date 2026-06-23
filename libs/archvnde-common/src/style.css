@@ -1,223 +1,265 @@
-/* ArchVNDE Glassmorphism GTK4 Theme */
+/* ArchVNDE Glassmorphism GTK4 Theme
+ *
+ * NOTE: GTK4 CSS does NOT support:
+ *   - !important (causes parse errors, declarations silently dropped)
+ *   - border-bottom shorthand (use border-bottom-width, border-bottom-color, border-bottom-style)
+ *   - transform: scale()
+ *   - letter-spacing
+ *   - backdrop-filter
+ *
+ * Our provider is registered at STYLE_PROVIDER_PRIORITY_USER (800)
+ * which overrides Adwaita's THEME priority (200), so we don't need !important.
+ */
 
 * {
     font-family: 'Outfit', 'Inter', sans-serif;
 }
 
-/* General Window Transparency (Critical for custom shells) */
-window, window.background, .panel-window, .quick-settings-window, .launcher-window, .notification-card {
-    background: transparent !important;
-    background-color: transparent !important;
-    box-shadow: none !important;
-    border: none !important;
+/* ===== WINDOW TRANSPARENCY ===== */
+/* Critical: make all shell windows transparent so only our styled boxes show */
+window.background {
+    background-color: transparent;
+    background-image: none;
+    box-shadow: none;
+    border: none;
 }
 
-/* Panel Status Bar Styles */
-.panel-box {
-    background-color: rgba(19, 24, 36, 0.15) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-    color: rgba(255, 255, 255, 0.95) !important;
-    margin: 0px !important;
-    padding: 0px 15px !important;
-    min-height: 40px !important;
-    border-radius: 0px !important;
+window.panel-window {
+    background-color: transparent;
+    background-image: none;
 }
 
-.panel-title {
+window.quick-settings-window {
+    background-color: transparent;
+    background-image: none;
+}
+
+window.launcher-window {
+    background-color: transparent;
+    background-image: none;
+}
+
+window.notification-card {
+    background-color: transparent;
+    background-image: none;
+}
+
+/* ===== TOP BAR PANEL ===== */
+box.panel-box {
+    background-color: rgba(19, 24, 36, 0.15);
+    background-image: none;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.95);
+    margin: 0px;
+    padding: 0px 15px;
+    min-height: 40px;
+    border-radius: 0px;
+}
+
+label.panel-title {
     font-weight: bold;
-    color: #1f6feb !important;
-    font-size: 1.1em;
+    color: #1f6feb;
+    font-size: 14px;
 }
 
-.workspace-box {
+box.workspace-box {
     margin-left: 10px;
 }
 
-.workspace-button {
-    background-color: rgba(39, 45, 62, 0.6) !important;
-    background-image: none !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    border-radius: 8px !important;
-    color: rgba(255, 255, 255, 0.6) !important;
-    padding: 2px 12px !important;
-    font-size: 0.85em;
+/* Workspace buttons - inactive state */
+button.workspace-button {
+    background-color: rgba(39, 45, 62, 0.6);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 2px 12px;
+    font-size: 11px;
     font-weight: bold;
     margin-right: 5px;
-    box-shadow: none !important;
-    transition: all 0.2s ease-in-out;
+    box-shadow: none;
 }
 
-.workspace-button:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    color: #ffffff !important;
+button.workspace-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
+    color: #ffffff;
 }
 
-.workspace-button.active {
-    background-color: #1f6feb !important;
-    background-image: none !important;
-    border-color: #3b82f6 !important;
-    color: #ffffff !important;
-    box-shadow: 0 0 8px rgba(31, 111, 235, 0.4) !important;
+/* Workspace buttons - active state */
+button.workspace-button.active {
+    background-color: #1f6feb;
+    background-image: none;
+    border-color: #3b82f6;
+    color: #ffffff;
+    box-shadow: 0 0 8px rgba(31, 111, 235, 0.4);
 }
 
-.panel-clock {
+/* Clock label */
+label.panel-clock {
     font-weight: bold;
-    font-size: 0.95em;
-    color: rgba(255, 255, 255, 0.95) !important;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.95);
 }
 
-.panel-settings-btn {
-    background-color: rgba(39, 45, 62, 0.6) !important;
-    background-image: none !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    border-radius: 8px !important;
-    color: rgba(255, 255, 255, 0.95) !important;
-    padding: 2px 14px !important;
+/* Settings button */
+button.panel-settings-btn {
+    background-color: rgba(39, 45, 62, 0.6);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.95);
+    padding: 2px 14px;
     font-weight: bold;
-    box-shadow: none !important;
-    transition: all 0.2s ease-in-out;
+    box-shadow: none;
 }
 
-.panel-settings-btn:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
+button.panel-settings-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
 }
 
-/* Quick Settings Styles */
-.quick-settings-box {
-    background-color: rgba(19, 24, 36, 0.75) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 16px !important;
-    color: rgba(255, 255, 255, 0.95) !important;
-    padding: 20px !important;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+/* ===== QUICK SETTINGS OVERLAY ===== */
+box.quick-settings-box {
+    background-color: rgba(19, 24, 36, 0.85);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    color: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-.quick-settings-title {
+label.quick-settings-title {
     font-weight: bold;
-    color: #1f6feb !important;
-    font-size: 1.2em;
+    color: #1f6feb;
+    font-size: 16px;
     margin-bottom: 10px;
 }
 
-.quick-tile {
-    background-color: rgba(39, 45, 62, 0.6) !important;
-    background-image: none !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    border-radius: 12px !important;
-    color: rgba(255, 255, 255, 0.95) !important;
-    padding: 10px !important;
+/* Toggle tiles - inactive */
+button.quick-tile {
+    background-color: rgba(39, 45, 62, 0.6);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.95);
+    padding: 10px;
     font-weight: bold;
-    box-shadow: none !important;
-    transition: all 0.2s ease-in-out;
+    box-shadow: none;
 }
 
-.quick-tile:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
+button.quick-tile:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
 }
 
-.quick-tile.active {
-    background-color: rgba(255, 255, 255, 0.95) !important;
-    background-image: none !important;
-    color: #121620 !important;
-    border-color: #ffffff !important;
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2) !important;
+/* Toggle tiles - active (white highlight per design_analysis.md) */
+button.quick-tile.active {
+    background-color: rgba(255, 255, 255, 0.95);
+    background-image: none;
+    color: #121620;
+    border-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
 }
 
-/* Capsule Sliders for Volume & Brightness */
+/* ===== CAPSULE SLIDERS ===== */
 scale trough {
     min-height: 12px;
     border-radius: 6px;
-    background-color: rgba(255, 255, 255, 0.1) !important;
+    background-color: rgba(255, 255, 255, 0.1);
     border: none;
 }
 
-scale progress {
-    background-image: linear-gradient(to right, #1f6feb, #3b82f6) !important;
+scale trough highlight {
+    border-radius: 6px;
+    background-image: linear-gradient(to right, #1f6feb, #3b82f6);
 }
 
-scale slider {
-    min-width: 14px;
-    min-height: 14px;
-    margin: -2px;
-    border-radius: 50% !important;
-    background-color: #ffffff !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+scale trough slider {
+    min-width: 16px;
+    min-height: 16px;
+    margin: -3px;
+    border-radius: 9px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
     border: none;
-    transition: transform 0.1s ease;
 }
 
-scale slider:hover {
-    transform: scale(1.2);
-}
-
-/* Launcher Styles */
-.launcher-box {
-    background-color: rgba(12, 16, 25, 0.9) !important;
-    border: 1px solid rgba(255, 255, 255, 0.09) !important;
-    border-radius: 24px !important;
-    color: rgba(255, 255, 255, 0.95) !important;
+/* ===== APPLICATION LAUNCHER ===== */
+box.launcher-box {
+    background-color: rgba(12, 16, 25, 0.9);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 24px;
+    color: rgba(255, 255, 255, 0.95);
     padding: 24px;
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4) !important;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
 }
 
 .launcher-search entry {
-    background-color: rgba(255, 255, 255, 0.06) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 14px !important;
-    color: #ffffff !important;
-    padding: 12px 18px !important;
-    font-size: 1.1em;
-    box-shadow: none !important;
-    transition: all 0.2s ease-in-out;
+    background-color: rgba(255, 255, 255, 0.06);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    color: #ffffff;
+    padding: 12px 18px;
+    font-size: 14px;
+    box-shadow: none;
 }
 
 .launcher-search entry:focus {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 12px rgba(59, 130, 246, 0.35) !important;
-    background-color: rgba(255, 255, 255, 0.08) !important;
+    border-color: #3b82f6;
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.35);
+    background-color: rgba(255, 255, 255, 0.08);
+    background-image: none;
 }
 
 .launcher-list {
-    background: transparent;
+    background-color: transparent;
+    background-image: none;
 }
 
 .launcher-list row {
-    background-color: transparent !important;
-    padding: 12px 16px !important;
-    border-radius: 12px !important;
-    margin: 5px 0 !important;
-    color: rgba(255, 255, 255, 0.85) !important;
-    transition: all 0.15s ease-in-out;
+    background-color: transparent;
+    background-image: none;
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin: 5px 0;
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .launcher-list row:hover {
-    background-color: rgba(255, 255, 255, 0.06) !important;
-    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.06);
+    background-image: none;
+    color: #ffffff;
 }
 
 .launcher-list row:selected {
-    background-image: linear-gradient(135deg, #1f6feb 0%, #3b82f6 100%) !important;
-    color: #ffffff !important;
+    background-image: linear-gradient(135deg, #1f6feb 0%, #3b82f6 100%);
+    color: #ffffff;
 }
 
-/* Notification Daemon Styles */
-.notification-box {
-    background-color: rgba(12, 16, 25, 0.92) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 18px !important;
-    color: rgba(255, 255, 255, 0.95) !important;
-    padding: 16px 20px !important;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4) !important;
+/* ===== NOTIFICATION DAEMON ===== */
+box.notification-box {
+    background-color: rgba(12, 16, 25, 0.92);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    color: rgba(255, 255, 255, 0.95);
+    padding: 16px 20px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
 }
 
-.notification-title {
+label.notification-title {
     font-weight: 700;
     color: #3b82f6;
-    font-size: 1.15em;
-    letter-spacing: 0.3px;
+    font-size: 14px;
 }
 
-.notification-body {
-    color: rgba(255, 255, 255, 0.75) !important;
-    font-size: 0.95em;
+label.notification-body {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 12px;
 }
