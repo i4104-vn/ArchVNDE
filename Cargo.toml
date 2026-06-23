@@ -4,20 +4,19 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-# Smithay: Thư viện core cho Wayland Compositor
-smithay = { version = "0.7.0", features = ["backend_winit", "backend_egl", "renderer_glow", "use_system_lib", "wayland_frontend", "desktop"] }
+# GUI & Layer Shell bindings
+gtk4 = { version = "0.9", features = ["v4_10"] }
+gtk4-layer-shell = "0.4.0"
 
-# Wayland server protocol bindings
-wayland-server = "0.31"
-wayland-protocols = { version = "0.31", features = ["server"] }
+# Async & Event Loops
+tokio = { version = "1.0", features = ["full"] }
+glib = "0.20"
 
-# Đồ họa & Tính toán
-glow = "0.16.0"
-cgmath = "0.18"
-tracing = "0.1"
-tracing-subscriber = "0.3"
-arc-swap = "1.7"
-notify = "6.1"
+# DBus & IPC (essential for Notification daemon & communication)
+zbus = "4.0"
+
+# Configurations & Utilities
 serde = { version = "1.0", features = ["derive"] }
 toml = "0.8"
-x11 = "2.21"
+tracing = "0.1"
+tracing-subscriber = "0.3"
