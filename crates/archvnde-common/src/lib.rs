@@ -213,6 +213,32 @@ scale slider:hover {
     transform: scale(1.2);
 }
 
+.workspace-box {
+    margin-left: 10px;
+}
+
+.workspace-button {
+    background-color: @bg-card-inactive;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    color: @text-primary;
+    padding: 2px 8px;
+    font-size: 0.85em;
+    font-weight: bold;
+    transition: all 0.2s ease-in-out;
+}
+
+.workspace-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.workspace-button.active {
+    background-color: @color-accent;
+    border-color: @color-accent-hover;
+    color: @text-primary;
+}
+
+
 /* Launcher Styles */
 .launcher-box {
     background-color: rgba(12, 16, 25, 0.9) !important;
