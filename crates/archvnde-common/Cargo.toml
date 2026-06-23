@@ -10,3 +10,5 @@ tracing = "0.1"
 
 # GTK4 for theme provider support
 gtk4 = { version = "0.9", features = ["v4_10"] }
+dirs = "5.0"
+
