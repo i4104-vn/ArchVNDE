@@ -5,7 +5,11 @@ use std::rc::Rc;
 
 /// Creates and returns a clock button widget that updates every second and
 /// spawns a centered, glassmorphic calendar popup dropdown when clicked.
-pub fn create_clock_widget(app: &gtk4::Application) -> gtk4::Button {
+pub fn create_clock_widget(
+    app: &gtk4::Application,
+    quick_settings_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
+    calendar_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
+) -> gtk4::Button {
     let clock_button = gtk4::Button::new();
     clock_button.add_css_class("panel-clock-btn");
 
@@ -29,11 +33,16 @@ pub fn create_clock_widget(app: &gtk4::Application) -> gtk4::Button {
     update_clock(); // Run initially
     glib::timeout_add_local(std::time::Duration::from_secs(1), update_clock);
 
-    let calendar_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>> = Rc::new(RefCell::new(None));
     let cw_clone = calendar_window.clone();
+    let qsw_clone = quick_settings_window.clone();
     let app_clone = app.clone();
 
     clock_button.connect_clicked(move |_| {
+        // Close Quick Settings window if open
+        if let Some(qs_win) = qsw_clone.borrow().clone() {
+            qs_win.close();
+        }
+
         let existing = {
             let borrow = cw_clone.borrow();
             borrow.clone()
@@ -46,9 +55,11 @@ pub fn create_clock_widget(app: &gtk4::Application) -> gtk4::Button {
             c_win.set_layer(Layer::Overlay);
             c_win.set_blur_allowed(true);
 
-            // Center horizontally by anchoring to Top but leaving Left/Right unanchored
+            // Anchor to Top-Right to display calendar dropdown on the right side
             c_win.set_anchor(Edge::Top, true);
+            c_win.set_anchor(Edge::Right, true);
             c_win.set_margin(Edge::Top, 10);
+            c_win.set_margin(Edge::Right, 12);
             c_win.set_default_size(320, 360);
             c_win.add_css_class("calendar-window");
 

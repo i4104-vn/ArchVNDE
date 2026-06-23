@@ -92,20 +92,20 @@ button.workspace-dot.active {
     box-shadow: 0 2px 8px rgba(37, 99, 235, 0.40);
 }
 
-/* System Clock */
+/* System Clock Label inside clock button */
 .panel-clock {
     font-weight: 600;
-    font-size: 12px;
+    font-size: 11px;
     color: #ffffff;
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.50);
 }
 
-/* Status Indicators Capsule */
+/* Unified Status Indicators Capsule */
 .status-indicators-box {
     background-color: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 9999px;
-    padding: 3px 14px;
+    padding: 3px 6px;
     min-height: 24px;
 }
 
@@ -125,50 +125,27 @@ button.workspace-dot.active {
     margin-right: 6px;
 }
 
-/* Actions Capsule */
-.action-buttons-box {
-    background-color: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 9999px;
-    padding: 3px 8px;
-    min-height: 24px;
-}
-
-button.panel-action-btn {
-    background-color: transparent;
-    background-image: none;
-    border: none;
-    border-radius: 9999px;
-    color: rgba(255, 255, 255, 0.90);
-    padding: 0;
-    margin: 0 2px;
-    min-width: 20px;
-    min-height: 20px;
-    box-shadow: none;
-}
-
-button.panel-action-btn:hover {
-    background-color: rgba(255, 255, 255, 0.12);
-    color: #ffffff;
-}
-
-button.panel-action-btn.power-btn:hover {
-    background-color: rgba(239, 68, 68, 0.25);
-    color: #ef4444;
-}
-
-/* Clock trigger button — Fully transparent */
+/* Transparent triggers inside unified capsule */
+button.panel-status-btn,
 button.panel-clock-btn {
     background-color: transparent;
     background-image: none;
     border: none;
     color: #ffffff;
-    padding: 2px 12px;
+    padding: 2px 10px;
     box-shadow: none;
-    min-height: 24px;
-    border-radius: 8px;
+    min-height: 20px;
+    border-radius: 9999px;
 }
 
+button.panel-status-btn:hover,
 button.panel-clock-btn:hover {
     background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Vertical separator line inside capsule */
+.capsule-separator {
+    color: rgba(255, 255, 255, 0.15);
+    font-size: 11px;
+    margin: 0 2px;
 }

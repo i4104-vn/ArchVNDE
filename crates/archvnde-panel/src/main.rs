@@ -2,8 +2,9 @@ mod widgets;
 
 use gtk4::prelude::*;
 use gtk4_layer_shell::{Edge, Layer, LayerShell};
-use widgets::clock::create_clock_widget;
-use widgets::panel::{create_settings_button, create_status_indicators};
+use std::cell::RefCell;
+use std::rc::Rc;
+use widgets::panel::create_status_indicators;
 use widgets::workspace::create_workspace_switcher;
 
 fn main() {
@@ -19,6 +20,10 @@ fn main() {
         archvnde_common::init_theme();
 
         let window = gtk4::ApplicationWindow::new(app);
+
+        // Define shared window states for mutual exclusivity
+        let quick_settings_window = Rc::new(RefCell::new(None));
+        let calendar_window = Rc::new(RefCell::new(None));
 
         // Initialize layer shell properties on the window
         window.init_layer_shell();
@@ -59,14 +64,12 @@ fn main() {
         // 2. Workspace Switcher
         let workspace_box = create_workspace_switcher();
 
-        // 3. Clock Widget (center)
-        let clock_label = create_clock_widget(app);
-
-        // 4. Status Indicators (passive, individual)
-        let status_indicators = create_status_indicators();
-
-        // 5. Action Buttons (settings gear + power)
-        let action_buttons = create_settings_button(app);
+        // 3. Unified Status and Clock Capsule
+        let status_indicators = create_status_indicators(
+            app,
+            quick_settings_window.clone(),
+            calendar_window.clone(),
+        );
 
         // Left-aligned section: Logo + Workspaces
         let left_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
@@ -76,20 +79,18 @@ fn main() {
         left_box.append(&logo_btn);
         left_box.append(&workspace_box);
 
-        // Center-aligned section: Date & Time
+        // Center-aligned section: Clean placeholder center space
         let center_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
         center_box.set_hexpand(true);
         center_box.set_halign(gtk4::Align::Center);
         center_box.set_valign(gtk4::Align::Center);
-        center_box.append(&clock_label);
 
-        // Right-aligned section: Status indicators + action buttons
+        // Right-aligned section: Status & Clock capsule
         let right_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 12);
         right_box.set_hexpand(true);
         right_box.set_halign(gtk4::Align::End);
         right_box.set_valign(gtk4::Align::Center);
         right_box.append(&status_indicators);
-        right_box.append(&action_buttons);
 
         // Assemble columns into the main panel box
         box_layout.append(&left_box);

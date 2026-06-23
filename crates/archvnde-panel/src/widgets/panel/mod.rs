@@ -11,12 +11,23 @@ use toggle_grid::create_quick_settings_grid;
 use sliders::create_slider_row;
 use power_actions::create_header_row;
 
-/// Creates a status indicator area with individually placed icons and labels.
-/// These are passive display items, not clickable.
-pub fn create_status_indicators() -> gtk4::Box {
+/// Creates a unified status indicators capsule containing (1) status details button and (2) clock button.
+/// Clicking the status button toggles Quick Settings; clicking the clock button toggles Calendar.
+/// The two panels are mutually exclusive.
+pub fn create_status_indicators(
+    app: &gtk4::Application,
+    quick_settings_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
+    calendar_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
+) -> gtk4::Box {
     let status_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
     status_box.add_css_class("status-indicators-box");
     status_box.set_valign(gtk4::Align::Center);
+
+    // --- 1. Status indicators button ---
+    let status_button = gtk4::Button::new();
+    status_button.add_css_class("panel-status-btn");
+
+    let status_content = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
 
     // Language indicator
     let lang_label = gtk4::Label::new(Some("US"));
@@ -40,43 +51,25 @@ pub fn create_status_indicators() -> gtk4::Box {
     let battery_percent = gtk4::Label::new(Some("100%"));
     battery_percent.add_css_class("status-text");
 
-    status_box.append(&lang_label);
-    status_box.append(&net_label);
-    status_box.append(&bluetooth_icon);
-    status_box.append(&wifi_icon);
-    status_box.append(&battery_icon);
-    status_box.append(&battery_percent);
+    status_content.append(&lang_label);
+    status_content.append(&net_label);
+    status_content.append(&bluetooth_icon);
+    status_content.append(&wifi_icon);
+    status_content.append(&battery_icon);
+    status_content.append(&battery_percent);
 
-    status_box
-}
+    status_button.set_child(Some(&status_content));
 
-/// Creates a clickable settings trigger button (gear + power) that opens Quick Settings.
-pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Box {
-    let action_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
-    action_box.add_css_class("action-buttons-box");
-    action_box.set_valign(gtk4::Align::Center);
-
-    // Settings gear button — opens quick settings popup
-    let settings_button = gtk4::Button::new();
-    settings_button.add_css_class("panel-action-btn");
-    let settings_icon = archvnde_icon::get_icon("settings", 14);
-    settings_button.set_child(Some(&settings_icon));
-
-    // Power button on the bar
-    let power_button = gtk4::Button::new();
-    power_button.add_css_class("panel-action-btn");
-    power_button.add_css_class("power-btn");
-    let power_icon = archvnde_icon::get_icon("power", 14);
-    power_button.set_child(Some(&power_icon));
-    power_button.connect_clicked(|_| {
-        crate::widgets::power::trigger_shutdown();
-    });
-
-    let quick_settings_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>> = Rc::new(RefCell::new(None));
-
+    // Toggle Quick Settings
     let qsw_clone = quick_settings_window.clone();
+    let cw_clone = calendar_window.clone();
     let app_clone = app.clone();
-    settings_button.connect_clicked(move |_| {
+    status_button.connect_clicked(move |_| {
+        // Close calendar if open
+        if let Some(cal_win) = cw_clone.borrow().clone() {
+            cal_win.close();
+        }
+
         let existing = {
             let borrow = qsw_clone.borrow();
             borrow.clone()
@@ -134,8 +127,20 @@ pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Box {
         }
     });
 
-    action_box.append(&settings_button);
-    action_box.append(&power_button);
+    // --- 2. Separator line ---
+    let separator = gtk4::Label::new(Some("│"));
+    separator.add_css_class("capsule-separator");
 
-    action_box
+    // --- 3. Clock widget button ---
+    let clock_button = crate::widgets::clock::create_clock_widget(
+        app,
+        quick_settings_window.clone(),
+        calendar_window.clone(),
+    );
+
+    status_box.append(&status_button);
+    status_box.append(&separator);
+    status_box.append(&clock_button);
+
+    status_box
 }
