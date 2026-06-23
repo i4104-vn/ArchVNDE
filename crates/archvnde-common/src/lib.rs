@@ -307,7 +307,18 @@ pub fn init_theme() {
 
     // Load CSS into GTK
     let provider = gtk4::CssProvider::new();
-    provider.load_from_path(css_path);
+    
+    // Connect to parsing-error to catch and print any CSS syntax errors to stderr
+    provider.connect_parsing_error(|_provider, section, error| {
+        eprintln!(
+            "GTK CSS Parsing Error: {} at line {}, col {}",
+            error.message(),
+            section.start_line() + 1,
+            section.start_char() + 1
+        );
+    });
+
+    provider.load_from_string(DEFAULT_CSS);
 
     if let Some(display) = gtk4::gdk::Display::default() {
         gtk4::style_context_add_provider_for_display(
