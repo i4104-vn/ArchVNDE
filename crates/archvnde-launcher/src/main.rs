@@ -19,9 +19,8 @@ fn main() {
         // Build launcher window layout (from ui module)
         let window = build_launcher_ui(app);
 
-        // Present window with animation
+        // Present window
         window.present();
-        archvnde_animation::fade_in(window.upcast_ref(), 300);
     });
 
     application.run();

@@ -41,9 +41,9 @@ pub fn slide_in(widget: &gtk4::Widget, direction: SlideDirection, distance_px: i
         }
 
         let t = elapsed.as_secs_f64() / dur.as_secs_f64();
-        let eased = easing::ease_out_quart(t);
+        let eased = easing::ease_out_back(t);
 
-        w.set_opacity(eased);
+        w.set_opacity(eased.min(1.0).max(0.0));
         match direction {
             SlideDirection::Down => {
                 let offset = original_margin_top - distance_px;

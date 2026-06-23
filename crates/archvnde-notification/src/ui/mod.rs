@@ -6,6 +6,7 @@ use std::rc::Rc;
 /// A wrapper struct around the GTK4 application window used for displaying notifications.
 pub struct NotificationWindow {
     pub window: gtk4::ApplicationWindow,
+    pub box_layout: gtk4::Box,
     pub title_label: gtk4::Label,
     pub body_label: gtk4::Label,
     pub icon_widget: gtk4::Image,
@@ -60,6 +61,7 @@ impl NotificationWindow {
 
         Self {
             window,
+            box_layout,
             title_label,
             body_label,
             icon_widget,
@@ -86,7 +88,7 @@ impl NotificationWindow {
     /// Presents/displays the notification overlay.
     pub fn show(&self) {
         self.window.present();
-        archvnde_animation::fade_in(self.window.upcast_ref(), 250);
+        archvnde_animation::slide_in(self.box_layout.upcast_ref(), archvnde_animation::SlideDirection::Down, 15, 300);
     }
 
     /// Hides the notification overlay window.

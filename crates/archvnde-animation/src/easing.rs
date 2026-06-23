@@ -32,3 +32,12 @@ pub fn ease_out_quart(t: f64) -> f64 {
 pub fn linear(t: f64) -> f64 {
     t.clamp(0.0, 1.0)
 }
+
+/// Back ease-out: smooth overshooting (bouncy animation)
+pub fn ease_out_back(t: f64) -> f64 {
+    let t = t.clamp(0.0, 1.0);
+    let c1 = 1.25; // Adjusted overshoot value for a subtle, natural bounce
+    let c3 = c1 + 1.0;
+    1.0 + c3 * (t - 1.0).powi(3) + c1 * (t - 1.0).powi(2)
+}
+

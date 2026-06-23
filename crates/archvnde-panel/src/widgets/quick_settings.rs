@@ -14,8 +14,11 @@ pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Button {
     let qsw_clone = quick_settings_window.clone();
     let app_clone = app.clone();
     settings_button.connect_clicked(move |_| {
-        let mut qsw_borrow = qsw_clone.borrow_mut();
-        if let Some(existing_window) = qsw_borrow.take() {
+        let existing = {
+            let borrow = qsw_clone.borrow();
+            borrow.clone()
+        };
+        if let Some(existing_window) = existing {
             existing_window.close();
         } else {
             // Spawn a new overlay window for quick settings
@@ -146,13 +149,17 @@ pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Button {
 
             let qsw_inner = qsw_clone.clone();
             q_win.connect_close_request(move |_| {
-                *qsw_inner.borrow_mut() = None;
+                if let Ok(mut borrow) = qsw_inner.try_borrow_mut() {
+                    *borrow = None;
+                }
                 glib::Propagation::Proceed
             });
 
             q_win.present();
-            archvnde_animation::slide_in(q_win.upcast_ref(), archvnde_animation::SlideDirection::Down, 20, 250);
-            *qsw_borrow = Some(q_win);
+            archvnde_animation::slide_in(main_box.upcast_ref(), archvnde_animation::SlideDirection::Down, 25, 300);
+            if let Ok(mut borrow) = qsw_clone.try_borrow_mut() {
+                *borrow = Some(q_win);
+            }
         }
     });
 
