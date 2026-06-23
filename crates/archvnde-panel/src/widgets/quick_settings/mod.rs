@@ -79,13 +79,14 @@ pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Button {
 
             q_win.set_anchor(Edge::Top, true);
             q_win.set_anchor(Edge::Right, true);
-            q_win.set_margin(Edge::Top, 44);
+            q_win.set_margin(Edge::Top, 42);
             q_win.set_margin(Edge::Right, 12);
             q_win.set_default_size(360, 360);
             q_win.add_css_class("quick-settings-window");
 
-            let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 12);
+            let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 10);
             main_box.add_css_class("quick-settings-box");
+            main_box.set_valign(gtk4::Align::Start);
 
             // 1. Header with Title & Circle Actions
             main_box.append(&create_header_row());
