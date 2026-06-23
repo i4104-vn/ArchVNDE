@@ -17,7 +17,6 @@ impl NotificationWindow {
         window.init_layer_shell();
 
         window.set_layer(Layer::Overlay);
-        window.set_blur_allowed(true);
         window.set_anchor(Edge::Top, true);
         window.set_anchor(Edge::Right, true);
         window.set_margin(Edge::Top, 15);

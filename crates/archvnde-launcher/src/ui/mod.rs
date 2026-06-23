@@ -10,7 +10,6 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     let window = gtk4::ApplicationWindow::new(app);
     window.init_layer_shell();
     window.set_layer(Layer::Overlay);
-    window.set_blur_allowed(true);
     window.set_keyboard_mode(KeyboardMode::Exclusive);
 
     window.set_anchor(Edge::Top, false);
