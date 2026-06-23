@@ -15,6 +15,7 @@ pub const POWER_SVG: &str = include_str!("../assets/power.svg");
 pub const VOLUME_SVG: &str = include_str!("../assets/volume.svg");
 pub const BRIGHTNESS_SVG: &str = include_str!("../assets/brightness.svg");
 pub const BATTERY_SVG: &str = include_str!("../assets/battery.svg");
+pub const LOGO_SVG: &str = include_str!("../assets/logo.svg");
 
 /// Loads an SVG string into a GTK4 Image widget at a custom size.
 pub fn get_icon_from_svg(svg_content: &str, size: i32) -> gtk4::Image {
@@ -56,6 +57,7 @@ pub fn get_icon_colored(name: &str, size: i32, color_hex: &str) -> gtk4::Image {
         "volume" => VOLUME_SVG,
         "brightness" => BRIGHTNESS_SVG,
         "battery" => BATTERY_SVG,
+        "logo" => LOGO_SVG,
         _ => return gtk4::Image::from_icon_name("image-missing"),
     };
     let colored_svg = svg.replace("currentColor", color_hex);

@@ -15,6 +15,7 @@ use power_actions::create_header_row;
 /// These are passive display items, not clickable.
 pub fn create_status_indicators() -> gtk4::Box {
     let status_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
+    status_box.add_css_class("status-indicators-box");
     status_box.set_valign(gtk4::Align::Center);
 
     // Language indicator
@@ -52,6 +53,7 @@ pub fn create_status_indicators() -> gtk4::Box {
 /// Creates a clickable settings trigger button (gear + power) that opens Quick Settings.
 pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Box {
     let action_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
+    action_box.add_css_class("action-buttons-box");
     action_box.set_valign(gtk4::Align::Center);
 
     // Settings gear button — opens quick settings popup
@@ -85,6 +87,7 @@ pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Box {
             let q_win = gtk4::ApplicationWindow::new(&app_clone);
             q_win.init_layer_shell();
             q_win.set_layer(Layer::Overlay);
+            q_win.set_blur_allowed(true);
 
             q_win.set_anchor(Edge::Top, true);
             q_win.set_anchor(Edge::Right, true);

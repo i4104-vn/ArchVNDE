@@ -7,8 +7,8 @@ pub fn create_workspace_switcher() -> gtk4::Box {
 
     let mut workspace_buttons = Vec::new();
     for i in 1..=4 {
-        let btn = gtk4::Button::with_label(&format!("{}", i));
-        btn.add_css_class("workspace-button");
+        let btn = gtk4::Button::new();
+        btn.add_css_class("workspace-dot");
         if i == 1 {
             btn.add_css_class("active");
         }

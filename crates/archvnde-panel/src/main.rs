@@ -26,6 +26,9 @@ fn main() {
         // Assign to the Top layer so it renders above normal windows
         window.set_layer(Layer::Top);
 
+        // Allow background blur
+        window.set_blur_allowed(true);
+
         // Set exclusive zone so other maximized windows don't overlap it
         window.set_exclusive_zone(36);
 
@@ -44,9 +47,14 @@ fn main() {
         let box_layout = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
         box_layout.add_css_class("panel-box");
 
-        // 1. Logo Title Label
-        let title_label = gtk4::Label::new(Some("ArchVNDE"));
-        title_label.add_css_class("panel-title");
+        // 1. Logo Button (launches launcher)
+        let logo_btn = gtk4::Button::new();
+        logo_btn.add_css_class("panel-logo-btn");
+        let logo_icon = archvnde_icon::get_icon("logo", 16);
+        logo_btn.set_child(Some(&logo_icon));
+        logo_btn.connect_clicked(|_| {
+            let _ = std::process::Command::new("archvnde-launcher").spawn();
+        });
 
         // 2. Workspace Switcher
         let workspace_box = create_workspace_switcher();
@@ -65,7 +73,7 @@ fn main() {
         left_box.set_hexpand(true);
         left_box.set_halign(gtk4::Align::Start);
         left_box.set_valign(gtk4::Align::Center);
-        left_box.append(&title_label);
+        left_box.append(&logo_btn);
         left_box.append(&workspace_box);
 
         // Center-aligned section: Date & Time

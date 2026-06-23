@@ -18,8 +18,7 @@ pub fn create_clock_widget(app: &gtk4::Application) -> gtk4::Button {
         move || {
             let now = chrono::Local::now();
             let time_str = format!(
-                "{}°C   {}   {}",
-                26,
+                "☀️ 26°C   {}   {}",
                 now.format("%a, %b %d").to_string(),
                 now.format("%I:%M %p").to_string().to_uppercase()
             );
@@ -45,6 +44,7 @@ pub fn create_clock_widget(app: &gtk4::Application) -> gtk4::Button {
             let c_win = gtk4::ApplicationWindow::new(&app_clone);
             c_win.init_layer_shell();
             c_win.set_layer(Layer::Overlay);
+            c_win.set_blur_allowed(true);
 
             // Center horizontally by anchoring to Top but leaving Left/Right unanchored
             c_win.set_anchor(Edge::Top, true);
