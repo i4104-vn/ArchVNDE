@@ -152,7 +152,7 @@ pub fn init_theme() {
     let provider = gtk4::CssProvider::new();
     provider.load_from_path(css_path);
 
-    if let Some(display) = gdk4::Display::default() {
+    if let Some(display) = gtk4::gdk::Display::default() {
         gtk4::style_context_add_provider_for_display(
             &display,
             &provider,
