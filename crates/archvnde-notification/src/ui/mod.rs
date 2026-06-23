@@ -3,7 +3,6 @@ use gtk4_layer_shell::{Edge, Layer, LayerShell};
 use std::cell::RefCell;
 use std::rc::Rc;
 
-/// A wrapper struct around the GTK4 application window used for displaying notifications.
 pub struct NotificationWindow {
     pub window: gtk4::ApplicationWindow,
     pub title_label: gtk4::Label,
@@ -13,19 +12,16 @@ pub struct NotificationWindow {
 }
 
 impl NotificationWindow {
-    /// Creates and configures the overlay window layout and widgets.
     pub fn new(app: &gtk4::Application) -> Self {
         let window = gtk4::ApplicationWindow::new(app);
         window.init_layer_shell();
 
-        // Run in Overlay layer, no focus
         window.set_layer(Layer::Overlay);
         window.set_anchor(Edge::Top, true);
         window.set_anchor(Edge::Right, true);
         window.set_margin(Edge::Top, 15);
         window.set_margin(Edge::Right, 15);
         window.set_default_size(320, 80);
-
         window.add_css_class("notification-card");
 
         let box_layout = gtk4::Box::new(gtk4::Orientation::Horizontal, 12);
@@ -34,12 +30,10 @@ impl NotificationWindow {
         box_layout.set_margin_top(12);
         box_layout.set_margin_bottom(12);
 
-        // Icon display
         let icon_widget = gtk4::Image::from_icon_name("dialog-information");
         icon_widget.set_pixel_size(36);
         box_layout.append(&icon_widget);
 
-        // Text layout box
         let text_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
         
         let title_label = gtk4::Label::new(Some("System Notification"));
@@ -66,7 +60,6 @@ impl NotificationWindow {
         }
     }
 
-    /// Updates the window text content and icon.
     pub fn update(&self, summary: &str, body: &str, icon: &str) {
         self.title_label.set_text(summary);
         self.body_label.set_text(body);
@@ -82,12 +75,10 @@ impl NotificationWindow {
         }
     }
 
-    /// Presents/displays the notification overlay.
     pub fn show(&self) {
         self.window.present();
     }
 
-    /// Hides the notification overlay window.
     pub fn hide(&self) {
         self.window.set_visible(false);
     }
