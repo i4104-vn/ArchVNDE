@@ -1,40 +1,28 @@
 use gtk4::prelude::*;
 
-pub fn create_header_row() -> gtk4::Box {
-    let header_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-    header_box.set_hexpand(true);
+pub fn create_power_actions_row() -> gtk4::Box {
+    let power_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 10);
+    power_box.set_margin_top(6);
+    power_box.set_homogeneous(true);
 
-    // Left: Title
-    let title = gtk4::Label::new(Some("Quick Settings"));
-    title.add_css_class("quick-settings-title");
-    title.set_xalign(0.0);
-    title.set_hexpand(true);
-
-    // Right: Action buttons container
-    let btn_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
-    btn_box.set_halign(gtk4::Align::End);
-
-    // 1. Settings button
-    let settings_btn = gtk4::Button::with_label("⚙");
-    settings_btn.add_css_class("circle-btn");
-    settings_btn.connect_clicked(|_| {
-        println!("Settings window triggered...");
-    });
-
-    // 2. Power off button
-    let power_off = gtk4::Button::with_label("⏻");
-    power_off.add_css_class("circle-btn");
+    let power_off = gtk4::Button::with_label("⏻  Power Off");
     power_off.add_css_class("power-btn");
-    power_off.connect_clicked(|_| {
+    power_off.connect_clicked(move |_| {
         println!("Power Off requested...");
         let _ = std::process::Command::new("systemctl").arg("poweroff").spawn();
     });
 
-    btn_box.append(&settings_btn);
-    btn_box.append(&power_off);
+    let logout = gtk4::Button::with_label("↪  Log Out");
+    logout.add_css_class("power-btn");
+    logout.add_css_class("logout-btn");
+    logout.connect_clicked(move |_| {
+        println!("Log Out requested...");
+        if let Ok(user) = std::env::var("USER") {
+            let _ = std::process::Command::new("loginctl").args(["terminate-user", &user]).spawn();
+        }
+    });
 
-    header_box.append(&title);
-    header_box.append(&btn_box);
-
-    header_box
+    power_box.append(&power_off);
+    power_box.append(&logout);
+    power_box
 }

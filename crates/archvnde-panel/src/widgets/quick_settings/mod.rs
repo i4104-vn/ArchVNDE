@@ -9,7 +9,7 @@ use std::rc::Rc;
 
 use toggle_grid::create_quick_settings_grid;
 use sliders::create_slider_row;
-use power_actions::create_header_row;
+use power_actions::create_power_actions_row;
 
 pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Button {
     let settings_button = gtk4::Button::with_label("Wi-Fi | 100% ⚙");
@@ -35,27 +35,28 @@ pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Button {
             q_win.set_anchor(Edge::Right, true);
             q_win.set_margin(Edge::Top, 46);
             q_win.set_margin(Edge::Right, 12);
-            q_win.set_default_size(360, 360);
+            q_win.set_default_size(360, 380);
             q_win.add_css_class("quick-settings-window");
 
             let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 16);
             main_box.add_css_class("quick-settings-box");
 
-            // 1. Header with Title & Circle Actions
-            main_box.append(&create_header_row());
+            let title = gtk4::Label::new(Some("Quick Settings"));
+            title.add_css_class("quick-settings-title");
+            title.set_xalign(0.0);
+            main_box.append(&title);
 
-            // 2. Volume control slider
+            main_box.append(&create_quick_settings_grid());
+
             main_box.append(&create_slider_row("🔊", 80.0, |val| {
                 println!("Volume changed: {}%", val as i32);
             }));
 
-            // 3. Brightness control slider
             main_box.append(&create_slider_row("☀", 60.0, |val| {
                 println!("Brightness changed: {}%", val as i32);
             }));
 
-            // 4. Grid toggles
-            main_box.append(&create_quick_settings_grid());
+            main_box.append(&create_power_actions_row());
 
             q_win.set_child(Some(&main_box));
 
