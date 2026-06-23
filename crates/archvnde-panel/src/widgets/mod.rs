@@ -1,3 +1,4 @@
 pub mod clock;
-pub mod quick_settings;
+pub mod panel;
+pub mod power;
 pub mod workspace;

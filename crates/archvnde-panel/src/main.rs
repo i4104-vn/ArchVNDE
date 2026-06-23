@@ -3,7 +3,7 @@ mod widgets;
 use gtk4::prelude::*;
 use gtk4_layer_shell::{Edge, Layer, LayerShell};
 use widgets::clock::create_clock_widget;
-use widgets::quick_settings::create_settings_button;
+use widgets::panel::create_settings_button;
 use widgets::workspace::create_workspace_switcher;
 
 fn main() {
