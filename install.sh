@@ -8,8 +8,8 @@ echo "   ArchVNDE Desktop Shell Installation Script"
 echo "============================================="
 
 # 1. Install all dependencies and the Rust toolchain first via pacman
-echo "Installing Arch Linux packages and Rust compiler..."
-sudo pacman -S --needed pkgconf gtk4 gtk4-layer-shell rust
+echo "Installing Arch Linux packages, development tools, and Rust compiler..."
+sudo pacman -S --needed --noconfirm base-devel git pkgconf gtk4 gtk4-layer-shell rust labwc
 
 # 2. Compile the workspace in release mode
 echo "Compiling ArchVNDE components in release mode..."

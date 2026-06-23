@@ -8,8 +8,8 @@ echo "   ArchVNDE Fresh Rebuild & Reinstall Script"
 echo "============================================="
 
 # 1. Install/Update all dependencies and the Rust toolchain first via pacman
-echo "Ensuring Arch Linux packages and Rust compiler are installed..."
-sudo pacman -S --needed pkgconf gtk4 gtk4-layer-shell rust
+echo "Ensuring Arch Linux packages, development tools, and Rust compiler are installed..."
+sudo pacman -S --needed --noconfirm base-devel git pkgconf gtk4 gtk4-layer-shell rust labwc
 
 # 2. Clean previous build artifacts
 echo "Cleaning previous cargo build cache..."

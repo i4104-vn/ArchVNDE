@@ -64,14 +64,10 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
                     if icon_name.starts_with('/') {
                         gtk4::Image::from_file(icon_name)
                     } else {
-                        let img = gtk4::Image::from_icon_name(icon_name);
-                        img.set_icon_size(gtk4::IconSize::Large);
-                        img
+                        gtk4::Image::from_icon_name(icon_name)
                     }
                 } else {
-                    let img = gtk4::Image::from_icon_name("application-x-executable");
-                    img.set_icon_size(gtk4::IconSize::Large);
-                    img
+                    gtk4::Image::from_icon_name("application-x-executable")
                 };
                 icon_widget.set_pixel_size(32);
 

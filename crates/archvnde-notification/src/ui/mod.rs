@@ -28,6 +28,7 @@ impl NotificationWindow {
 
         window.add_css_class("notification-card");
 
+        let box_layout = gtk4::Box::new(gtk4::Orientation::Horizontal, 12);
         box_layout.set_margin_start(12);
         box_layout.set_margin_end(12);
         box_layout.set_margin_top(12);
@@ -54,7 +55,7 @@ impl NotificationWindow {
         box_layout.append(&text_box);
 
         window.set_child(Some(&box_layout));
-        window.hide();
+        window.set_visible(false);
 
         Self {
             window,
@@ -88,6 +89,6 @@ impl NotificationWindow {
 
     /// Hides the notification overlay window.
     pub fn hide(&self) {
-        self.window.hide();
+        self.window.set_visible(false);
     }
 }
