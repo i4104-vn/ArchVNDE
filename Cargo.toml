@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     "crates/archvnde-common",
+    "crates/archvnde-animation",
     "crates/archvnde-panel",
     "crates/archvnde-launcher",
     "crates/archvnde-notification",

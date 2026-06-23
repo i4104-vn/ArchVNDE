@@ -1,0 +1,330 @@
+/* ArchVNDE – Frosted-Glass GTK4 Theme
+ *
+ * Glassmorphism with soft rounded corners.
+ * Color palette derived from design_analysis.md.
+ *
+ * GTK4 CSS constraints:
+ *   - No !important / backdrop-filter / transform / letter-spacing
+ *   - border-bottom split into individual properties
+ *   - Provider at PRIORITY_USER (800) overrides Adwaita THEME (200)
+ */
+
+
+/* ================================================================
+   GLOBAL
+   ================================================================ */
+
+* {
+    font-family: 'Inter', 'Cantarell', 'Noto Sans', sans-serif;
+    -gtk-icon-style: symbolic;
+}
+
+
+/* ================================================================
+   WINDOW TRANSPARENCY
+   ================================================================ */
+
+window.background {
+    background-color: transparent;
+    background-image: none;
+    box-shadow: none;
+    border: none;
+}
+
+window.panel-window,
+window.quick-settings-window,
+window.launcher-window,
+window.notification-card {
+    background-color: transparent;
+    background-image: none;
+    box-shadow: none;
+    border: none;
+}
+
+
+/* ================================================================
+   TOP BAR  –  floating frosted-glass bar
+   ================================================================ */
+
+box.panel-box {
+    background-color: rgba(22, 26, 40, 0.62);
+    background-image: none;
+    color: rgba(255, 255, 255, 0.90);
+    margin: 5px 8px 0px 8px;
+    padding: 0px 18px;
+    min-height: 36px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.25);
+}
+
+/* Brand label */
+label.panel-title {
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 13px;
+    margin-right: 10px;
+}
+
+box.workspace-box {
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+/* ── Workspace pills ── */
+button.workspace-button {
+    background-color: rgba(255, 255, 255, 0.06);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.42);
+    padding: 2px 13px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 4px;
+    box-shadow: none;
+    min-height: 24px;
+}
+
+button.workspace-button:hover {
+    background-color: rgba(255, 255, 255, 0.10);
+    background-image: none;
+    color: rgba(255, 255, 255, 0.80);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+button.workspace-button.active {
+    background-image: linear-gradient(to right, #1d5fd3, #3b82f6);
+    border-color: rgba(59, 130, 246, 0.30);
+    color: #ffffff;
+    box-shadow: 0 1px 8px rgba(59, 130, 246, 0.30);
+}
+
+/* ── Clock ── */
+label.panel-clock {
+    font-weight: 500;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.78);
+}
+
+/* ── Settings button ── */
+button.panel-settings-btn {
+    background-color: rgba(255, 255, 255, 0.06);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.68);
+    padding: 2px 13px;
+    font-weight: 500;
+    font-size: 11px;
+    box-shadow: none;
+    min-height: 24px;
+}
+
+button.panel-settings-btn:hover {
+    background-color: rgba(255, 255, 255, 0.10);
+    background-image: none;
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+
+/* ================================================================
+   QUICK SETTINGS  –  frosted-glass card
+   ================================================================ */
+
+box.quick-settings-box {
+    background-color: rgba(18, 22, 34, 0.82);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    color: rgba(255, 255, 255, 0.92);
+    padding: 22px;
+    box-shadow: 0 12px 44px rgba(0, 0, 0, 0.45);
+}
+
+label.quick-settings-title {
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.90);
+    font-size: 15px;
+    margin-bottom: 12px;
+}
+
+/* ── Toggle tiles – inactive ── */
+button.quick-tile {
+    background-color: rgba(255, 255, 255, 0.05);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.68);
+    padding: 12px 16px;
+    font-weight: 600;
+    font-size: 12px;
+    box-shadow: none;
+    min-width: 115px;
+    min-height: 38px;
+}
+
+button.quick-tile:hover {
+    background-color: rgba(255, 255, 255, 0.09);
+    background-image: none;
+    color: rgba(255, 255, 255, 0.92);
+    border-color: rgba(255, 255, 255, 0.10);
+}
+
+/* ── Toggle tiles – active (white card, dark text) ── */
+button.quick-tile.active {
+    background-color: rgba(255, 255, 255, 0.90);
+    background-image: none;
+    color: rgba(16, 20, 30, 0.95);
+    border-color: rgba(255, 255, 255, 0.40);
+    box-shadow: 0 2px 10px rgba(255, 255, 255, 0.10);
+    font-weight: 700;
+}
+
+button.quick-tile.active:hover {
+    background-color: rgba(255, 255, 255, 0.80);
+    background-image: none;
+}
+
+/* ── Slider icon labels ── */
+label.slider-label {
+    color: rgba(160, 174, 192, 0.85);
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 24px;
+}
+
+/* ── Power action buttons ── */
+button.power-btn {
+    background-color: rgba(255, 255, 255, 0.05);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.68);
+    padding: 10px 16px;
+    font-weight: 600;
+    font-size: 12px;
+    box-shadow: none;
+    min-height: 34px;
+}
+
+button.power-btn:hover {
+    background-color: rgba(255, 85, 75, 0.15);
+    background-image: none;
+    color: #ff7b72;
+    border-color: rgba(255, 85, 75, 0.22);
+}
+
+
+/* ================================================================
+   CAPSULE SLIDERS
+   ================================================================ */
+
+scale trough {
+    min-height: 14px;
+    border-radius: 7px;
+    background-color: rgba(255, 255, 255, 0.07);
+    border: none;
+}
+
+scale trough highlight {
+    border-radius: 7px;
+    background-image: linear-gradient(to right, #1d5fd3, #3b82f6);
+    min-height: 14px;
+}
+
+scale trough slider {
+    min-width: 20px;
+    min-height: 20px;
+    margin: -4px;
+    border-radius: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+    border: none;
+}
+
+
+/* ================================================================
+   APPLICATION LAUNCHER  –  frosted overlay
+   ================================================================ */
+
+box.launcher-box {
+    background-color: rgba(14, 17, 26, 0.88);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 22px;
+    color: rgba(255, 255, 255, 0.92);
+    padding: 24px;
+    box-shadow: 0 20px 56px rgba(0, 0, 0, 0.50);
+}
+
+.launcher-search entry {
+    background-color: rgba(255, 255, 255, 0.05);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    color: #ffffff;
+    padding: 12px 18px;
+    font-size: 14px;
+    box-shadow: none;
+}
+
+.launcher-search entry:focus {
+    border-color: rgba(59, 130, 246, 0.50);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12);
+    background-color: rgba(255, 255, 255, 0.07);
+    background-image: none;
+}
+
+.launcher-list {
+    background-color: transparent;
+    background-image: none;
+}
+
+.launcher-list row {
+    background-color: transparent;
+    background-image: none;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin: 2px 0;
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.launcher-list row:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+    background-image: none;
+    color: #ffffff;
+}
+
+.launcher-list row:selected {
+    background-image: linear-gradient(135deg, #1d5fd3, #3b82f6);
+    color: #ffffff;
+    border-radius: 10px;
+}
+
+
+/* ================================================================
+   NOTIFICATION CARDS  –  frosted popup
+   ================================================================ */
+
+box.notification-box {
+    background-color: rgba(14, 17, 26, 0.88);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    color: rgba(255, 255, 255, 0.92);
+    padding: 16px 20px;
+    box-shadow: 0 10px 36px rgba(0, 0, 0, 0.45);
+}
+
+label.notification-title {
+    font-weight: 700;
+    color: #3b82f6;
+    font-size: 14px;
+}
+
+label.notification-body {
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 12px;
+}

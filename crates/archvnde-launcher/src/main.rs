@@ -66,8 +66,9 @@ fn main() {
 
         window.set_child(Some(&box_layout));
 
-        // Present window
+        // Present window with animation
         window.present();
+        archvnde_animation::fade_in(&window, 300);
     });
 
     application.run();
