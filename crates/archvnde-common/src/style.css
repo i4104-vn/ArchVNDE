@@ -1,419 +1,223 @@
-/* ArchVNDE – Frosted-Glass GTK4 Theme
- *
- * Visual design stylesheet for ArchVNDE.
- *
- * GTK4 CSS constraints:
- *   - No !important / backdrop-filter / transform / letter-spacing
- *   - Provider at PRIORITY_USER (800) overrides default Adwaita theme
- */
-
-
-/* ================================================================
-   GLOBAL STYLES & FONTS
-   ================================================================ */
+/* ArchVNDE Glassmorphism GTK4 Theme */
 
 * {
-    font-family: 'Inter', 'SF Pro Display', 'Ubuntu', 'Segoe UI', sans-serif;
-    -gtk-icon-style: symbolic;
-    transition: all 180ms ease;
+    font-family: 'Outfit', 'Inter', sans-serif;
 }
 
-
-/* ================================================================
-   WINDOW & BACKGROUND TRANSPARENCY
-   ================================================================ */
-
-window,
-window.background,
-window.panel-window,
-window.quick-settings-window,
-window.launcher-window,
-window.notification-card {
-    background-color: transparent;
-    background-image: none;
-    box-shadow: none;
-    border: none;
+/* General Window Transparency (Critical for custom shells) */
+window, window.background, .panel-window, .quick-settings-window, .launcher-window, .notification-card {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
 }
 
-
-/* ================================================================
-   TOP STATUS BAR (PANEL)
-   ================================================================ */
-
+/* Panel Status Bar Styles */
 .panel-box {
-    background-color: rgba(12, 15, 23, 0.65);
-    background-image: linear-gradient(180deg, rgba(24, 30, 48, 0.70) 0%, rgba(12, 15, 23, 0.75) 100%);
-    color: rgba(255, 255, 255, 0.95);
-    margin: 0px;
-    padding: 0px 24px;
-    min-height: 40px;
-    border-radius: 0px;
-    border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    background-color: rgba(19, 24, 36, 0.15) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+    margin: 0px !important;
+    padding: 0px 15px !important;
+    min-height: 40px !important;
+    border-radius: 0px !important;
 }
 
-/* Brand logo / title */
 .panel-title {
-    font-weight: 900;
-    color: #ffffff;
-    font-size: 14px;
-    margin-right: 16px;
-    text-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+    font-weight: bold;
+    color: #1f6feb !important;
+    font-size: 1.1em;
 }
 
 .workspace-box {
-    margin-left: 8px;
-    margin-right: 8px;
+    margin-left: 10px;
 }
 
-/* Workspace Pills */
-button.workspace-button {
-    background-color: rgba(255, 255, 255, 0.06);
-    background-image: none;
-    border: 1px solid rgba(255, 255, 255, 0.04);
-    border-radius: 9999px;
-    color: rgba(255, 255, 255, 0.65);
-    padding: 4px 16px;
-    font-size: 11px;
-    font-weight: 600;
-    margin-right: 8px;
-    box-shadow: none;
-    min-height: 26px;
+.workspace-button {
+    background-color: rgba(39, 45, 62, 0.6) !important;
+    background-image: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 8px !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+    padding: 2px 12px !important;
+    font-size: 0.85em;
+    font-weight: bold;
+    margin-right: 5px;
+    box-shadow: none !important;
+    transition: all 0.2s ease-in-out;
 }
 
-button.workspace-button:hover {
-    background-color: rgba(255, 255, 255, 0.15);
-    background-image: none;
-    color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.10);
+.workspace-button:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
 }
 
-button.workspace-button.active {
-    background-color: #2563eb;
-    background-image: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    border-color: rgba(59, 130, 246, 0.50);
-    color: #ffffff;
-    font-weight: 700;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.40);
+.workspace-button.active {
+    background-color: #1f6feb !important;
+    background-image: none !important;
+    border-color: #3b82f6 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 8px rgba(31, 111, 235, 0.4) !important;
 }
 
-/* System Clock */
 .panel-clock {
-    font-weight: 700;
-    font-size: 12px;
-    color: #ffffff;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    font-weight: bold;
+    font-size: 0.95em;
+    color: rgba(255, 255, 255, 0.95) !important;
 }
 
-/* Quick Settings Trigger Button */
-button.panel-settings-btn {
-    background-color: rgba(255, 255, 255, 0.06);
-    background-image: none;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 9999px;
-    color: rgba(255, 255, 255, 0.85);
-    padding: 2px 10px;
-    box-shadow: none;
-    min-height: 24px;
+.panel-settings-btn {
+    background-color: rgba(39, 45, 62, 0.6) !important;
+    background-image: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 8px !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+    padding: 2px 14px !important;
+    font-weight: bold;
+    box-shadow: none !important;
+    transition: all 0.2s ease-in-out;
 }
 
-button.panel-settings-btn:hover {
-    background-color: rgba(255, 255, 255, 0.14);
-    background-image: none;
-    color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.20);
+.panel-settings-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-.status-text {
-    font-size: 11px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.85);
-    margin-left: 2px;
-    margin-right: 2px;
-}
-
-.status-icon {
-    color: rgba(255, 255, 255, 0.85);
-    margin-left: 6px;
-    margin-right: 6px;
-}
-
-
-/* ================================================================
-   QUICK SETTINGS CARD
-   ================================================================ */
-
+/* Quick Settings Styles */
 .quick-settings-box {
-    background-color: rgba(14, 18, 30, 0.82);
-    background-image: linear-gradient(135deg, rgba(22, 28, 45, 0.85) 0%, rgba(14, 18, 30, 0.90) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-top: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 20px;
-    color: rgba(255, 255, 255, 0.95);
-    padding: 16px;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.60);
+    background-color: rgba(19, 24, 36, 0.75) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 16px !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+    padding: 20px !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
 }
 
 .quick-settings-title {
-    font-weight: 800;
-    color: #ffffff;
-    font-size: 16px;
+    font-weight: bold;
+    color: #1f6feb !important;
+    font-size: 1.2em;
+    margin-bottom: 10px;
 }
 
-/* Circular Top Header Buttons */
-button.circle-btn {
-    background-color: rgba(255, 255, 255, 0.06);
-    background-image: none;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #ffffff;
-    border-radius: 9999px;
-    min-width: 34px;
-    min-height: 34px;
-    padding: 0;
-    font-size: 14px;
-    font-weight: 700;
-    box-shadow: none;
+.quick-tile {
+    background-color: rgba(39, 45, 62, 0.6) !important;
+    background-image: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 12px !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+    padding: 10px !important;
+    font-weight: bold;
+    box-shadow: none !important;
+    transition: all 0.2s ease-in-out;
 }
 
-button.circle-btn:hover {
-    background-color: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.18);
+.quick-tile:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-button.circle-btn.power-btn:hover {
-    background-color: #dc2626;
-    background-image: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-    border-color: rgba(239, 68, 68, 0.40);
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+.quick-tile.active {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    background-image: none !important;
+    color: #121620 !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2) !important;
 }
 
-/* Toggle Grid Cards (Inactive State) */
-button.quick-tile {
-    background-color: rgba(255, 255, 255, 0.06);
-    background-image: none;
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 12px;
-    color: rgba(255, 255, 255, 0.75);
-    padding: 6px 10px;
-    box-shadow: none;
-    min-width: 120px;
-    min-height: 44px;
-}
-
-button.quick-tile:hover {
-    background-color: rgba(255, 255, 255, 0.12);
-    background-image: none;
-    border-color: rgba(255, 255, 255, 0.15);
-}
-
-/* Inner labels of Toggle Grid Cards */
-.tile-icon {
-    font-size: 16px;
-    margin-right: 8px;
-    color: #ffffff;
-}
-
-.tile-title {
-    font-weight: 700;
-    font-size: 12px;
-    color: #ffffff;
-}
-
-.tile-subtitle {
-    font-size: 10px;
-    color: rgba(255, 255, 255, 0.55);
-}
-
-.tile-chevron {
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.35);
-    margin-left: 4px;
-}
-
-/* Toggle Grid Cards (Active Blue State) */
-button.quick-tile.active {
-    background-color: #2563eb;
-    background-image: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-    border-color: rgba(59, 130, 246, 0.40);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.30);
-}
-
-button.quick-tile.active:hover {
-    background-color: #1d4ed8;
-    background-image: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
-    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.40);
-}
-
-button.quick-tile.active .tile-subtitle {
-    color: rgba(255, 255, 255, 0.75);
-}
-
-button.quick-tile.active .tile-chevron {
-    color: rgba(255, 255, 255, 0.60);
-}
-
-/* Toggle Grid Cards (Active Light White State) */
-button.quick-tile.active-light {
-    background-color: #ffffff;
-    background-image: none;
-    border-color: rgba(255, 255, 255, 0.80);
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
-}
-
-button.quick-tile.active-light:hover {
-    background-color: rgba(255, 255, 255, 0.85);
-    background-image: none;
-}
-
-button.quick-tile.active-light .tile-icon {
-    color: #161a26;
-}
-
-button.quick-tile.active-light .tile-title {
-    color: #161a26;
-}
-
-button.quick-tile.active-light .tile-subtitle {
-    color: rgba(22, 26, 38, 0.65);
-}
-
-button.quick-tile.active-light .tile-chevron {
-    color: rgba(22, 26, 38, 0.40);
-}
-
-/* Volume / Brightness Sliders */
-.slider-label {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 14px;
-    font-weight: 600;
-    min-width: 28px;
-}
-
-
-/* ================================================================
-   CAPSULE SLIDERS STYLING
-   ================================================================ */
-
-.slider-icon {
-    color: rgba(255, 255, 255, 0.65);
-    margin-right: 8px;
-}
-
+/* Capsule Sliders for Volume & Brightness */
 scale trough {
-    min-height: 8px;
-    border-radius: 4px;
-    background-color: rgba(255, 255, 255, 0.08);
+    min-height: 12px;
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.1) !important;
     border: none;
 }
 
-scale trough highlight {
-    border-radius: 4px;
-    background-color: #2563eb;
-    background-image: linear-gradient(to right, #2563eb, #60a5fa);
-    min-height: 8px;
+scale progress {
+    background-image: linear-gradient(to right, #1f6feb, #3b82f6) !important;
 }
 
-scale trough slider {
+scale slider {
     min-width: 14px;
     min-height: 14px;
-    margin: -3px;
-    border-radius: 7px;
-    background-color: #ffffff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.40);
-    border: 1px solid rgba(0, 0, 0, 0.10);
+    margin: -2px;
+    border-radius: 50% !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+    border: none;
+    transition: transform 0.1s ease;
 }
 
-scale trough slider:hover {
-    box-shadow: 0 2px 12px rgba(255, 255, 255, 0.30);
+scale slider:hover {
+    transform: scale(1.2);
 }
 
-
-/* ================================================================
-   APPLICATION LAUNCHER
-   ================================================================ */
-
+/* Launcher Styles */
 .launcher-box {
-    background-color: rgba(8, 10, 16, 0.92);
-    background-image: linear-gradient(135deg, rgba(14, 18, 28, 0.90) 0%, rgba(8, 10, 16, 0.96) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 26px;
-    color: rgba(255, 255, 255, 0.95);
-    padding: 26px;
-    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.60);
+    background-color: rgba(12, 16, 25, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.09) !important;
+    border-radius: 24px !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+    padding: 24px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4) !important;
 }
 
-/* Search bar styling */
 .launcher-search entry {
-    background-color: rgba(255, 255, 255, 0.06);
-    background-image: none;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
-    color: #ffffff;
-    padding: 12px 20px;
-    font-size: 14px;
-    box-shadow: none;
+    background-color: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 14px !important;
+    color: #ffffff !important;
+    padding: 12px 18px !important;
+    font-size: 1.1em;
+    box-shadow: none !important;
+    transition: all 0.2s ease-in-out;
 }
 
 .launcher-search entry:focus {
-    border-color: rgba(59, 130, 246, 0.60);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.20);
-    background-color: rgba(255, 255, 255, 0.08);
-    background-image: none;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.35) !important;
+    background-color: rgba(255, 255, 255, 0.08) !important;
 }
 
-/* App list rows */
 .launcher-list {
-    background-color: transparent;
-    background-image: none;
+    background: transparent;
 }
 
 .launcher-list row {
-    background-color: transparent;
-    background-image: none;
-    padding: 12px 16px;
-    border-radius: 12px;
-    margin: 4px 0;
-    color: rgba(255, 255, 255, 0.80);
+    background-color: transparent !important;
+    padding: 12px 16px !important;
+    border-radius: 12px !important;
+    margin: 5px 0 !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+    transition: all 0.15s ease-in-out;
 }
 
 .launcher-list row:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-    background-image: none;
-    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.06) !important;
+    color: #ffffff !important;
 }
 
 .launcher-list row:selected {
-    background-color: #2563eb;
-    background-image: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-    color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    background-image: linear-gradient(135deg, #1f6feb 0%, #3b82f6 100%) !important;
+    color: #ffffff !important;
 }
 
-
-/* ================================================================
-   NOTIFICATION POPUP
-   ================================================================ */
-
+/* Notification Daemon Styles */
 .notification-box {
-    background-color: rgba(8, 10, 16, 0.92);
-    background-image: linear-gradient(135deg, rgba(16, 20, 32, 0.90) 0%, rgba(8, 10, 16, 0.96) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 20px;
-    color: rgba(255, 255, 255, 0.95);
-    padding: 18px 22px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.50);
+    background-color: rgba(12, 16, 25, 0.92) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 18px !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+    padding: 16px 20px !important;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4) !important;
 }
 
 .notification-title {
-    font-weight: 800;
+    font-weight: 700;
     color: #3b82f6;
-    font-size: 14px;
+    font-size: 1.15em;
+    letter-spacing: 0.3px;
 }
 
 .notification-body {
-    color: rgba(255, 255, 255, 0.72);
-    font-size: 12px;
+    color: rgba(255, 255, 255, 0.75) !important;
+    font-size: 0.95em;
 }

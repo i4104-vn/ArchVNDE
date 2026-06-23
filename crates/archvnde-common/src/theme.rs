@@ -1,15 +1,7 @@
 use std::fs;
 use crate::config::get_archvnde_config_dir;
 
-const DEFAULT_CSS: &str = concat!(
-    include_str!("styles/bar.css"),
-    "\n",
-    include_str!("styles/button.css"),
-    "\n",
-    include_str!("styles/panel.css"),
-    "\n",
-    include_str!("styles/power.css")
-);
+const DEFAULT_CSS: &str = include_str!("style.css");
 
 /// Initializes the user configuration directory, writes the default
 /// Glassmorphism stylesheet if missing, and registers it with GTK.
