@@ -88,7 +88,7 @@ impl NotificationWindow {
     /// Presents/displays the notification overlay.
     pub fn show(&self) {
         self.window.present();
-        archvnde_animation::slide_in(self.box_layout.upcast_ref(), archvnde_animation::SlideDirection::Down, 15, 300);
+        archvnde_animation::slide_in(self.box_layout.upcast_ref(), archvnde_animation::SlideDirection::Down, 8, 200);
     }
 
     /// Hides the notification overlay window.

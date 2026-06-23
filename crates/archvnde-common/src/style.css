@@ -1,7 +1,6 @@
 /* ArchVNDE – Frosted-Glass GTK4 Theme
  *
- * Premium Glassmorphism with soft rounded corners, high contrast shadows,
- * smooth hover states, and beautiful gradient backgrounds.
+ * Visual design stylesheet for ArchVNDE.
  *
  * GTK4 CSS constraints:
  *   - No !important / backdrop-filter / transform / letter-spacing
@@ -16,7 +15,7 @@
 * {
     font-family: 'Inter', 'SF Pro Display', 'Ubuntu', 'Segoe UI', sans-serif;
     -gtk-icon-style: symbolic;
-    transition: all 200ms ease;
+    transition: all 180ms ease;
 }
 
 
@@ -42,8 +41,8 @@ window.notification-card {
    ================================================================ */
 
 .panel-box {
-    background: linear-gradient(135deg, rgba(20, 24, 38, 0.68) 0%, rgba(12, 16, 26, 0.78) 100%);
-    background-image: none;
+    background-color: rgba(12, 16, 26, 0.70);
+    background-image: linear-gradient(135deg, rgba(20, 24, 38, 0.70) 0%, rgba(12, 16, 26, 0.80) 100%);
     color: rgba(255, 255, 255, 0.95);
     margin: 6px 12px 0px 12px;
     padding: 0px 20px;
@@ -68,7 +67,7 @@ window.notification-card {
 }
 
 /* Workspace Pills */
-.workspace-button {
+button.workspace-button {
     background-color: rgba(255, 255, 255, 0.05);
     background-image: none;
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -82,16 +81,17 @@ window.notification-card {
     min-height: 24px;
 }
 
-.workspace-button:hover {
+button.workspace-button:hover {
     background-color: rgba(255, 255, 255, 0.12);
     background-image: none;
-    color: rgba(255, 255, 255, 0.9);
-    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.90);
+    border-color: rgba(255, 255, 255, 0.10);
 }
 
-.workspace-button.active {
-    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-    border-color: rgba(59, 130, 246, 0.4);
+button.workspace-button.active {
+    background-color: #2563eb;
+    background-image: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    border-color: rgba(59, 130, 246, 0.40);
     color: #ffffff;
     font-weight: 700;
     box-shadow: 0 2px 10px rgba(59, 130, 246, 0.35);
@@ -105,7 +105,7 @@ window.notification-card {
 }
 
 /* Quick Settings Trigger Button */
-.panel-settings-btn {
+button.panel-settings-btn {
     background-color: rgba(255, 255, 255, 0.05);
     background-image: none;
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -118,11 +118,11 @@ window.notification-card {
     min-height: 24px;
 }
 
-.panel-settings-btn:hover {
+button.panel-settings-btn:hover {
     background-color: rgba(255, 255, 255, 0.12);
     background-image: none;
     color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.10);
     box-shadow: 0 0 8px rgba(255, 255, 255, 0.05);
 }
 
@@ -132,8 +132,8 @@ window.notification-card {
    ================================================================ */
 
 .quick-settings-box {
-    background: linear-gradient(135deg, rgba(16, 20, 32, 0.86) 0%, rgba(10, 12, 20, 0.94) 100%);
-    background-image: none;
+    background-color: rgba(10, 12, 20, 0.88);
+    background-image: linear-gradient(135deg, rgba(16, 20, 32, 0.88) 0%, rgba(10, 12, 20, 0.94) 100%);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 24px;
     color: rgba(255, 255, 255, 0.95);
@@ -149,7 +149,7 @@ window.notification-card {
 }
 
 /* Toggle Grid Cards (Inactive State) */
-.quick-tile {
+button.quick-tile {
     background-color: rgba(255, 255, 255, 0.06);
     background-image: none;
     border: 1px solid rgba(255, 255, 255, 0.07);
@@ -163,7 +163,7 @@ window.notification-card {
     min-height: 42px;
 }
 
-.quick-tile:hover {
+button.quick-tile:hover {
     background-color: rgba(255, 255, 255, 0.12);
     background-image: none;
     color: #ffffff;
@@ -171,19 +171,19 @@ window.notification-card {
 }
 
 /* Toggle Grid Cards (Active State) */
-.quick-tile.active {
-    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-    background-image: none;
+button.quick-tile.active {
+    background-color: #2563eb;
+    background-image: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
     color: #ffffff;
-    border-color: rgba(59, 130, 246, 0.4);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    border-color: rgba(59, 130, 246, 0.40);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.30);
     font-weight: 700;
 }
 
-.quick-tile.active:hover {
-    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
-    background-image: none;
-    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+button.quick-tile.active:hover {
+    background-color: #1d4ed8;
+    background-image: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.40);
 }
 
 /* Volume / Brightness Sliders */
@@ -194,8 +194,8 @@ window.notification-card {
     min-width: 28px;
 }
 
-/* Power Action Buttons */
-.power-btn {
+/* Power Action Buttons (Default State) */
+button.power-btn {
     background-color: rgba(255, 255, 255, 0.06);
     background-image: none;
     border: 1px solid rgba(255, 255, 255, 0.07);
@@ -209,19 +209,20 @@ window.notification-card {
 }
 
 /* Hover effect on power button to trigger subtle warm visual alert */
-.power-btn:hover {
-    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-    background-image: none;
+button.power-btn:hover {
+    background-color: #dc2626;
+    background-image: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
     color: #ffffff;
-    border-color: rgba(239, 68, 68, 0.4);
+    border-color: rgba(239, 68, 68, 0.40);
     box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
 }
 
 /* Specific styling for Log Out to stand out elegantly from Power Off */
-.power-btn + .power-btn:hover {
-    background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
-    background-image: none;
-    border-color: rgba(245, 158, 11, 0.4);
+button.logout-btn:hover {
+    background-color: #d97706;
+    background-image: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+    color: #ffffff;
+    border-color: rgba(245, 158, 11, 0.40);
     box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
 }
 
@@ -239,8 +240,8 @@ scale trough {
 
 scale trough highlight {
     border-radius: 8px;
-    background: linear-gradient(to right, #2563eb, #60a5fa);
-    background-image: none;
+    background-color: #2563eb;
+    background-image: linear-gradient(to right, #2563eb, #60a5fa);
     min-height: 16px;
 }
 
@@ -250,12 +251,12 @@ scale trough slider {
     margin: -3px;
     border-radius: 11px;
     background-color: #ffffff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.40);
+    border: 1px solid rgba(0, 0, 0, 0.10);
 }
 
 scale trough slider:hover {
-    box-shadow: 0 2px 12px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 12px rgba(255, 255, 255, 0.30);
 }
 
 
@@ -264,13 +265,13 @@ scale trough slider:hover {
    ================================================================ */
 
 .launcher-box {
-    background: linear-gradient(135deg, rgba(14, 18, 28, 0.88) 0%, rgba(8, 10, 16, 0.95) 100%);
-    background-image: none;
+    background-color: rgba(8, 10, 16, 0.92);
+    background-image: linear-gradient(135deg, rgba(14, 18, 28, 0.90) 0%, rgba(8, 10, 16, 0.96) 100%);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 26px;
     color: rgba(255, 255, 255, 0.95);
     padding: 26px;
-    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.60);
 }
 
 /* Search bar styling */
@@ -286,8 +287,8 @@ scale trough slider:hover {
 }
 
 .launcher-search entry:focus {
-    border-color: rgba(59, 130, 246, 0.6);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.60);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.20);
     background-color: rgba(255, 255, 255, 0.08);
     background-image: none;
 }
@@ -304,7 +305,7 @@ scale trough slider:hover {
     padding: 12px 16px;
     border-radius: 12px;
     margin: 4px 0;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.80);
 }
 
 .launcher-list row:hover {
@@ -314,8 +315,8 @@ scale trough slider:hover {
 }
 
 .launcher-list row:selected {
-    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-    background-image: none;
+    background-color: #2563eb;
+    background-image: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
     color: #ffffff;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
@@ -327,13 +328,13 @@ scale trough slider:hover {
    ================================================================ */
 
 .notification-box {
-    background: linear-gradient(135deg, rgba(16, 20, 32, 0.88) 0%, rgba(8, 10, 16, 0.96) 100%);
-    background-image: none;
+    background-color: rgba(8, 10, 16, 0.92);
+    background-image: linear-gradient(135deg, rgba(16, 20, 32, 0.90) 0%, rgba(8, 10, 16, 0.96) 100%);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 20px;
     color: rgba(255, 255, 255, 0.95);
     padding: 18px 22px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.50);
 }
 
 .notification-title {

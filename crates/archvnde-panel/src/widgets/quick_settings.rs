@@ -134,6 +134,7 @@ pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Button {
             
             let logout = gtk4::Button::with_label("↪  Log Out");
             logout.add_css_class("power-btn");
+            logout.add_css_class("logout-btn");
             logout.connect_clicked(move |_| {
                 println!("Log Out requested...");
                 if let Ok(user) = std::env::var("USER") {
@@ -156,7 +157,7 @@ pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Button {
             });
 
             q_win.present();
-            archvnde_animation::slide_in(main_box.upcast_ref(), archvnde_animation::SlideDirection::Down, 25, 300);
+            archvnde_animation::slide_in(main_box.upcast_ref(), archvnde_animation::SlideDirection::Down, 10, 220);
             if let Ok(mut borrow) = qsw_clone.try_borrow_mut() {
                 *borrow = Some(q_win);
             }

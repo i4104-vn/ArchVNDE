@@ -139,7 +139,7 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     window.set_child(Some(&box_layout));
 
     // Animate inner layout
-    archvnde_animation::slide_in(box_layout.upcast_ref(), archvnde_animation::SlideDirection::Down, 30, 350);
+    archvnde_animation::slide_in(box_layout.upcast_ref(), archvnde_animation::SlideDirection::Down, 12, 240);
 
     window
 }
