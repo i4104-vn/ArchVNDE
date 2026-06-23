@@ -54,37 +54,168 @@ const DEFAULT_CSS: &str = r#"/* ArchVNDE Glassmorphism GTK4 Theme */
 @define-color text-secondary rgba(160, 174, 192, 0.9);
 @define-color text-active-dark #121620;
 
-/* General Window Properties */
-window {
-    background: transparent;
+/* General Window Transparency (Critical for custom shells) */
+window, window decoration, window .background {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
 }
 
 /* Panel Status Bar Styles */
-.panel-window {
+.panel-box {
     background-color: @bg-glass-dark;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     color: @text-primary;
+    padding: 2px 15px;
 }
 
 .panel-title {
     font-weight: bold;
     color: @color-accent;
+    font-size: 1.1em;
+}
+
+.workspace-box {
+    margin-left: 15px;
+}
+
+.workspace-button {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background-image: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 8px !important;
+    color: @text-primary !important;
+    padding: 4px 12px;
+    font-size: 0.85em;
+    font-weight: bold;
+    margin-right: 5px;
+    box-shadow: none !important;
+    transition: all 0.2s ease-in-out;
+}
+
+.workspace-button:hover {
+    background-color: rgba(255, 255, 255, 0.12) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.workspace-button.active {
+    background-color: @color-accent !important;
+    border-color: @color-accent-hover !important;
+    color: @text-primary !important;
+    box-shadow: 0 2px 8px rgba(31, 111, 235, 0.3) !important;
+}
+
+.panel-clock {
+    font-weight: bold;
+    font-size: 0.95em;
+    color: @text-primary;
+}
+
+.panel-settings-btn {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background-image: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 8px !important;
+    color: @text-primary !important;
+    padding: 4px 12px;
+    font-weight: bold;
+    box-shadow: none !important;
+    transition: all 0.2s ease-in-out;
+}
+
+.panel-settings-btn:hover {
+    background-color: rgba(255, 255, 255, 0.12) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Quick Settings Styles */
+.quick-settings-box {
+    background-color: @bg-glass-dark;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    color: @text-primary;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.quick-settings-title {
+    font-weight: bold;
+    color: @color-accent;
+    font-size: 1.3em;
+    margin-bottom: 10px;
+}
+
+.quick-tile {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background-image: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 12px !important;
+    color: @text-primary !important;
+    padding: 12px;
+    font-weight: bold;
+    box-shadow: none !important;
+    transition: all 0.2s ease-in-out;
+}
+
+.quick-tile:hover {
+    background-color: rgba(255, 255, 255, 0.12) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.quick-tile.active {
+    background-color: @bg-card-active !important;
+    color: @text-active-dark !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Capsule Sliders for Volume & Brightness */
+scale trough {
+    min-height: 12px;
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: none;
+}
+
+scale progress {
+    min-height: 12px;
+    border-radius: 6px;
+    background-color: @color-accent;
+}
+
+scale slider {
+    min-width: 14px;
+    min-height: 14px;
+    margin: -1px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border: none;
 }
 
 /* Launcher Styles */
-.launcher-window {
+.launcher-box {
     background-color: @bg-glass-dark;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
     color: @text-primary;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .launcher-search entry {
-    background-color: @bg-card-inactive;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    color: @text-primary;
-    padding: 8px 12px;
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #ffffff;
+    padding: 10px 16px;
+    font-size: 1.1em;
+}
+
+.launcher-search entry:focus {
+    border-color: @color-accent;
+    box-shadow: 0 0 0 2px rgba(31, 111, 235, 0.2);
 }
 
 .launcher-list {
@@ -93,38 +224,41 @@ window {
 
 .launcher-list row {
     background-color: transparent;
-    padding: 10px;
-    border-radius: 8px;
-    margin: 2px 0;
+    padding: 12px;
+    border-radius: 10px;
+    margin: 4px 0;
     color: @text-primary;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.15s ease;
 }
 
 .launcher-list row:hover {
-    background-color: @bg-card-inactive;
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
 .launcher-list row:selected {
     background-color: @color-accent;
-    color: @text-primary;
+    color: #ffffff;
 }
 
 /* Notification Daemon Styles */
-.notification-card {
-    background-color: @bg-glass-dark;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
+.notification-box {
+    background-color: rgba(19, 24, 36, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
     color: @text-primary;
+    padding: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .notification-title {
     font-weight: bold;
     color: @color-accent;
-    font-size: 1.1em;
+    font-size: 1.15em;
 }
 
 .notification-body {
     color: @text-secondary;
+    font-size: 0.95em;
 }
 "#;
 
@@ -140,13 +274,12 @@ pub fn init_theme() {
     }
 
     let css_path = config_dir.join("style.css");
-    if !css_path.exists() {
-        if let Err(e) = fs::write(&css_path, DEFAULT_CSS) {
-            eprintln!("Failed to write default stylesheet: {}", e);
-            return;
-        }
-        println!("Created default glassmorphism stylesheet at {:?}", css_path);
+    // Always write the latest default CSS stylesheet to ensure style updates are applied immediately
+    if let Err(e) = fs::write(&css_path, DEFAULT_CSS) {
+        eprintln!("Failed to write default stylesheet: {}", e);
+        return;
     }
+    println!("Updated glassmorphism stylesheet at {:?}", css_path);
 
     // Load CSS into GTK
     let provider = gtk4::CssProvider::new();
