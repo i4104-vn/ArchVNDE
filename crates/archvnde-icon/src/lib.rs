@@ -40,8 +40,8 @@ pub fn get_icon_from_svg(svg_content: &str, size: i32) -> gtk4::Image {
     }
 }
 
-/// Helper function to retrieve an SVG icon widget by name.
-pub fn get_icon(name: &str, size: i32) -> gtk4::Image {
+/// Helper function to retrieve an SVG icon widget by name with a custom stroke color.
+pub fn get_icon_colored(name: &str, size: i32, color_hex: &str) -> gtk4::Image {
     let svg = match name {
         "wifi" => WIFI_SVG,
         "bluetooth" => BLUETOOTH_SVG,
@@ -58,5 +58,11 @@ pub fn get_icon(name: &str, size: i32) -> gtk4::Image {
         "battery" => BATTERY_SVG,
         _ => return gtk4::Image::from_icon_name("image-missing"),
     };
-    get_icon_from_svg(svg, size)
+    let colored_svg = svg.replace("currentColor", color_hex);
+    get_icon_from_svg(&colored_svg, size)
+}
+
+/// Helper function to retrieve an SVG icon widget by name. Defaults to white.
+pub fn get_icon(name: &str, size: i32) -> gtk4::Image {
+    get_icon_colored(name, size, "#ffffff")
 }
