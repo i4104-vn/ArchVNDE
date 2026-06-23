@@ -21,10 +21,7 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     window.add_css_class("launcher-window");
 
     let box_layout = gtk4::Box::new(gtk4::Orientation::Vertical, 15);
-    box_layout.set_margin_start(20);
-    box_layout.set_margin_end(20);
-    box_layout.set_margin_top(20);
-    box_layout.set_margin_bottom(20);
+    box_layout.set_margin_all(20);
 
     // Search Input
     let search_entry = gtk4::Entry::new();
@@ -54,20 +51,21 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
 
             for app in filtered_apps {
                 let row_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 12);
-                row_box.set_margin_start(6);
-                row_box.set_margin_end(6);
-                row_box.set_margin_top(6);
-                row_box.set_margin_bottom(6);
+                row_box.set_margin_all(6);
 
                 // Try to load icon
                 let icon_widget = if let Some(icon_name) = &app.icon {
                     if icon_name.starts_with('/') {
                         gtk4::Image::from_file(icon_name)
                     } else {
-                        gtk4::Image::from_icon_name(icon_name)
+                        let img = gtk4::Image::from_icon_name(icon_name);
+                        img.set_icon_size(gtk4::IconSize::Large);
+                        img
                     }
                 } else {
-                    gtk4::Image::from_icon_name("application-x-executable")
+                    let img = gtk4::Image::from_icon_name("application-x-executable");
+                    img.set_icon_size(gtk4::IconSize::Large);
+                    img
                 };
                 icon_widget.set_pixel_size(32);
 
