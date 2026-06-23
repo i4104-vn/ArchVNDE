@@ -79,8 +79,8 @@ fn create_toggle_tile(
 
 pub fn create_quick_settings_grid() -> gtk4::Grid {
     let grid = gtk4::Grid::new();
-    grid.set_row_spacing(8);
-    grid.set_column_spacing(8);
+    grid.set_row_spacing(6);
+    grid.set_column_spacing(6);
     grid.set_row_homogeneous(true);
     grid.set_column_homogeneous(true);
 

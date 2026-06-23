@@ -41,8 +41,8 @@ window.notification-card {
    ================================================================ */
 
 .panel-box {
-    background-color: rgba(10, 12, 18, 0.15);
-    background-image: none;
+    background-color: rgba(12, 15, 23, 0.65);
+    background-image: linear-gradient(180deg, rgba(24, 30, 48, 0.70) 0%, rgba(12, 15, 23, 0.75) 100%);
     color: rgba(255, 255, 255, 0.95);
     margin: 0px;
     padding: 0px 24px;
@@ -146,13 +146,14 @@ button.panel-settings-btn:hover {
    ================================================================ */
 
 .quick-settings-box {
-    background-color: rgba(12, 14, 22, 0.88);
-    background-image: linear-gradient(135deg, rgba(18, 22, 34, 0.88) 0%, rgba(12, 14, 22, 0.94) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 24px;
+    background-color: rgba(14, 18, 30, 0.82);
+    background-image: linear-gradient(135deg, rgba(22, 28, 45, 0.85) 0%, rgba(14, 18, 30, 0.90) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 20px;
     color: rgba(255, 255, 255, 0.95);
-    padding: 24px;
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+    padding: 16px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.60);
 }
 
 .quick-settings-title {
@@ -193,12 +194,12 @@ button.quick-tile {
     background-color: rgba(255, 255, 255, 0.06);
     background-image: none;
     border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 14px;
+    border-radius: 12px;
     color: rgba(255, 255, 255, 0.75);
-    padding: 8px 12px;
+    padding: 6px 10px;
     box-shadow: none;
-    min-width: 135px;
-    min-height: 52px;
+    min-width: 120px;
+    min-height: 44px;
 }
 
 button.quick-tile:hover {
@@ -295,25 +296,30 @@ button.quick-tile.active-light .tile-chevron {
    CAPSULE SLIDERS STYLING
    ================================================================ */
 
+.slider-icon {
+    color: rgba(255, 255, 255, 0.65);
+    margin-right: 8px;
+}
+
 scale trough {
-    min-height: 20px;
-    border-radius: 10px;
+    min-height: 8px;
+    border-radius: 4px;
     background-color: rgba(255, 255, 255, 0.08);
     border: none;
 }
 
 scale trough highlight {
-    border-radius: 10px;
+    border-radius: 4px;
     background-color: #2563eb;
     background-image: linear-gradient(to right, #2563eb, #60a5fa);
-    min-height: 20px;
+    min-height: 8px;
 }
 
 scale trough slider {
-    min-width: 26px;
-    min-height: 26px;
+    min-width: 14px;
+    min-height: 14px;
     margin: -3px;
-    border-radius: 13px;
+    border-radius: 7px;
     background-color: #ffffff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.40);
     border: 1px solid rgba(0, 0, 0, 0.10);
