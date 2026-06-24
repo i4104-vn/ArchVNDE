@@ -9,6 +9,8 @@ pub fn create_workspace_switcher() -> gtk4::Box {
     for i in 1..=4 {
         let btn = gtk4::Button::new();
         btn.add_css_class("workspace-dot");
+        btn.set_valign(gtk4::Align::Center);
+        btn.set_halign(gtk4::Align::Center);
         if i == 1 {
             btn.add_css_class("active");
         }
