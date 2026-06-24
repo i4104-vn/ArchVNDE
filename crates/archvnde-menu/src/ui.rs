@@ -92,7 +92,7 @@ pub fn build_menu_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     let menu_box_clone2 = menu_box.clone();
     let window_clone2 = window.clone();
     click_gesture.connect_pressed(move |_, _, x, y| {
-        let picked = window_clone2.pick(x, y, gtk4::PickFlags::default());
+        let picked = window_clone2.pick(x, y, gtk4::PickFlags::DEFAULT);
         let inside_menu = picked
             .map(|w| w.is_ancestor(&menu_box_clone2) || w == menu_box_clone2)
             .unwrap_or(false);
