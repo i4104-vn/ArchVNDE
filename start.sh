@@ -23,6 +23,9 @@ swww img /home/tdkhoa-01/Documents/src/I4104/ArchVNDE/wallpaper.png &
 # Start ArchVNDE status panel
 archvnde-panel &
 
+# Start ArchVNDE bottom dock bar
+archvnde-dock &
+
 # Start ArchVNDE notification daemon
 archvnde-notification &
 EOF

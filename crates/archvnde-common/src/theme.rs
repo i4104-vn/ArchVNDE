@@ -16,7 +16,9 @@ const DEFAULT_CSS: &str = concat!(
     "\n",
     include_str!("styles/power.css"),
     "\n",
-    include_str!("styles/menu.css")
+    include_str!("styles/menu.css"),
+    "\n",
+    include_str!("styles/dock.css")
 );
 
 /// Initializes the user configuration directory, writes the default

@@ -25,6 +25,7 @@ killall archvnde-panel || true
 killall archvnde-launcher || true
 killall archvnde-notification || true
 killall archvnde-menu || true
+killall archvnde-dock || true
 
 # 5. Install the binaries
 echo "Installing binaries to $LOCAL_BIN..."
@@ -32,6 +33,7 @@ cp target/release/archvnde-panel "$LOCAL_BIN/archvnde-panel"
 cp target/release/archvnde-launcher "$LOCAL_BIN/archvnde-launcher"
 cp target/release/archvnde-notification "$LOCAL_BIN/archvnde-notification"
 cp target/release/archvnde-menu "$LOCAL_BIN/archvnde-menu"
+cp target/release/archvnde-dock "$LOCAL_BIN/archvnde-dock"
 
 echo "============================================="
 echo "Installation complete!"
