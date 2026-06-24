@@ -22,8 +22,8 @@ pub fn create_clock_widget(
         move || {
             let now = chrono::Local::now();
             let time_str = format!(
-                "☀️ 26°C   {}   {}",
-                now.format("%a, %b %d").to_string(),
+                "{}   {}",
+                now.format("%d/%m").to_string(),
                 now.format("%I:%M %p").to_string().to_uppercase()
             );
             clock_label.set_text(&time_str);
