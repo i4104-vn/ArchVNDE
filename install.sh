@@ -7,54 +7,31 @@ echo "============================================="
 echo "   ArchVNDE Desktop Shell Installation Script"
 echo "============================================="
 
-# 1. Check for cargo (Rust compiler)
-if ! command -v cargo &> /dev/null; then
-    echo "Error: cargo (Rust toolchain) is not installed."
-    echo "Please install Rust using: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
-    exit 1
-fi
+# 1. Install all dependencies and the Rust toolchain first via pacman
+echo "Installing Arch Linux packages, development tools, and Rust compiler..."
+sudo pacman -S --needed --noconfirm base-devel git pkgconf gtk4 gtk4-layer-shell rust labwc
 
-# 2. Check for pkg-config and gtk4 library headers
-echo "Checking Arch Linux system dependencies..."
-MISSING_DEPS=0
-
-if ! pkg-config --exists gtk4; then
-    echo "  - gtk4 dev headers are missing."
-    MISSING_DEPS=1
-fi
-
-if ! pkg-config --exists gtk4-layer-shell; then
-    echo "  - gtk4-layer-shell dev headers are missing."
-    MISSING_DEPS=1
-fi
-
-if [ $MISSING_DEPS -eq 1 ]; then
-    echo ""
-    echo "Please install the missing build dependencies using pacman:"
-    echo "    sudo pacman -S --needed pkgconf gtk4 gtk4-layer-shell"
-    echo ""
-    read -p "Would you like me to try installing them for you? (y/N) " install_choice
-    if [[ "$install_choice" =~ ^[Yy]$ ]]; then
-        sudo pacman -S --needed pkgconf gtk4 gtk4-layer-shell
-    else
-        echo "Please install them manually and re-run this script."
-        exit 1
-    fi
-fi
-
-# 3. Compile the workspace in release mode
+# 2. Compile the workspace in release mode
 echo "Compiling ArchVNDE components in release mode..."
 cargo build --release
 
-# 4. Create local bin directory if it doesn't exist
+# 3. Create local bin directory if it doesn't exist
 LOCAL_BIN="$HOME/.local/bin"
 mkdir -p "$LOCAL_BIN"
+
+# 4. Kill any running instances first so the new binaries can be loaded
+echo "Stopping any running shell processes..."
+killall archvnde-panel || true
+killall archvnde-launcher || true
+killall archvnde-notification || true
+killall archvnde-menu || true
 
 # 5. Install the binaries
 echo "Installing binaries to $LOCAL_BIN..."
 cp target/release/archvnde-panel "$LOCAL_BIN/archvnde-panel"
 cp target/release/archvnde-launcher "$LOCAL_BIN/archvnde-launcher"
 cp target/release/archvnde-notification "$LOCAL_BIN/archvnde-notification"
+cp target/release/archvnde-menu "$LOCAL_BIN/archvnde-menu"
 
 echo "============================================="
 echo "Installation complete!"

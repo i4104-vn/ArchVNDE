@@ -18,6 +18,7 @@ pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Button {
     let content_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
     content_box.set_valign(gtk4::Align::Center);
 
+<<<<<<< HEAD:crates/archvnde-panel/src/widgets/quick_settings/mod.rs
     // Language label
     let lang_label = gtk4::Label::new(Some("US"));
     lang_label.add_css_class("status-text");
@@ -25,6 +26,9 @@ pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Button {
     // Network speed label
     let net_label = gtk4::Label::new(Some("844 B/s"));
     net_label.add_css_class("status-text");
+=======
+    let status_content = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
+>>>>>>> e4a3914 (feat: implement custom GTK4 glassmorphic context menu and override labwc root bind):crates/archvnde-panel/src/widgets/panel/mod.rs
 
     // Bluetooth icon
     let bluetooth_icon = archvnde_icon::get_icon("bluetooth", 14);
@@ -43,9 +47,16 @@ pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Button {
     battery_box.append(&battery_icon);
     battery_box.append(&battery_percent);
 
+<<<<<<< HEAD:crates/archvnde-panel/src/widgets/quick_settings/mod.rs
     // Settings icon
     let settings_icon = archvnde_icon::get_icon("settings", 14);
     settings_icon.add_css_class("status-icon");
+=======
+    status_content.append(&wifi_icon);
+    status_content.append(&bluetooth_icon);
+    status_content.append(&battery_icon);
+    status_content.append(&battery_percent);
+>>>>>>> e4a3914 (feat: implement custom GTK4 glassmorphic context menu and override labwc root bind):crates/archvnde-panel/src/widgets/panel/mod.rs
 
     // Power icon
     let power_icon = archvnde_icon::get_icon("power", 14);
