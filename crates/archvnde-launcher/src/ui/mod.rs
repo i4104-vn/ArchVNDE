@@ -84,7 +84,7 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     box_layout.append(&scrolled_window);
     window.set_child(Some(&box_layout));
 
-    archvnde_animation::slide_in(box_layout.upcast_ref(), archvnde_animation::SlideDirection::Down, 12, 240);
+    archvnde_common::animation::slide_in(box_layout.upcast_ref(), archvnde_common::animation::SlideDirection::Down, 12, 240);
 
     window
 }

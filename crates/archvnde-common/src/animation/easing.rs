@@ -40,4 +40,3 @@ pub fn ease_out_back(t: f64) -> f64 {
     let c3 = c1 + 1.0;
     1.0 + c3 * (t - 1.0).powi(3) + c1 * (t - 1.0).powi(2)
 }
-

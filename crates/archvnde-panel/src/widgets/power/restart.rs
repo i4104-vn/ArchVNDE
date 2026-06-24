@@ -12,7 +12,7 @@ pub fn create_restart_button() -> gtk4::Button {
     let restart_btn = gtk4::Button::new();
     restart_btn.add_css_class("circle-btn");
     restart_btn.add_css_class("restart-btn");
-    let restart_icon = archvnde_icon::get_icon("performance", 16);
+    let restart_icon = archvnde_common::icon::get_icon("performance", 16);
     restart_btn.set_child(Some(&restart_icon));
     restart_btn.connect_clicked(|_| {
         trigger_restart();
