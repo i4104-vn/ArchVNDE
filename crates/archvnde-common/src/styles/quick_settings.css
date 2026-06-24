@@ -1,0 +1,171 @@
+/* ================================================================
+   QUICK SETTINGS CARD — Glassmorphism
+   ================================================================ */
+
+.quick-settings-box {
+    background-color: rgba(14, 18, 30, 0.45);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(14, 18, 30, 0.50) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
+    border-left: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 20px;
+    color: rgba(255, 255, 255, 0.95);
+    padding: 16px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.10),
+                inset 0 0 30px rgba(255, 255, 255, 0.02);
+}
+
+.quick-settings-title {
+    font-weight: 800;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+/* Toggle Grid Cards (Inactive State) — Frosted Glass */
+button.quick-tile {
+    background-color: rgba(255, 255, 255, 0.06);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.75);
+    padding: 6px 10px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    min-width: 120px;
+    min-height: 44px;
+}
+
+button.quick-tile:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.06) 100%);
+    border-color: rgba(255, 255, 255, 0.20);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10),
+                0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* Inner labels of Toggle Grid Cards */
+.tile-icon {
+    font-size: 16px;
+    margin-right: 8px;
+    color: #ffffff;
+}
+
+.tile-title {
+    font-weight: 700;
+    font-size: 12px;
+    color: #ffffff;
+}
+
+.tile-subtitle {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.tile-chevron {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.35);
+    margin-left: 4px;
+}
+
+/* Toggle Grid Cards (Active Blue State) — Translucent Glass Blue */
+button.quick-tile.active {
+    background-color: rgba(37, 99, 235, 0.55);
+    background-image: linear-gradient(135deg, rgba(59, 130, 246, 0.60) 0%, rgba(37, 99, 235, 0.50) 100%);
+    border: 1px solid rgba(96, 165, 250, 0.40);
+    border-top: 1px solid rgba(147, 197, 253, 0.35);
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+button.quick-tile.active:hover {
+    background-color: rgba(29, 78, 216, 0.60);
+    background-image: linear-gradient(135deg, rgba(37, 99, 235, 0.65) 0%, rgba(29, 78, 216, 0.55) 100%);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+button.quick-tile.active .tile-subtitle {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+button.quick-tile.active .tile-chevron {
+    color: rgba(255, 255, 255, 0.60);
+}
+
+/* Toggle Grid Cards (Active Light White State) — Frosted White Glass */
+button.quick-tile.active-light {
+    background-color: rgba(255, 255, 255, 0.70);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.80) 0%, rgba(255, 255, 255, 0.60) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-top: 1px solid rgba(255, 255, 255, 0.75);
+    box-shadow: 0 4px 16px rgba(255, 255, 255, 0.10),
+                inset 0 1px 0 rgba(255, 255, 255, 0.40);
+}
+
+button.quick-tile.active-light:hover {
+    background-color: rgba(255, 255, 255, 0.78);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.68) 100%);
+}
+
+button.quick-tile.active-light .tile-icon {
+    color: #161a26;
+}
+
+button.quick-tile.active-light .tile-title {
+    color: #161a26;
+}
+
+button.quick-tile.active-light .tile-subtitle {
+    color: rgba(22, 26, 38, 0.65);
+}
+
+button.quick-tile.active-light .tile-chevron {
+    color: rgba(22, 26, 38, 0.40);
+}
+
+/* Volume / Brightness Sliders */
+.slider-label {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 28px;
+}
+
+
+/* ================================================================
+   CAPSULE SLIDERS STYLING
+   ================================================================ */
+
+.slider-icon {
+    color: rgba(255, 255, 255, 0.65);
+    margin-right: 8px;
+}
+
+scale trough {
+    min-height: 8px;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.08);
+    border: none;
+}
+
+scale trough highlight {
+    border-radius: 4px;
+    background-color: rgba(37, 99, 235, 0.70);
+    background-image: linear-gradient(to right, rgba(37, 99, 235, 0.75), rgba(96, 165, 250, 0.60));
+    min-height: 8px;
+}
+
+scale trough slider {
+    min-width: 14px;
+    min-height: 14px;
+    margin: -3px;
+    border-radius: 7px;
+    background-color: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.30);
+}
+
+scale trough slider:hover {
+    box-shadow: 0 2px 12px rgba(255, 255, 255, 0.30);
+}
