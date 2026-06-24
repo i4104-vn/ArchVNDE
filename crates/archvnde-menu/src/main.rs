@@ -1,11 +1,10 @@
-mod widgets;
-
+mod ui;
 
 use gtk4::prelude::*;
-use widgets::build_menu_ui;
+use ui::build_menu_ui;
 
 fn main() {
-    println!("Starting ArchVNDE Desktop Menu...");
+    println!("Starting ArchVNDE Context Menu...");
 
     let application = gtk4::Application::new(
         Some("org.archvnde.menu"),
