@@ -1,4 +1,5 @@
 use gtk4::prelude::*;
+use gio::prelude::*;
 use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
 use std::cell::Cell;
 use std::rc::Rc;
@@ -45,8 +46,41 @@ pub fn build_menu_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
         is_positioned_clone.set(true);
 
         // Get window size
-        let win_width = window_clone.width() as f64;
-        let win_height = window_clone.height() as f64;
+        let mut win_width = window_clone.width() as f64;
+        let mut win_height = window_clone.height() as f64;
+
+        // Fallback to monitor geometry if window has not been allocated size yet (<= 1.0)
+        if win_width <= 1.0 || win_height <= 1.0 {
+            if let Some(display) = gtk4::gdk::Display::default() {
+                let monitors = display.monitors();
+                let mut found_monitor = None;
+                let x_i = x as i32;
+                let y_i = y as i32;
+                for i in 0..monitors.n_items() {
+                    if let Some(item) = monitors.item(i) {
+                        if let Ok(monitor) = item.downcast::<gtk4::gdk::Monitor>() {
+                            let geometry = monitor.geometry();
+                            if x_i >= geometry.x()
+                                && x_i < geometry.x() + geometry.width()
+                                && y_i >= geometry.y()
+                                && y_i < geometry.y() + geometry.height()
+                            {
+                                found_monitor = Some(monitor);
+                                break;
+                            }
+                        }
+                    }
+                }
+                let monitor = found_monitor.or_else(|| {
+                    monitors.item(0).and_then(|item| item.downcast::<gtk4::gdk::Monitor>().ok())
+                });
+                if let Some(monitor) = monitor {
+                    let geometry = monitor.geometry();
+                    win_width = geometry.width() as f64;
+                    win_height = geometry.height() as f64;
+                }
+            }
+        }
 
         // Estimated menu dimensions
         let menu_w = 220.0;
