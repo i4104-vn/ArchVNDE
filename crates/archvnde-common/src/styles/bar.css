@@ -172,6 +172,7 @@ button.panel-clock-btn:hover {
     padding: 0;
     box-shadow: none;
     transition: all 400ms cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden; /* Prevent child content from overflowing during scale/zoom transitions */
 }
 
 .panel-notch.active-music {
@@ -179,16 +180,18 @@ button.panel-clock-btn:hover {
     background-image: linear-gradient(180deg, rgba(20, 20, 22, 0.95) 0%, rgba(10, 10, 12, 0.85) 100%);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 9999px;
-    min-width: 220px;
-    min-height: 26px;
-    padding: 3px 12px;
-    margin-top: 6px;
+    min-width: 0;
+    min-height: 0;
+    padding: 3px 10px;
+    margin-top: 4px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.40),
                 0 0 12px rgba(59, 130, 246, 0.15);
 }
 
 .notch-content {
     opacity: 1.0;
+    min-width: 180px; /* 200px target minus 2 * 10px padding */
+    min-height: 16px; /* 22px target minus 2 * 3px padding */
 }
 
 .notch-player-text {
@@ -214,4 +217,30 @@ button.panel-clock-btn:hover {
     background-image: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
     border-radius: 9999px;
     transition: all 100ms ease;
+}
+
+/* Island Notification Badge */
+.island-badge {
+    background-color: rgba(12, 12, 14, 0.95);
+    background-image: linear-gradient(180deg, rgba(20, 20, 22, 0.98) 0%, rgba(10, 10, 12, 0.92) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 6px 12px;
+    min-width: 220px;
+    max-width: 240px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.badge-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: #3b82f6;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.badge-desc {
+    font-size: 9px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }

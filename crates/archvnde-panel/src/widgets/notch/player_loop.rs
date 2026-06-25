@@ -11,8 +11,13 @@ pub fn start_player_polling_loop(
     music_view: gtk4::Box,
     track_label: gtk4::Label,
     art_container: gtk4::Box,
+    notification_badge: gtk4::Box,
+    badge_title: gtk4::Label,
+    badge_desc: gtk4::Label,
+    badge_icon_container: gtk4::Box,
 ) {
     let last_art_url = Rc::new(RefCell::new(String::new()));
+    let was_custom_active = Rc::new(Cell::new(false));
 
     glib::timeout_add_local(std::time::Duration::from_millis(1000), move || {
         // 1. Read custom island state from the TOML file
@@ -57,14 +62,14 @@ pub fn start_player_polling_loop(
 
         if show_capsule {
             // Update global playing state for visualizer animation
-            is_playing_state.set(playing && !custom_active);
+            is_playing_state.set(playing || (custom_active && custom_state.as_ref().map(|s| s.icon.as_str()) == Some("music")));
 
             // Render view depending on priority (Custom notifications take priority!)
             if custom_active {
-                if let Some(state) = custom_state {
+                if let Some(state) = custom_state.as_ref() {
                     // Update track label with Custom Title + Subtitle
                     let display_text = if state.subtitle.is_empty() {
-                        state.title
+                        state.title.clone()
                     } else {
                         format!("{} - {}", state.title, state.subtitle)
                     };
@@ -86,6 +91,29 @@ pub fn start_player_polling_loop(
                     let custom_icon = archvnde_common::icon::get_icon_colored(icon_name, 14, "#3b82f6");
                     custom_icon.add_css_class("notch-album-art");
                     art_container.append(&custom_icon);
+                }
+
+                // Handle Notification Badge slide-down
+                if !was_custom_active.get() {
+                    was_custom_active.set(true);
+                    if let Some(state) = custom_state.as_ref() {
+                        badge_title.set_text(&state.title);
+                        badge_desc.set_text(&state.subtitle);
+
+                        if let Some(child) = badge_icon_container.first_child() {
+                            badge_icon_container.remove(&child);
+                        }
+                        let icon_name = if state.icon.is_empty() { "bell" } else { &state.icon };
+                        let custom_icon = archvnde_common::icon::get_icon_colored(icon_name, 14, "#3b82f6");
+                        badge_icon_container.append(&custom_icon);
+                    }
+                    notification_badge.set_visible(true);
+                    archvnde_common::animation::slide_in(
+                        notification_badge.clone().upcast_ref(),
+                        archvnde_common::animation::SlideDirection::Down,
+                        8,
+                        200,
+                    );
                 }
             } else {
                 // Regular music player rendering
@@ -125,16 +153,54 @@ pub fn start_player_polling_loop(
                     new_art.add_css_class("notch-album-art");
                     art_container.append(&new_art);
                 }
+
+                // Hide custom notification badge when custom alert is gone
+                if was_custom_active.get() {
+                    was_custom_active.set(false);
+                    archvnde_common::animation::slide_out(
+                        notification_badge.clone().upcast_ref(),
+                        archvnde_common::animation::SlideDirection::Up,
+                        8,
+                        200,
+                        true,
+                    );
+                }
             }
 
             default_view.set_visible(false);
             music_view.set_visible(true);
-            notch_capsule.add_css_class("active-music");
-            notch_capsule.set_visible(true);
+            if !notch_capsule.is_visible() {
+                notch_capsule.add_css_class("active-music");
+                archvnde_common::animation::zoom_in(
+                    notch_capsule.clone().upcast_ref(),
+                    200,
+                    22,
+                    300,
+                );
+            }
         } else {
             is_playing_state.set(false);
-            notch_capsule.remove_css_class("active-music");
-            notch_capsule.set_visible(false);
+            if notch_capsule.is_visible() {
+                let notch_capsule_clone = notch_capsule.clone();
+                archvnde_common::animation::zoom_out(
+                    notch_capsule.clone().upcast_ref(),
+                    300,
+                    true,
+                );
+                glib::timeout_add_local_once(std::time::Duration::from_millis(300), move || {
+                    notch_capsule_clone.remove_css_class("active-music");
+                });
+            }
+            if was_custom_active.get() {
+                was_custom_active.set(false);
+                archvnde_common::animation::slide_out(
+                    notification_badge.clone().upcast_ref(),
+                    archvnde_common::animation::SlideDirection::Up,
+                    8,
+                    200,
+                    true,
+                );
+            }
         }
 
         glib::ControlFlow::Continue
