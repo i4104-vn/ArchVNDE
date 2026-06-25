@@ -1,14 +1,14 @@
 mod playerctl;
-mod visualizer;
 mod player_loop;
-mod popover;
-pub mod notification;
+pub mod widgets;
 
 use gtk4::prelude::*;
 use std::cell::Cell;
 use std::rc::Rc;
 
-use visualizer::{create_visualizer, start_visualizer_animation};
+use widgets::visualizer::{create_visualizer, start_visualizer_animation};
+use widgets::popover;
+use widgets::notification;
 use player_loop::start_player_polling_loop;
 
 /// Creates the macOS style dropdown island in the panel center containing a music player.
@@ -102,24 +102,27 @@ pub fn create_system_island() -> gtk4::Box {
         popover_artist,
         popover_art_container,
         popover_app_name,
-        play_img_clone,
-    ) = popover::create_media_popover(&notch_capsule);
+        play_btn_icon,
+        progress_scale,
+        elapsed_label,
+        total_label,
+    ) = widgets::popover::create_media_popover(&notch_capsule);
 
     // Shared state variables
     let is_playing_state = Rc::new(Cell::new(false));
 
     // Spawn DBus listener on startup
-    let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<notification::NotificationMsg>();
-    notification::spawn_dbus_listener(tx);
+    let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<widgets::notification::NotificationMsg>();
+    widgets::notification::spawn_dbus_listener(tx);
 
     glib::MainContext::default().spawn_local(async move {
         while let Some(msg) = rx.recv().await {
             match msg {
-                notification::NotificationMsg::New { summary, body, icon, timeout } => {
-                    notification::show_notification_popup(&summary, &body, &icon, timeout);
+                widgets::notification::NotificationMsg::New { summary, body, icon, timeout } => {
+                    widgets::notification::show_notification_popup(&summary, &body, &icon, timeout);
                 }
-                notification::NotificationMsg::Close => {
-                    notification::close_notification_popup();
+                widgets::notification::NotificationMsg::Close => {
+                    widgets::notification::close_notification_popup();
                 }
             }
         }
@@ -144,7 +147,12 @@ pub fn create_system_island() -> gtk4::Box {
         popover_artist,
         popover_art_container,
         popover_app_name,
-        play_img_clone,
+        play_btn_icon,
+
+        // Pass timeline widgets
+        progress_scale,
+        elapsed_label,
+        total_label,
     );
 
     container_vbox

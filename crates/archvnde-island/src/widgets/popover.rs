@@ -119,10 +119,10 @@ pub fn create_media_popover(
 
     let play_btn = gtk4::Button::new();
     play_btn.add_css_class("media-control-btn");
-    let play_img = gtk4::Image::from_icon_name("media-playback-start-symbolic");
-    play_img.set_pixel_size(22);
-    play_btn.set_child(Some(&play_img));
-    let play_img_clone = play_img.clone();
+    let play_btn_icon = gtk4::Image::from_icon_name("media-playback-start-symbolic");
+    play_btn_icon.set_pixel_size(22);
+    play_btn.set_child(Some(&play_btn_icon));
+    let play_btn_icon_clone = play_btn_icon.clone();
     play_btn.connect_clicked(move |_| {
         let _ = std::process::Command::new("playerctl").arg("play-pause").spawn();
     });
@@ -195,7 +195,7 @@ pub fn create_media_popover(
         popover_artist,
         popover_art_container,
         popover_app_name,
-        play_img_clone,
+        play_btn_icon_clone,
         progress_scale,
         elapsed_label,
         total_label,
