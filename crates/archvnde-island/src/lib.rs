@@ -2,6 +2,7 @@ mod playerctl;
 mod visualizer;
 mod player_loop;
 mod popover;
+pub mod notification;
 
 use gtk4::prelude::*;
 use std::cell::Cell;
@@ -67,7 +68,34 @@ pub fn create_system_island() -> gtk4::Box {
     notch_capsule.append(&notch_content);
     container_vbox.append(&notch_capsule);
 
-    // --- 3. Media Control Popover ---
+    // --- 3. Notification Badge widget (flies down under the island) ---
+    let notification_badge = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
+    notification_badge.add_css_class("island-badge");
+    notification_badge.set_valign(gtk4::Align::Start);
+    notification_badge.set_halign(gtk4::Align::Center);
+    notification_badge.set_visible(false); // Hidden by default
+
+    let badge_icon_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+    badge_icon_container.set_valign(gtk4::Align::Center);
+    let badge_icon = archvnde_common::icon::get_icon_colored("bell", 14, "#3b82f6");
+    badge_icon_container.append(&badge_icon);
+
+    let badge_text_box = gtk4::Box::new(gtk4::Orientation::Vertical, 2);
+    let badge_title = gtk4::Label::new(Some("Notification"));
+    badge_title.add_css_class("badge-title");
+    badge_title.set_halign(gtk4::Align::Start);
+    let badge_desc = gtk4::Label::new(Some("New Message"));
+    badge_desc.add_css_class("badge-desc");
+    badge_desc.set_halign(gtk4::Align::Start);
+    
+    badge_text_box.append(&badge_title);
+    badge_text_box.append(&badge_desc);
+
+    notification_badge.append(&badge_icon_container);
+    notification_badge.append(&badge_text_box);
+    container_vbox.append(&notification_badge);
+
+    // --- 4. Media Control Popover ---
     let (
         _popover,
         popover_title,
@@ -80,6 +108,23 @@ pub fn create_system_island() -> gtk4::Box {
     // Shared state variables
     let is_playing_state = Rc::new(Cell::new(false));
 
+    // Spawn DBus listener on startup
+    let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<notification::NotificationMsg>();
+    notification::spawn_dbus_listener(tx);
+
+    glib::MainContext::default().spawn_local(async move {
+        while let Some(msg) = rx.recv().await {
+            match msg {
+                notification::NotificationMsg::New { summary, body, icon, timeout } => {
+                    notification::show_notification_popup(&summary, &body, &icon, timeout);
+                }
+                notification::NotificationMsg::Close => {
+                    notification::close_notification_popup();
+                }
+            }
+        }
+    });
+
     // Start background animation loops
     start_visualizer_animation(bars, is_playing_state.clone());
     start_player_polling_loop(
@@ -89,6 +134,10 @@ pub fn create_system_island() -> gtk4::Box {
         music_view,
         track_label,
         art_container,
+        notification_badge,
+        badge_title,
+        badge_desc,
+        badge_icon_container,
         
         // Pass popover update targets
         popover_title,
