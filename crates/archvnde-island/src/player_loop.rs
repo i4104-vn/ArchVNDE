@@ -44,6 +44,10 @@ pub fn start_player_polling_loop(
     // Track user seeking with a timestamp to avoid overwriting seek values and slider jumping
     let last_seek_time = Rc::new(Cell::new(std::time::Instant::now()));
 
+    // Poll counter and duration state
+    let poll_counter = Rc::new(Cell::new(0u32));
+    let duration_secs_state = Rc::new(Cell::new(0.0f64));
+
     let last_seek_time_clone = last_seek_time.clone();
     progress_scale.connect_change_value(move |_scale, _scroll_type, value| {
         last_seek_time_clone.set(std::time::Instant::now());
@@ -158,145 +162,129 @@ pub fn start_player_polling_loop(
                 let playing = status_str == "Playing";
                 is_playing_state.set(playing);
 
-                let title = run_playerctl(&["metadata", "title"]).unwrap_or_else(|| "Unknown Title".to_string());
-                let artist = run_playerctl(&["metadata", "artist"]).unwrap_or_else(|| "Unknown Artist".to_string());
+                let count = poll_counter.get();
+                poll_counter.set(count + 1);
 
-                let label_text = if artist.is_empty() {
-                    title.clone()
-                } else {
-                    format!("{} - {}", artist, title)
-                };
+                // Update metadata and album art every 5 seconds
+                if count % 5 == 0 {
+                    let title = run_playerctl(&["metadata", "title"]).unwrap_or_else(|| "Unknown Title".to_string());
+                    let artist = run_playerctl(&["metadata", "artist"]).unwrap_or_else(|| "Unknown Artist".to_string());
 
-                let display_text = if label_text.chars().count() > 18 {
-                    let truncated: String = label_text.chars().take(15).collect();
-                    format!("{}...", truncated)
-                } else {
-                    label_text
-                };
-                track_label.set_text(&display_text);
+                    let label_text = if artist.is_empty() {
+                        title.clone()
+                    } else {
+                        format!("{} - {}", artist, title)
+                    };
 
-                popover_title.set_text(&title);
-                popover_artist.set_text(&artist);
+                    let display_text = if label_text.chars().count() > 18 {
+                        let truncated: String = label_text.chars().take(15).collect();
+                        format!("{}...", truncated)
+                    } else {
+                        label_text
+                    };
+                    track_label.set_text(&display_text);
 
-                let player_name = run_playerctl(&["metadata", "--format", "{{ playerName }}"])
-                    .map(|s| {
-                        let mut chars = s.chars();
-                        match chars.next() {
-                            None => String::new(),
-                            Some(f) => f.to_uppercase().collect::<String>() + chars.as_str(),
+                    popover_title.set_text(&title);
+                    popover_artist.set_text(&artist);
+
+                    let player_name = run_playerctl(&["metadata", "--format", "{{ playerName }}"])
+                        .map(|s| {
+                            let mut chars = s.chars();
+                            match chars.next() {
+                                None => String::new(),
+                                Some(f) => f.to_uppercase().collect::<String>() + chars.as_str(),
+                            }
+                        })
+                        .unwrap_or_else(|| "Music Player".to_string());
+                    popover_app_name.set_text(&player_name);
+
+                    // Length / Duration
+                    let length_us = run_playerctl(&["metadata", "mpris:length"])
+                        .and_then(|s| s.parse::<f64>().ok())
+                        .unwrap_or(0.0);
+                    let duration_secs = length_us / 1_000_000.0;
+                    duration_secs_state.set(duration_secs);
+                    total_label.set_text(&format_time(duration_secs));
+
+                    // Album Art
+                    let art_url = run_playerctl(&["metadata", "mpris:artUrl"]).unwrap_or_default();
+                    let mut last_url = last_art_url.borrow_mut();
+                    let mut last_attempt = last_attempted_url.borrow_mut();
+
+                    if *last_attempt != art_url {
+                        *last_attempt = art_url.clone();
+                        fail_count.set(0);
+                    }
+
+                    if *last_url != art_url || count == 0 {
+                        if art_url.is_empty() {
+                            *last_url = art_url.clone();
+                            // Clear artwork (no fallback icon)
+                            if let Some(child) = art_container.first_child() {
+                                art_container.remove(&child);
+                            }
+                            if let Some(child) = popover_art_container.first_child() {
+                                popover_art_container.remove(&child);
+                            }
+                        } else {
+                            let small_art = load_album_art(&art_url, 16);
+                            let large_art = load_album_art(&art_url, 240);
+
+                            if let (Some(s_art), Some(l_art)) = (small_art, large_art) {
+                                *last_url = art_url.clone();
+
+                                if let Some(child) = art_container.first_child() {
+                                    art_container.remove(&child);
+                                }
+                                s_art.add_css_class("notch-album-art");
+                                art_container.append(&s_art);
+
+                                if let Some(child) = popover_art_container.first_child() {
+                                    popover_art_container.remove(&child);
+                                }
+                                l_art.add_css_class("media-popover-art");
+                                l_art.set_size_request(240, 240);
+                                l_art.set_hexpand(true);
+                                l_art.set_vexpand(true);
+                                l_art.set_halign(gtk4::Align::Fill);
+                                l_art.set_valign(gtk4::Align::Fill);
+                                popover_art_container.append(&l_art);
+                            } else {
+                                let current_fails = fail_count.get() + 1;
+                                fail_count.set(current_fails);
+                                if current_fails >= 3 {
+                                    *last_url = art_url.clone();
+                                    // Clear artwork on failure (no fallback icon)
+                                    if let Some(child) = art_container.first_child() {
+                                        art_container.remove(&child);
+                                    }
+                                    if let Some(child) = popover_art_container.first_child() {
+                                        popover_art_container.remove(&child);
+                                    }
+                                }
+                            }
                         }
-                    })
-                    .unwrap_or_else(|| "Music Player".to_string());
-                popover_app_name.set_text(&player_name);
+                    }
+                }
 
+                // Update play/pause icon state
                 if playing {
                     play_btn_icon.set_icon_name(Some("media-playback-pause-symbolic"));
                 } else {
                     play_btn_icon.set_icon_name(Some("media-playback-start-symbolic"));
                 }
 
-                // --- Update timeline ---
-                let length_us = run_playerctl(&["metadata", "mpris:length"])
-                    .and_then(|s| s.parse::<f64>().ok())
-                    .unwrap_or(0.0);
+                // --- Update timeline every 1s ---
                 let position_secs = run_playerctl(&["position"])
                     .and_then(|s| s.parse::<f64>().ok())
                     .unwrap_or(0.0);
 
-                let duration_secs = length_us / 1_000_000.0;
-
                 elapsed_label.set_text(&format_time(position_secs));
-                total_label.set_text(&format_time(duration_secs));
 
-                // Only update scale from current player time if user hasn't seeking recently (gives player time to seek)
+                let duration_secs = duration_secs_state.get();
                 if last_seek_time.get().elapsed() > std::time::Duration::from_secs(2) && duration_secs > 0.0 {
                     let fraction = (position_secs / duration_secs).clamp(0.0, 1.0);
                     progress_scale.set_value(fraction);
-                }
-
-                // Check art url — only update cached URL on successful art load (or empty)
-                let art_url = run_playerctl(&["metadata", "mpris:artUrl"]).unwrap_or_default();
-                let mut last_url = last_art_url.borrow_mut();
-                let mut last_attempt = last_attempted_url.borrow_mut();
-
-                if *last_attempt != art_url {
-                    *last_attempt = art_url.clone();
-                    fail_count.set(0);
-                }
-
-                if *last_url != art_url {
-                    if art_url.is_empty() {
-                        *last_url = art_url.clone();
-                        
-                        // Set fallback icon
-                        if let Some(child) = art_container.first_child() {
-                            art_container.remove(&child);
-                        }
-                        let new_art = archvnde_common::icon::get_icon_colored("music", 14, "#3b82f6");
-                        new_art.add_css_class("notch-album-art");
-                        art_container.append(&new_art);
-
-                        if let Some(child) = popover_art_container.first_child() {
-                            popover_art_container.remove(&child);
-                        }
-                        let new_large_art = archvnde_common::icon::get_icon_colored("music", 120, "#3b82f6");
-                        new_large_art.add_css_class("media-popover-art");
-                        new_large_art.set_size_request(240, 240);
-                        new_large_art.set_hexpand(true);
-                        new_large_art.set_vexpand(true);
-                        new_large_art.set_halign(gtk4::Align::Fill);
-                        new_large_art.set_valign(gtk4::Align::Fill);
-                        popover_art_container.append(&new_large_art);
-                    } else {
-                        let small_art = load_album_art(&art_url, 16);
-                        let large_art = load_album_art(&art_url, 240);
-
-                        if let (Some(s_art), Some(l_art)) = (small_art, large_art) {
-                            *last_url = art_url.clone();
-
-                            if let Some(child) = art_container.first_child() {
-                                art_container.remove(&child);
-                            }
-                            s_art.add_css_class("notch-album-art");
-                            art_container.append(&s_art);
-
-                            if let Some(child) = popover_art_container.first_child() {
-                                popover_art_container.remove(&child);
-                            }
-                            l_art.add_css_class("media-popover-art");
-                            l_art.set_size_request(240, 240);
-                            l_art.set_hexpand(true);
-                            l_art.set_vexpand(true);
-                            l_art.set_halign(gtk4::Align::Fill);
-                            l_art.set_valign(gtk4::Align::Fill);
-                            popover_art_container.append(&l_art);
-                        } else {
-                            let current_fails = fail_count.get() + 1;
-                            fail_count.set(current_fails);
-                            if current_fails >= 3 {
-                                *last_url = art_url.clone();
-
-                                if let Some(child) = art_container.first_child() {
-                                    art_container.remove(&child);
-                                }
-                                let new_art = archvnde_common::icon::get_icon_colored("music", 14, "#3b82f6");
-                                new_art.add_css_class("notch-album-art");
-                                art_container.append(&new_art);
-
-                                if let Some(child) = popover_art_container.first_child() {
-                                    popover_art_container.remove(&child);
-                                }
-                                let new_large_art = archvnde_common::icon::get_icon_colored("music", 120, "#3b82f6");
-                                new_large_art.add_css_class("media-popover-art");
-                                new_large_art.set_size_request(240, 240);
-                                new_large_art.set_hexpand(true);
-                                new_large_art.set_vexpand(true);
-                                new_large_art.set_halign(gtk4::Align::Fill);
-                                new_large_art.set_valign(gtk4::Align::Fill);
-                                popover_art_container.append(&new_large_art);
-                            }
-                        }
-                    }
                 }
 
                 default_view.set_visible(false);
@@ -312,12 +300,22 @@ pub fn start_player_polling_loop(
                 }
             } else {
                 is_playing_state.set(false);
+                poll_counter.set(0); // Reset counter
 
                 // Reset timeline when not playing
                 progress_scale.set_value(0.0);
                 elapsed_label.set_text("0:00");
                 total_label.set_text("0:00");
+                duration_secs_state.set(0.0);
                 play_btn_icon.set_icon_name(Some("media-playback-start-symbolic"));
+
+                // Clear artwork (no fallback icon)
+                if let Some(child) = art_container.first_child() {
+                    art_container.remove(&child);
+                }
+                if let Some(child) = popover_art_container.first_child() {
+                    popover_art_container.remove(&child);
+                }
 
                 if notch_capsule.is_visible() {
                     let notch_capsule_clone = notch_capsule.clone();

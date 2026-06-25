@@ -47,9 +47,6 @@ pub fn create_system_island() -> gtk4::Box {
     // Album Art container
     let art_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
     art_container.set_valign(gtk4::Align::Center);
-    let fallback_icon = archvnde_common::icon::get_icon_colored("music", 14, "#3b82f6");
-    fallback_icon.add_css_class("notch-album-art");
-    art_container.append(&fallback_icon);
 
     // Track details
     let track_label = gtk4::Label::new(Some("No media"));
