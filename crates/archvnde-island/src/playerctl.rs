@@ -31,9 +31,6 @@ fn decode_uri(uri: &str) -> String {
     decoded
 }
 
-use std::cell::RefCell;
-use std::collections::HashSet;
-
 pub fn load_album_art(art_url: &str, size: i32) -> Option<gtk4::Image> {
     if art_url.is_empty() {
         return None;
@@ -41,41 +38,6 @@ pub fn load_album_art(art_url: &str, size: i32) -> Option<gtk4::Image> {
 
     let local_path = if let Some(path_str) = art_url.strip_prefix("file://") {
         decode_uri(path_str)
-    } else if art_url.starts_with("http://") || art_url.starts_with("https://") {
-        let sanitized: String = art_url.chars()
-            .map(|c| if c.is_alphanumeric() { c } else { '_' })
-            .collect();
-        let cache_path = format!("/tmp/archvnde_art_cache/{}.png", sanitized);
-        
-        if std::path::Path::new(&cache_path).exists() {
-            cache_path
-        } else {
-            thread_local! {
-                static ACTIVE_DOWNLOADS: RefCell<HashSet<String>> = RefCell::new(HashSet::new());
-            }
-            ACTIVE_DOWNLOADS.with(|downloads| {
-                let mut d = downloads.borrow_mut();
-                if !d.contains(art_url) {
-                    d.insert(art_url.to_string());
-                    let _ = std::fs::create_dir_all("/tmp/archvnde_art_cache");
-                    let url_clone = art_url.to_string();
-                    let cache_path_clone = cache_path.clone();
-                    std::thread::spawn(move || {
-                        let status = std::process::Command::new("curl")
-                            .args(&["-s", "-L", "-o", &cache_path_clone, &url_clone])
-                            .status();
-                        if let Ok(stat) = status {
-                            if !stat.success() {
-                                let _ = std::fs::File::create(&cache_path_clone);
-                            }
-                        } else {
-                            let _ = std::fs::File::create(&cache_path_clone);
-                        }
-                    });
-                }
-            });
-            return None;
-        }
     } else if art_url.starts_with('/') {
         art_url.to_string()
     } else {
@@ -86,9 +48,11 @@ pub fn load_album_art(art_url: &str, size: i32) -> Option<gtk4::Image> {
         &local_path,
         size,
         size,
-        true,
+        false,
     ).ok()?;
     
     let texture = gdk4::Texture::for_pixbuf(&pb);
-    Some(gtk4::Image::from_paintable(Some(&texture)))
+    let img = gtk4::Image::from_paintable(Some(&texture));
+    img.set_pixel_size(size);
+    Some(img)
 }
