@@ -5,13 +5,6 @@ use std::rc::Rc;
 use crate::playerctl::{load_album_art, run_playerctl};
 
 /// Formats seconds into M:SS string
-fn format_time(seconds: f64) -> String {
-    let total_secs = seconds.max(0.0) as u64;
-    let mins = total_secs / 60;
-    let secs = total_secs % 60;
-    format!("{}:{:02}", mins, secs)
-}
-
 pub fn start_player_polling_loop(
     is_playing_state: Rc<Cell<bool>>,
     notch_capsule: gtk4::Box,
@@ -30,43 +23,17 @@ pub fn start_player_polling_loop(
     popover_art_container: gtk4::Box,
     popover_app_name: gtk4::Label,
     play_btn_icon: gtk4::Image,
-
-    // Timeline widgets
-    progress_scale: gtk4::Scale,
-    elapsed_label: gtk4::Label,
-    total_label: gtk4::Label,
 ) {
     let last_art_url = Rc::new(RefCell::new(String::new()));
     let last_attempted_url = Rc::new(RefCell::new(String::new()));
     let fail_count = Rc::new(Cell::new(0u32));
     let was_custom_active = Rc::new(Cell::new(false));
 
-    // Track user seeking with a timestamp to avoid overwriting seek values and slider jumping
-    let last_seek_time = Rc::new(Cell::new(std::time::Instant::now()));
-
-    // Poll counter and duration state
+    // Poll counter state
     let poll_counter = Rc::new(Cell::new(0u32));
-    let duration_secs_state = Rc::new(Cell::new(0.0f64));
 
     let last_title = Rc::new(RefCell::new(String::new()));
     let art_loaded_for_current_song = Rc::new(Cell::new(false));
-
-    let last_seek_time_clone = last_seek_time.clone();
-    let duration_secs_state_clone = duration_secs_state.clone();
-    let elapsed_label_clone = elapsed_label.clone();
-    progress_scale.connect_change_value(move |_scale, _scroll_type, value| {
-        last_seek_time_clone.set(std::time::Instant::now());
-        let duration_secs = duration_secs_state_clone.get();
-        if duration_secs > 0.0 {
-            let seek_pos = value * duration_secs;
-            elapsed_label_clone.set_text(&format_time(seek_pos));
-            let _ = std::process::Command::new("playerctl")
-                .arg("position")
-                .arg(format!("{:.6}", seek_pos))
-                .spawn();
-        }
-        glib::Propagation::Proceed
-    });
 
     glib::timeout_add_local(std::time::Duration::from_millis(1000), move || {
         // 1. Check for incoming/active notification from D-Bus popups
@@ -222,14 +189,6 @@ pub fn start_player_polling_loop(
                         })
                         .unwrap_or_else(|| "Music Player".to_string());
                     popover_app_name.set_text(&player_name);
-
-                    // Length / Duration
-                    let length_us = run_playerctl(&["metadata", "mpris:length"])
-                        .and_then(|s| s.parse::<f64>().ok())
-                        .unwrap_or(0.0);
-                    let duration_secs = length_us / 1_000_000.0;
-                    duration_secs_state.set(duration_secs);
-                    total_label.set_text(&format_time(duration_secs));
                 }
 
                 // Update cover art (only load when not yet loaded for the current song)
@@ -321,19 +280,6 @@ pub fn start_player_polling_loop(
                     play_btn_icon.set_icon_name(Some("media-playback-start-symbolic"));
                 }
 
-                // --- Update timeline every 1s ---
-                let position_secs = run_playerctl(&["position"])
-                    .and_then(|s| s.parse::<f64>().ok())
-                    .unwrap_or(0.0);
-
-                elapsed_label.set_text(&format_time(position_secs));
-
-                let duration_secs = duration_secs_state.get();
-                if last_seek_time.get().elapsed() > std::time::Duration::from_secs(2) && duration_secs > 0.0 {
-                    let fraction = (position_secs / duration_secs).clamp(0.0, 1.0);
-                    progress_scale.set_value(fraction);
-                }
-
                 default_view.set_visible(false);
                 music_view.set_visible(true);
                 if !notch_capsule.is_visible() {
@@ -351,11 +297,6 @@ pub fn start_player_polling_loop(
                 last_title.borrow_mut().clear();
                 art_loaded_for_current_song.set(false);
 
-                // Reset timeline when not playing
-                progress_scale.set_value(0.0);
-                elapsed_label.set_text("0:00");
-                total_label.set_text("0:00");
-                duration_secs_state.set(0.0);
                 play_btn_icon.set_icon_name(Some("media-playback-start-symbolic"));
 
                 // Clear artwork (no fallback icon)

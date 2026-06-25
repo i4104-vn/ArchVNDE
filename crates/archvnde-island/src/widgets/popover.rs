@@ -10,9 +10,6 @@ pub fn create_media_popover(
     gtk4::Box,
     gtk4::Label,
     gtk4::Image,
-    gtk4::Scale,    // timeline progress scale
-    gtk4::Label,    // elapsed time label
-    gtk4::Label,    // total time label
 ) {
     let popover = gtk4::Popover::new();
     popover.set_parent(notch_capsule);
@@ -57,40 +54,7 @@ pub fn create_media_popover(
     popover_box.append(&popover_title);
     popover_box.append(&popover_artist);
 
-    // --- Timeline / Progress ---
-    let timeline_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
-    timeline_box.add_css_class("media-timeline-box");
-    timeline_box.set_hexpand(true);
-
-    // Progress Scale (0.0 to 1.0)
-    let progress_scale = gtk4::Scale::with_range(gtk4::Orientation::Horizontal, 0.0, 1.0, 0.001);
-    progress_scale.add_css_class("media-timeline-scale");
-    progress_scale.set_draw_value(false);
-    progress_scale.set_hexpand(true);
-
-
-    // Time labels row
-    let time_row = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-    time_row.set_hexpand(true);
-
-    let elapsed_label = gtk4::Label::new(Some("0:00"));
-    elapsed_label.add_css_class("media-time-label");
-    elapsed_label.set_halign(gtk4::Align::Start);
-    elapsed_label.set_hexpand(true);
-    elapsed_label.set_xalign(0.0);
-
-    let total_label = gtk4::Label::new(Some("0:00"));
-    total_label.add_css_class("media-time-label");
-    total_label.set_halign(gtk4::Align::End);
-    total_label.set_hexpand(true);
-    total_label.set_xalign(1.0);
-
-    time_row.append(&elapsed_label);
-    time_row.append(&total_label);
-
-    timeline_box.append(&progress_scale);
-    timeline_box.append(&time_row);
-    popover_box.append(&timeline_box);
+    // Timeline removed by user request
 
     // Controls
     let controls_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 18);
@@ -185,8 +149,5 @@ pub fn create_media_popover(
         popover_art_container,
         popover_app_name,
         play_btn_icon_clone,
-        progress_scale,
-        elapsed_label,
-        total_label,
     )
 }

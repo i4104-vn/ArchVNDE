@@ -100,9 +100,6 @@ pub fn create_system_island() -> gtk4::Box {
         popover_art_container,
         popover_app_name,
         play_btn_icon,
-        progress_scale,
-        elapsed_label,
-        total_label,
     ) = widgets::popover::create_media_popover(&notch_capsule);
 
     // Shared state variables
@@ -145,11 +142,6 @@ pub fn create_system_island() -> gtk4::Box {
         popover_art_container,
         popover_app_name,
         play_btn_icon,
-
-        // Pass timeline widgets
-        progress_scale,
-        elapsed_label,
-        total_label,
     );
 
     container_vbox
