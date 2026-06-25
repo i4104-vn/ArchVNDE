@@ -48,18 +48,22 @@ pub fn start_player_polling_loop(
     let poll_counter = Rc::new(Cell::new(0u32));
     let duration_secs_state = Rc::new(Cell::new(0.0f64));
 
+    let last_title = Rc::new(RefCell::new(String::new()));
+    let art_loaded_for_current_song = Rc::new(Cell::new(false));
+
     let last_seek_time_clone = last_seek_time.clone();
+    let duration_secs_state_clone = duration_secs_state.clone();
+    let elapsed_label_clone = elapsed_label.clone();
     progress_scale.connect_change_value(move |_scale, _scroll_type, value| {
         last_seek_time_clone.set(std::time::Instant::now());
-        // Get duration in microseconds from playerctl
-        if let Some(length_str) = crate::playerctl::run_playerctl(&["metadata", "mpris:length"]) {
-            if let Ok(length_us) = length_str.parse::<f64>() {
-                let seek_pos = value * length_us;
-                let _ = std::process::Command::new("playerctl")
-                    .arg("position")
-                    .arg(format!("{:.6}", seek_pos / 1_000_000.0))
-                    .spawn();
-            }
+        let duration_secs = duration_secs_state_clone.get();
+        if duration_secs > 0.0 {
+            let seek_pos = value * duration_secs;
+            elapsed_label_clone.set_text(&format_time(seek_pos));
+            let _ = std::process::Command::new("playerctl")
+                .arg("position")
+                .arg(format!("{:.6}", seek_pos))
+                .spawn();
         }
         glib::Propagation::Proceed
     });
@@ -162,12 +166,33 @@ pub fn start_player_polling_loop(
                 let playing = status_str == "Playing";
                 is_playing_state.set(playing);
 
+                // Detect song change (by title)
+                let current_title = run_playerctl(&["metadata", "title"]).unwrap_or_default();
+                let song_changed = {
+                    let mut last_title_borrow = last_title.borrow_mut();
+                    if current_title != *last_title_borrow {
+                        *last_title_borrow = current_title.clone();
+                        true
+                    } else {
+                        false
+                    }
+                };
+
+                if song_changed {
+                    art_loaded_for_current_song.set(false);
+                    poll_counter.set(0); // Force metadata update immediately
+                }
+
                 let count = poll_counter.get();
                 poll_counter.set(count + 1);
 
-                // Update metadata and album art every 5 seconds
+                // Update metadata every 5 seconds (or immediately on song change)
                 if count % 5 == 0 {
-                    let title = run_playerctl(&["metadata", "title"]).unwrap_or_else(|| "Unknown Title".to_string());
+                    let title = if song_changed {
+                        current_title.clone()
+                    } else {
+                        run_playerctl(&["metadata", "title"]).unwrap_or_else(|| "Unknown Title".to_string())
+                    };
                     let artist = run_playerctl(&["metadata", "artist"]).unwrap_or_else(|| "Unknown Artist".to_string());
 
                     let label_text = if artist.is_empty() {
@@ -205,63 +230,85 @@ pub fn start_player_polling_loop(
                     let duration_secs = length_us / 1_000_000.0;
                     duration_secs_state.set(duration_secs);
                     total_label.set_text(&format_time(duration_secs));
+                }
 
-                    // Album Art
+                // Update cover art (only load when not yet loaded for the current song)
+                if !art_loaded_for_current_song.get() {
                     let art_url = run_playerctl(&["metadata", "mpris:artUrl"]).unwrap_or_default();
                     let mut last_url = last_art_url.borrow_mut();
-                    let mut last_attempt = last_attempted_url.borrow_mut();
 
-                    if *last_attempt != art_url {
-                        *last_attempt = art_url.clone();
-                        fail_count.set(0);
-                    }
+                    if art_url.is_empty() {
+                        *last_url = art_url.clone();
+                        art_loaded_for_current_song.set(true);
 
-                    if *last_url != art_url || count == 0 {
-                        if art_url.is_empty() {
+                        // Clear and set fallback music icon
+                        if let Some(child) = art_container.first_child() {
+                            art_container.remove(&child);
+                        }
+                        let music_icon_s = archvnde_common::icon::get_icon_colored("music", 14, "#3b82f6");
+                        music_icon_s.add_css_class("notch-album-art");
+                        art_container.append(&music_icon_s);
+
+                        if let Some(child) = popover_art_container.first_child() {
+                            popover_art_container.remove(&child);
+                        }
+                        let music_icon_l = archvnde_common::icon::get_icon_colored("music", 120, "#3b82f6");
+                        music_icon_l.add_css_class("media-popover-art");
+                        music_icon_l.set_size_request(240, 240);
+                        music_icon_l.set_hexpand(true);
+                        music_icon_l.set_vexpand(true);
+                        music_icon_l.set_halign(gtk4::Align::Fill);
+                        music_icon_l.set_valign(gtk4::Align::Fill);
+                        popover_art_container.append(&music_icon_l);
+                    } else {
+                        let small_art = load_album_art(&art_url, 16);
+                        let large_art = load_album_art(&art_url, 240);
+
+                        if let (Some(s_art), Some(l_art)) = (small_art, large_art) {
                             *last_url = art_url.clone();
-                            // Clear artwork (no fallback icon)
+                            art_loaded_for_current_song.set(true);
+
                             if let Some(child) = art_container.first_child() {
                                 art_container.remove(&child);
                             }
+                            s_art.add_css_class("notch-album-art");
+                            art_container.append(&s_art);
+
                             if let Some(child) = popover_art_container.first_child() {
                                 popover_art_container.remove(&child);
                             }
+                            l_art.add_css_class("media-popover-art");
+                            l_art.set_size_request(240, 240);
+                            l_art.set_hexpand(true);
+                            l_art.set_vexpand(true);
+                            l_art.set_halign(gtk4::Align::Fill);
+                            l_art.set_valign(gtk4::Align::Fill);
+                            popover_art_container.append(&l_art);
                         } else {
-                            let small_art = load_album_art(&art_url, 16);
-                            let large_art = load_album_art(&art_url, 240);
-
-                            if let (Some(s_art), Some(l_art)) = (small_art, large_art) {
+                            let current_fails = fail_count.get() + 1;
+                            fail_count.set(current_fails);
+                            if current_fails >= 3 {
                                 *last_url = art_url.clone();
+                                art_loaded_for_current_song.set(true); // Stop trying and use fallback icon
 
                                 if let Some(child) = art_container.first_child() {
                                     art_container.remove(&child);
                                 }
-                                s_art.add_css_class("notch-album-art");
-                                art_container.append(&s_art);
+                                let music_icon_s = archvnde_common::icon::get_icon_colored("music", 14, "#3b82f6");
+                                music_icon_s.add_css_class("notch-album-art");
+                                art_container.append(&music_icon_s);
 
                                 if let Some(child) = popover_art_container.first_child() {
                                     popover_art_container.remove(&child);
                                 }
-                                l_art.add_css_class("media-popover-art");
-                                l_art.set_size_request(240, 240);
-                                l_art.set_hexpand(true);
-                                l_art.set_vexpand(true);
-                                l_art.set_halign(gtk4::Align::Fill);
-                                l_art.set_valign(gtk4::Align::Fill);
-                                popover_art_container.append(&l_art);
-                            } else {
-                                let current_fails = fail_count.get() + 1;
-                                fail_count.set(current_fails);
-                                if current_fails >= 3 {
-                                    *last_url = art_url.clone();
-                                    // Clear artwork on failure (no fallback icon)
-                                    if let Some(child) = art_container.first_child() {
-                                        art_container.remove(&child);
-                                    }
-                                    if let Some(child) = popover_art_container.first_child() {
-                                        popover_art_container.remove(&child);
-                                    }
-                                }
+                                let music_icon_l = archvnde_common::icon::get_icon_colored("music", 120, "#3b82f6");
+                                music_icon_l.add_css_class("media-popover-art");
+                                music_icon_l.set_size_request(240, 240);
+                                music_icon_l.set_hexpand(true);
+                                music_icon_l.set_vexpand(true);
+                                music_icon_l.set_halign(gtk4::Align::Fill);
+                                music_icon_l.set_valign(gtk4::Align::Fill);
+                                popover_art_container.append(&music_icon_l);
                             }
                         }
                     }
@@ -301,6 +348,8 @@ pub fn start_player_polling_loop(
             } else {
                 is_playing_state.set(false);
                 poll_counter.set(0); // Reset counter
+                last_title.borrow_mut().clear();
+                art_loaded_for_current_song.set(false);
 
                 // Reset timeline when not playing
                 progress_scale.set_value(0.0);
