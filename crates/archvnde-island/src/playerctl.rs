@@ -31,12 +31,67 @@ fn decode_uri(uri: &str) -> String {
     decoded
 }
 
+use std::cell::RefCell;
+use std::collections::HashSet;
+
 pub fn load_album_art(art_url: &str, size: i32) -> Option<gtk4::Image> {
-    let path_str = art_url.strip_prefix("file://")?;
-    let decoded_path = decode_uri(path_str);
-    
+    if art_url.is_empty() {
+        return None;
+    }
+
+    // Spotify URL domain replacement workaround:
+    // open.spotify.com returns an HTML page, while i.scdn.co serves the actual image file.
+    let target_url = if art_url.contains("open.spotify.com") {
+        art_url.replace("open.spotify.com", "i.scdn.co")
+    } else {
+        art_url.to_string()
+    };
+
+    let local_path = if let Some(path_str) = target_url.strip_prefix("file://") {
+        decode_uri(path_str)
+    } else if target_url.starts_with("http://") || target_url.starts_with("https://") {
+        let sanitized: String = target_url.chars()
+            .map(|c| if c.is_alphanumeric() { c } else { '_' })
+            .collect();
+        let cache_path = format!("/tmp/archvnde_art_cache/{}.png", sanitized);
+        
+        if std::path::Path::new(&cache_path).exists() {
+            cache_path
+        } else {
+            thread_local! {
+                static ACTIVE_DOWNLOADS: RefCell<HashSet<String>> = RefCell::new(HashSet::new());
+            }
+            ACTIVE_DOWNLOADS.with(|downloads| {
+                let mut d = downloads.borrow_mut();
+                if !d.contains(&target_url) {
+                    d.insert(target_url.clone());
+                    let _ = std::fs::create_dir_all("/tmp/archvnde_art_cache");
+                    let url_clone = target_url.clone();
+                    let cache_path_clone = cache_path.clone();
+                    std::thread::spawn(move || {
+                        let status = std::process::Command::new("curl")
+                            .args(&["-s", "-L", "-o", &cache_path_clone, &url_clone])
+                            .status();
+                        if let Ok(stat) = status {
+                            if !stat.success() {
+                                let _ = std::fs::File::create(&cache_path_clone);
+                            }
+                        } else {
+                            let _ = std::fs::File::create(&cache_path_clone);
+                        }
+                    });
+                }
+            });
+            return None;
+        }
+    } else if target_url.starts_with('/') {
+        target_url.clone()
+    } else {
+        return None;
+    };
+
     let pb = gdk_pixbuf::Pixbuf::from_file_at_scale(
-        &decoded_path,
+        &local_path,
         size,
         size,
         false,
