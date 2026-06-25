@@ -1,8 +1,5 @@
 mod config;
-pub mod models;
 mod widgets;
-
-
 
 use gtk4::prelude::*;
 use widgets::build_dock_ui;

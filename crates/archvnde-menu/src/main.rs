@@ -1,7 +1,7 @@
-mod ui;
+mod widgets;
 
 use gtk4::prelude::*;
-use ui::build_menu_ui;
+use widgets::build_menu_ui;
 
 fn main() {
     println!("Starting ArchVNDE Context Menu...");
