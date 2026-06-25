@@ -2,7 +2,7 @@ use gtk4::prelude::*;
 use super::easing;
 
 pub fn island_zoom_in(widget: &gtk4::Widget, target_width: i32, target_height: i32, duration_ms: u64) {
-    widget.set_opacity(0.0);
+    widget.set_opacity(1.0);
     widget.set_visible(true);
     widget.set_size_request(target_height, target_height);
 
@@ -29,8 +29,7 @@ pub fn island_zoom_in(widget: &gtk4::Widget, target_width: i32, target_height: i
         }
 
         let t = elapsed.as_secs_f64() / dur.as_secs_f64();
-        let capsule_opacity = (t * 2.0).min(1.0);
-        w.set_opacity(capsule_opacity);
+        w.set_opacity(1.0);
 
         let eased_w = easing::ease_out_cubic(t);
         let current_w = target_height + ((target_width - target_height) as f64 * eased_w) as i32;

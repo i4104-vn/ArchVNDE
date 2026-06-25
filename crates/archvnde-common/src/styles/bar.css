@@ -194,8 +194,8 @@ button.panel-clock-btn:hover {
 
 .notch-content {
     opacity: 1.0;
-    min-width: 180px; /* 200px target minus 2 * 10px padding */
-    min-height: 16px; /* 22px target minus 2 * 3px padding */
+    min-width: 0;
+    min-height: 0;
 }
 
 .notch-player-text {

@@ -134,7 +134,7 @@ pub fn start_player_polling_loop(
                     notch_capsule.clone().upcast_ref(),
                     200,
                     22,
-                    300,
+                    500,
                 );
             }
         } else {
@@ -307,7 +307,7 @@ pub fn start_player_polling_loop(
                         notch_capsule.clone().upcast_ref(),
                         200,
                         22,
-                        300,
+                        500,
                     );
                 }
             } else {
@@ -324,10 +324,10 @@ pub fn start_player_polling_loop(
                     archvnde_common::animation::zoom_out(
                         notch_capsule.clone().upcast_ref(),
                         200,
-                        300,
+                        500,
                         true,
                     );
-                    glib::timeout_add_local_once(std::time::Duration::from_millis(300), move || {
+                    glib::timeout_add_local_once(std::time::Duration::from_millis(500), move || {
                         notch_capsule_clone.remove_css_class("active-music");
                     });
                 }
