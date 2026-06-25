@@ -39,8 +39,11 @@ pub fn create_clock_widget(
 
     clock_button.connect_clicked(move |_| {
         // Close Quick Settings window if open
-        if let Some(qs_win) = qsw_clone.borrow().clone() {
-            qs_win.close();
+        let qs_win = {
+            qsw_clone.borrow().clone()
+        };
+        if let Some(win) = qs_win {
+            win.close();
         }
 
         let existing = {
@@ -53,7 +56,6 @@ pub fn create_clock_widget(
             let c_win = gtk4::ApplicationWindow::new(&app_clone);
             c_win.init_layer_shell();
             c_win.set_layer(Layer::Overlay);
-            c_win.set_blur_allowed(true);
 
             // Anchor to Top-Right to display calendar dropdown on the right side
             c_win.set_anchor(Edge::Top, true);
@@ -109,16 +111,33 @@ pub fn create_clock_widget(
 
             c_win.set_child(Some(&main_box));
 
+            let is_animating = Rc::new(std::cell::Cell::new(false));
+            let is_animating_clone = is_animating.clone();
             let cw_inner = cw_clone.clone();
+            let c_win_clone = c_win.clone();
+            let main_box_clone = main_box.clone();
             c_win.connect_close_request(move |_| {
-                if let Ok(mut borrow) = cw_inner.try_borrow_mut() {
-                    *borrow = None;
+                if is_animating_clone.get() {
+                    return glib::Propagation::Proceed;
                 }
-                glib::Propagation::Proceed
+                is_animating_clone.set(true);
+                let cw_inner_cb = cw_inner.clone();
+                let c_win_cb = c_win_clone.clone();
+                archvnde_common::animation::css_zoom_out_cb(
+                    main_box_clone.upcast_ref(),
+                    280,
+                    move || {
+                        if let Ok(mut borrow) = cw_inner_cb.try_borrow_mut() {
+                            *borrow = None;
+                        }
+                        c_win_cb.destroy();
+                    }
+                );
+                glib::Propagation::Stop
             });
 
             c_win.present();
-            archvnde_animation::slide_in(main_box.upcast_ref(), archvnde_animation::SlideDirection::Down, 10, 220);
+            archvnde_common::animation::css_zoom_in(main_box.upcast_ref());
             if let Ok(mut borrow) = cw_clone.try_borrow_mut() {
                 *borrow = Some(c_win);
             }

@@ -29,32 +29,22 @@ pub fn create_status_indicators(
 
     let status_content = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
 
-    // Language indicator
-    let lang_label = gtk4::Label::new(Some("US"));
-    lang_label.add_css_class("status-text");
-
-    // Network speed
-    let net_label = gtk4::Label::new(Some("844 B/s"));
-    net_label.add_css_class("status-text");
-
     // Bluetooth icon
-    let bluetooth_icon = archvnde_icon::get_icon("bluetooth", 14);
+    let bluetooth_icon = archvnde_common::icon::get_icon("bluetooth", 14);
     bluetooth_icon.add_css_class("status-icon");
 
     // Wi-Fi icon
-    let wifi_icon = archvnde_icon::get_icon("wifi", 14);
+    let wifi_icon = archvnde_common::icon::get_icon("wifi", 14);
     wifi_icon.add_css_class("status-icon");
 
     // Battery with percentage
-    let battery_icon = archvnde_icon::get_icon("battery", 14);
+    let battery_icon = archvnde_common::icon::get_icon("battery", 14);
     battery_icon.add_css_class("status-icon");
     let battery_percent = gtk4::Label::new(Some("100%"));
     battery_percent.add_css_class("status-text");
 
-    status_content.append(&lang_label);
-    status_content.append(&net_label);
-    status_content.append(&bluetooth_icon);
     status_content.append(&wifi_icon);
+    status_content.append(&bluetooth_icon);
     status_content.append(&battery_icon);
     status_content.append(&battery_percent);
 
@@ -66,8 +56,11 @@ pub fn create_status_indicators(
     let app_clone = app.clone();
     status_button.connect_clicked(move |_| {
         // Close calendar if open
-        if let Some(cal_win) = cw_clone.borrow().clone() {
-            cal_win.close();
+        let cal_win = {
+            cw_clone.borrow().clone()
+        };
+        if let Some(win) = cal_win {
+            win.close();
         }
 
         let existing = {
@@ -80,7 +73,6 @@ pub fn create_status_indicators(
             let q_win = gtk4::ApplicationWindow::new(&app_clone);
             q_win.init_layer_shell();
             q_win.set_layer(Layer::Overlay);
-            q_win.set_blur_allowed(true);
 
             q_win.set_anchor(Edge::Top, true);
             q_win.set_anchor(Edge::Right, true);
@@ -111,16 +103,33 @@ pub fn create_status_indicators(
 
             q_win.set_child(Some(&main_box));
 
+            let is_animating = Rc::new(std::cell::Cell::new(false));
+            let is_animating_clone = is_animating.clone();
             let qsw_inner = qsw_clone.clone();
+            let q_win_clone = q_win.clone();
+            let main_box_clone = main_box.clone();
             q_win.connect_close_request(move |_| {
-                if let Ok(mut borrow) = qsw_inner.try_borrow_mut() {
-                    *borrow = None;
+                if is_animating_clone.get() {
+                    return glib::Propagation::Proceed;
                 }
-                glib::Propagation::Proceed
+                is_animating_clone.set(true);
+                let qsw_inner_cb = qsw_inner.clone();
+                let q_win_cb = q_win_clone.clone();
+                archvnde_common::animation::css_zoom_out_cb(
+                    main_box_clone.upcast_ref(),
+                    280,
+                    move || {
+                        if let Ok(mut borrow) = qsw_inner_cb.try_borrow_mut() {
+                            *borrow = None;
+                        }
+                        q_win_cb.destroy();
+                    }
+                );
+                glib::Propagation::Stop
             });
 
             q_win.present();
-            archvnde_animation::slide_in(main_box.upcast_ref(), archvnde_animation::SlideDirection::Down, 10, 220);
+            archvnde_common::animation::css_zoom_in(main_box.upcast_ref());
             if let Ok(mut borrow) = qsw_clone.try_borrow_mut() {
                 *borrow = Some(q_win);
             }

@@ -5,6 +5,10 @@
 * {
     font-family: 'Inter', 'SF Pro Display', 'Ubuntu', 'Segoe UI', sans-serif;
     -gtk-icon-style: symbolic;
+}
+
+/* Specific interactive element transitions */
+button, .workspace-dot, .panel-notch, popover > contents {
     transition: all 200ms ease;
 }
 
@@ -58,16 +62,16 @@ button.panel-logo-btn:hover {
 .workspace-box {
     margin-left: 8px;
     margin-right: 8px;
-    background-color: rgba(255, 255, 255, 0.12);
-    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.06) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    border-top: 1px solid rgba(255, 255, 255, 0.32);
-    border-left: 1px solid rgba(255, 255, 255, 0.26);
+    background-color: rgba(20, 20, 22, 0.65);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(20, 20, 22, 0.70) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 9999px;
     padding: 3px 10px;
     min-height: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 /* Minimalist dot buttons */
@@ -106,16 +110,16 @@ button.workspace-dot.active {
 
 /* Unified Status Indicators Capsule */
 .status-indicators-box {
-    background-color: rgba(255, 255, 255, 0.12);
-    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.06) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    border-top: 1px solid rgba(255, 255, 255, 0.32);
-    border-left: 1px solid rgba(255, 255, 255, 0.26);
+    background-color: rgba(20, 20, 22, 0.65);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(20, 20, 22, 0.70) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 9999px;
     padding: 3px 8px;
     min-height: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .status-text {
@@ -158,3 +162,182 @@ button.panel-clock-btn:hover {
     font-size: 11px;
     margin: 0 2px;
 }
+
+/* ================================================================
+   INTERACTIVE SYSTEM NOTCH (Apple macOS style dropdown notch)
+   ================================================================ */
+
+.panel-notch {
+    background-color: transparent;
+    border: none;
+    min-width: 0;
+    min-height: 0;
+    margin: 0 auto;
+    padding: 0;
+    box-shadow: none;
+    transition: all 400ms cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden; /* Prevent child content from overflowing during scale/zoom transitions */
+}
+
+.panel-notch.active-music {
+    background-color: rgba(10, 10, 12, 0.95);
+    background-image: linear-gradient(180deg, rgba(20, 20, 22, 0.95) 0%, rgba(10, 10, 12, 0.85) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 9999px;
+    min-width: 0;
+    min-height: 0;
+    padding: 3px 10px;
+    margin-top: 4px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.40),
+                0 0 12px rgba(59, 130, 246, 0.15);
+}
+
+.notch-content {
+    opacity: 1.0;
+    min-width: 180px; /* 200px target minus 2 * 10px padding */
+    min-height: 16px; /* 22px target minus 2 * 3px padding */
+}
+
+.notch-player-text {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.90);
+    margin: 0 2px;
+}
+
+/* Album Art */
+.notch-album-art {
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Music Visualizer WAVE */
+.notch-visualizer {
+    margin-left: 4px;
+}
+
+.visualizer-bar {
+    background-color: #3b82f6;
+    background-image: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
+    border-radius: 9999px;
+    transition: all 100ms ease;
+}
+
+/* Island Notification Badge */
+.island-badge {
+    background-color: rgba(12, 12, 14, 0.95);
+    background-image: linear-gradient(180deg, rgba(20, 20, 22, 0.98) 0%, rgba(10, 10, 12, 0.92) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 6px 12px;
+    min-width: 220px;
+    max-width: 240px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.badge-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: #3b82f6;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.badge-desc {
+    font-size: 9px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Hover Scale Transition for active music notch */
+.panel-notch.active-music:hover {
+    transform: scale(1.04);
+    background-color: rgba(16, 16, 18, 0.98);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45),
+                0 0 16px rgba(59, 130, 246, 0.25);
+}
+
+/* Media Popover Styling */
+popover.media-popover {
+    background-color: transparent;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+    border: none;
+}
+
+popover.media-popover > contents {
+    background-color: rgba(12, 12, 14, 0.95);
+    background-image: linear-gradient(180deg, rgba(20, 20, 22, 0.98) 0%, rgba(10, 10, 12, 0.92) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.50);
+}
+
+.media-popover-box {
+    padding: 0;
+    min-width: 240px;
+    max-width: 260px;
+    transform: scale(0.82);
+    opacity: 0;
+    transition: transform 250ms cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 200ms ease;
+}
+
+.media-popover-box.zoom-visible {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.media-popover-header {
+    margin-bottom: 12px;
+}
+
+.media-popover-app-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.media-popover-art {
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 14px;
+}
+
+.media-popover-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 6px;
+}
+
+.media-popover-artist {
+    font-size: 10px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 16px;
+}
+
+.media-popover-controls {
+    margin-top: 4px;
+}
+
+.media-control-btn {
+    background-color: transparent;
+    background-image: none;
+    border: none;
+    border-radius: 50%;
+    color: #ffffff;
+    padding: 8px;
+    min-width: 32px;
+    min-height: 32px;
+    box-shadow: none;
+    transition: all 150ms ease;
+}
+
+.media-control-btn:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
