@@ -13,14 +13,11 @@ killall archvnde-panel || true
 killall archvnde-launcher || true
 killall archvnde-notification || true
 killall archvnde-menu || true
+killall archvnde-dock || true
 killall dunst || true
 killall mako || true
 killall fnott || true
 killall xfce4-notifyd || true 
-
-# Copy wallpaper to standard config dir
-mkdir -p "$HOME/.config/archvnde"
-cp wallpaper.png "$HOME/.config/archvnde/wallpaper.png"
 
 # Setup default autostart
 cat << 'EOF' > "$AUTOSTART_FILE"
@@ -32,10 +29,13 @@ awww-daemon &
 sleep 0.5
 
 # Set the default wallpaper
-awww img "$HOME/.config/archvnde/wallpaper.png" &
+awww img wallpaper.png &
 
 # Start ArchVNDE status panel
 archvnde-panel &
+
+# Start ArchVNDE bottom dock bar
+archvnde-dock &
 EOF
 chmod +x "$AUTOSTART_FILE"
 echo "Configured labwc autostart at $AUTOSTART_FILE"
@@ -46,14 +46,6 @@ cat << 'EOF' > "$RC_FILE"
 <labwc_config>
   <keyboard>
     <default />
-    <!-- Override Alt-Tab with custom archvnde-switcher -->
-    <keybind key="A-Tab">
-      <action name="Execute" command="archvnde-switcher" />
-    </keybind>
-    <!-- Lock screen with Win+L -->
-    <keybind key="W-l">
-      <action name="Execute" command="~/.local/bin/archvnde-lock" />
-    </keybind>
   </keyboard>
   <mouse>
     <default />
