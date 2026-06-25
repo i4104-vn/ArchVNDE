@@ -15,6 +15,13 @@ pub fn start_player_polling_loop(
     badge_title: gtk4::Label,
     badge_desc: gtk4::Label,
     badge_icon_container: gtk4::Box,
+
+    // Popover widgets
+    popover_title: gtk4::Label,
+    popover_artist: gtk4::Label,
+    popover_art_container: gtk4::Box,
+    popover_app_name: gtk4::Label,
+    play_img: gtk4::Image,
 ) {
     let last_art_url = Rc::new(RefCell::new(String::new()));
     let was_custom_active = Rc::new(Cell::new(false));
@@ -119,13 +126,13 @@ pub fn start_player_polling_loop(
                 // Regular music player rendering
                 let title = run_playerctl(&["metadata", "title"]).unwrap_or_else(|| "Unknown Title".to_string());
                 let artist = run_playerctl(&["metadata", "artist"]).unwrap_or_else(|| "Unknown Artist".to_string());
-                
+
                 let label_text = if artist.is_empty() {
-                    title
+                    title.clone()
                 } else {
                     format!("{} - {}", artist, title)
                 };
-                
+
                 let display_text = if label_text.chars().count() > 18 {
                     let truncated: String = label_text.chars().take(15).collect();
                     format!("{}...", truncated)
@@ -133,6 +140,27 @@ pub fn start_player_polling_loop(
                     label_text
                 };
                 track_label.set_text(&display_text);
+
+                popover_title.set_text(&title);
+                popover_artist.set_text(&artist);
+
+                let player_name = run_playerctl(&["metadata", "--format", "{{ playerName }}"])
+                    .map(|s| {
+                        let mut chars = s.chars();
+                        match chars.next() {
+                            None => String::new(),
+                            Some(f) => f.to_uppercase().collect::<String>() + chars.as_str(),
+                        }
+                    })
+                    .unwrap_or_else(|| "Music Player".to_string());
+                popover_app_name.set_text(&player_name);
+
+                let play_icon = if playing {
+                    "media-playback-pause-symbolic"
+                } else {
+                    "media-playback-start-symbolic"
+                };
+                play_img.set_from_icon_name(Some(play_icon));
 
                 // Check art url
                 let art_url = run_playerctl(&["metadata", "mpris:artUrl"]).unwrap_or_default();
@@ -152,6 +180,21 @@ pub fn start_player_polling_loop(
                     };
                     new_art.add_css_class("notch-album-art");
                     art_container.append(&new_art);
+
+                    // Update Popover art container
+                    if let Some(child) = popover_art_container.first_child() {
+                        popover_art_container.remove(&child);
+                    }
+                    let new_large_art = if !art_url.is_empty() {
+                        load_album_art(&art_url, 120).unwrap_or_else(|| {
+                            archvnde_common::icon::get_icon_colored("music", 64, "#3b82f6")
+                        })
+                    } else {
+                        archvnde_common::icon::get_icon_colored("music", 64, "#3b82f6")
+                    };
+                    new_large_art.add_css_class("media-popover-art");
+                    new_large_art.set_size_request(180, 120);
+                    popover_art_container.append(&new_large_art);
                 }
 
                 // Hide custom notification badge when custom alert is gone
