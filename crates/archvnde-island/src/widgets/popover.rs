@@ -113,16 +113,9 @@ pub fn create_media_popover(
             let is_animating_cb = is_animating_clone.clone();
             is_animating_cb.set(true);
             
-            archvnde_common::animation::css_zoom_out_cb(
+            archvnde_common::animation::css_genie_out(
                 popover_box_clone.upcast_ref(),
-<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
-                350,
-=======
-                archvnde_common::animation::SlideDirection::Up,
-                15,
                 400,
-                false,
->>>>>>> 5ea2f0f (fix: pass missing hide_after argument to slide_out_cb in popover.rs):libs/archvnde-island/src/widgets/popover.rs
                 move || {
                     p_clone.popdown();
                     is_animating_cb.set(false);
@@ -137,7 +130,7 @@ pub fn create_media_popover(
     // Zoom-in when the popover maps (opens)
     let popover_box_clone2 = popover_box.clone();
     popover.connect_map(move |_| {
-        archvnde_common::animation::css_zoom_in(
+        archvnde_common::animation::css_genie_in(
             popover_box_clone2.upcast_ref(),
         );
     });
