@@ -10,11 +10,13 @@ pub fn create_media_popover(
     gtk4::Box,
     gtk4::Label,
     gtk4::Image,
+    gtk4::Scale,    // timeline progress scale
+    gtk4::Label,    // elapsed time label
+    gtk4::Label,    // total time label
 ) {
     let popover = gtk4::Popover::new();
     popover.set_parent(notch_capsule);
-    popover.set_has_arrow(false);
-    popover.set_offset(0, 10);
+    popover.set_has_arrow(true);
     popover.add_css_class("media-popover");
 
     let popover_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
@@ -65,6 +67,41 @@ pub fn create_media_popover(
 
     popover_box.append(&popover_title);
     popover_box.append(&popover_artist);
+
+    // --- Timeline / Progress ---
+    let timeline_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
+    timeline_box.add_css_class("media-timeline-box");
+    timeline_box.set_hexpand(true);
+
+    // Progress Scale (0.0 to 1.0)
+    let progress_scale = gtk4::Scale::with_range(gtk4::Orientation::Horizontal, 0.0, 1.0, 0.001);
+    progress_scale.add_css_class("media-timeline-scale");
+    progress_scale.set_draw_value(false);
+    progress_scale.set_hexpand(true);
+
+
+    // Time labels row
+    let time_row = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+    time_row.set_hexpand(true);
+
+    let elapsed_label = gtk4::Label::new(Some("0:00"));
+    elapsed_label.add_css_class("media-time-label");
+    elapsed_label.set_halign(gtk4::Align::Start);
+    elapsed_label.set_hexpand(true);
+    elapsed_label.set_xalign(0.0);
+
+    let total_label = gtk4::Label::new(Some("0:00"));
+    total_label.add_css_class("media-time-label");
+    total_label.set_halign(gtk4::Align::End);
+    total_label.set_hexpand(true);
+    total_label.set_xalign(1.0);
+
+    time_row.append(&elapsed_label);
+    time_row.append(&total_label);
+
+    timeline_box.append(&progress_scale);
+    timeline_box.append(&time_row);
+    popover_box.append(&timeline_box);
 
     // Controls
     let controls_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 18);
@@ -123,17 +160,9 @@ pub fn create_media_popover(
             let is_animating_cb = is_animating_clone.clone();
             is_animating_cb.set(true);
             
-<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
             archvnde_common::animation::css_zoom_out_cb(
                 popover_box_clone.upcast_ref(),
-                250,
-=======
-            archvnde_common::animation::slide_out_cb(
-                popover_box_clone.upcast_ref(),
-                archvnde_common::animation::SlideDirection::Up,
-                15,
-                400,
->>>>>>> 897d46c (style: add player popover offset and implement slide animations):libs/archvnde-island/src/widgets/popover.rs
+                350,
                 move || {
                     p_clone.popdown();
                     is_animating_cb.set(false);
@@ -145,31 +174,12 @@ pub fn create_media_popover(
     });
     notch_capsule.add_controller(click_gesture);
 
-    // Genie-in when the popover maps (opens)
+    // Zoom-in when the popover maps (opens)
     let popover_box_clone2 = popover_box.clone();
-    let notch_capsule_clone = notch_capsule.clone();
     popover.connect_map(move |_| {
-<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
         archvnde_common::animation::css_zoom_in(
-=======
-        notch_capsule_clone.add_css_class("popover-open");
-<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
-        archvnde_common::animation::genie_in(
->>>>>>> 63e642f (style: remove player popover arrow and disable island hover scale when popover is open):libs/archvnde-island/src/widgets/popover.rs
             popover_box_clone2.upcast_ref(),
-=======
-        archvnde_common::animation::slide_in(
-            popover_box_clone2.upcast_ref(),
-            archvnde_common::animation::SlideDirection::Down,
-            15,
-            400,
->>>>>>> 897d46c (style: add player popover offset and implement slide animations):libs/archvnde-island/src/widgets/popover.rs
         );
-    });
-
-    let notch_capsule_clone2 = notch_capsule.clone();
-    popover.connect_unmap(move |_| {
-        notch_capsule_clone2.remove_css_class("popover-open");
     });
 
     (
@@ -179,5 +189,8 @@ pub fn create_media_popover(
         popover_art_container,
         popover_app_name,
         play_img_clone,
+        progress_scale,
+        elapsed_label,
+        total_label,
     )
 }
