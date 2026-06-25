@@ -43,5 +43,7 @@ pub fn load_album_art(art_url: &str, size: i32) -> Option<gtk4::Image> {
     ).ok()?;
     
     let texture = gdk4::Texture::for_pixbuf(&pb);
-    Some(gtk4::Image::from_paintable(Some(&texture)))
+    let img = gtk4::Image::from_paintable(Some(&texture));
+    img.set_pixel_size(size);
+    Some(img)
 }
