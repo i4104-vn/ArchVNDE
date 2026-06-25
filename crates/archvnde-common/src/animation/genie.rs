@@ -30,7 +30,7 @@ pub fn genie_in(widget: &gtk4::Widget, target_width: i32, target_height: i32, du
         let current_w = (20.0 + (target_width - 20) as f64 * eased) as i32;
         let current_h = (20.0 + (target_height - 20) as f64 * eased) as i32;
         w.set_size_request(current_w, current_h);
-        w.set_opacity(t as f32);
+        w.set_opacity(t);
 
         glib::ControlFlow::Continue
     });
@@ -70,7 +70,7 @@ where
         let current_w = (target_width as f64 * (1.0 - eased)).max(20.0) as i32;
         let current_h = (target_height as f64 * (1.0 - eased)).max(20.0) as i32;
         w.set_size_request(current_w, current_h);
-        w.set_opacity((1.0 - t) as f32);
+        w.set_opacity(1.0 - t);
 
         glib::ControlFlow::Continue
     });
