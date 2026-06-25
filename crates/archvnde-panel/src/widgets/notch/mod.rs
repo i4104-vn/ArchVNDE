@@ -24,7 +24,8 @@ pub fn create_system_notch() -> gtk4::Box {
     let notch_content = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
     notch_content.add_css_class("notch-content");
     notch_content.set_valign(gtk4::Align::Center);
-    notch_content.set_halign(gtk4::Align::Center);
+    notch_content.set_halign(gtk4::Align::Fill);
+    notch_content.set_hexpand(true);
 
     // --- 1. Default View (compact Dynamic Island) ---
     let default_view = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
@@ -37,7 +38,8 @@ pub fn create_system_notch() -> gtk4::Box {
     // --- 2. Music View (expanded Dynamic Island) ---
     let music_view = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
     music_view.set_valign(gtk4::Align::Center);
-    music_view.set_halign(gtk4::Align::Center);
+    music_view.set_halign(gtk4::Align::Fill);
+    music_view.set_hexpand(true);
     music_view.set_visible(false); // Hidden by default
 
     // Album Art container
@@ -50,6 +52,8 @@ pub fn create_system_notch() -> gtk4::Box {
     // Track details
     let track_label = gtk4::Label::new(Some("No media"));
     track_label.add_css_class("notch-player-text");
+    track_label.set_hexpand(true);
+    track_label.set_halign(gtk4::Align::Center);
 
     // Music Visualizer animation
     let (visualizer_box, bars) = create_visualizer();
