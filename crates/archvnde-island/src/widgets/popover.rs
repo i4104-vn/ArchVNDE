@@ -3,7 +3,6 @@ use gtk4::prelude::*;
 /// Builds and registers the glassmorphic media control Popover anchored to the notch capsule.
 pub fn create_media_popover(
     notch_capsule: &gtk4::Box,
-    notification_view: &gtk4::Box,
 ) -> (
     gtk4::Popover,
     gtk4::Label,
@@ -33,18 +32,12 @@ pub fn create_media_popover(
 
     // Cover Art Container
     let popover_art_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-    popover_art_container.set_valign(gtk4::Align::Fill);
-    popover_art_container.set_halign(gtk4::Align::Fill);
-    popover_art_container.set_hexpand(true);
-    popover_art_container.set_vexpand(true);
+    popover_art_container.set_valign(gtk4::Align::Center);
+    popover_art_container.set_halign(gtk4::Align::Center);
     
-    let default_popover_art = archvnde_common::icon::get_icon_colored("music", 120, "#3b82f6");
+    let default_popover_art = archvnde_common::icon::get_icon_colored("music", 64, "#3b82f6");
     default_popover_art.add_css_class("media-popover-art");
-    default_popover_art.set_size_request(240, 240);
-    default_popover_art.set_hexpand(true);
-    default_popover_art.set_vexpand(true);
-    default_popover_art.set_halign(gtk4::Align::Fill);
-    default_popover_art.set_valign(gtk4::Align::Fill);
+    default_popover_art.set_size_request(160, 160);
     popover_art_container.append(&default_popover_art);
     popover_box.append(&popover_art_container);
 
@@ -109,67 +102,14 @@ pub fn create_media_popover(
     // Toggle popover on notch_capsule click
     let click_gesture = gtk4::GestureClick::new();
     let popover_clone = popover.clone();
-    let popover_box_clone = popover_box.clone();
-    
-    let is_animating = std::rc::Rc::new(std::cell::Cell::new(false));
-    let is_animating_clone = is_animating.clone();
-
-    let notification_view_clone = notification_view.clone();
     click_gesture.connect_pressed(move |_, _, _, _| {
-        if is_animating_clone.get() {
-            return;
-        }
-        if notification_view_clone.is_visible() {
-            let active_app_name = crate::widgets::notification::SHARED_NOTIFICATION.with(|sn| {
-                sn.borrow().as_ref().map(|n| n.icon.clone())
-            });
-            if let Some(app_name) = active_app_name {
-                if !app_name.is_empty() && !app_name.starts_with('/') {
-                    let _ = std::process::Command::new("wlrctl")
-                        .args(&["window", "focus", &app_name])
-                        .spawn();
-                    let _ = std::process::Command::new("wlrctl")
-                        .args(&["window", "focus", &app_name.to_lowercase()])
-                        .spawn();
-                    let _ = std::process::Command::new("wmctrl")
-                        .args(&["-a", &app_name])
-                        .spawn();
-                }
-            }
-            return;
-        }
-
         if popover_clone.is_visible() {
-            let p_clone = popover_clone.clone();
-            let is_animating_cb = is_animating_clone.clone();
-            is_animating_cb.set(true);
-            
-            archvnde_common::animation::genie_out(
-                popover_box_clone.upcast_ref(),
-                240,
-                380,
-                200,
-                move || {
-                    p_clone.popdown();
-                    is_animating_cb.set(false);
-                }
-            );
+            popover_clone.popdown();
         } else {
             popover_clone.popup();
         }
     });
     notch_capsule.add_controller(click_gesture);
-
-    // Genie-in when the popover maps (opens)
-    let popover_box_clone2 = popover_box.clone();
-    popover.connect_map(move |_| {
-        archvnde_common::animation::genie_in(
-            popover_box_clone2.upcast_ref(),
-            240,
-            380,
-            250,
-        );
-    });
 
     (
         popover,
