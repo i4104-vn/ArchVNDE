@@ -64,6 +64,13 @@ fn main() {
         // 2. Workspace Switcher
         let workspace_box = create_workspace_switcher();
 
+        // Create a separator to visual separate logo and dots inside the same capsule
+        let separator = gtk4::Label::new(Some("│"));
+        separator.add_css_class("capsule-separator");
+
+        workspace_box.prepend(&separator);
+        workspace_box.prepend(&logo_btn);
+
         // 3. Unified Status and Clock Capsule
         let status_indicators = create_status_indicators(
             app,
@@ -71,12 +78,11 @@ fn main() {
             calendar_window.clone(),
         );
 
-        // Left-aligned section: Logo + Workspaces
-        let left_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
+        // Left-aligned section: Workspaces capsule (now containing logo + separator + dots)
+        let left_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
         left_box.set_hexpand(true);
         left_box.set_halign(gtk4::Align::Start);
         left_box.set_valign(gtk4::Align::Center);
-        left_box.append(&logo_btn);
         left_box.append(&workspace_box);
 
         // Center-aligned section: Clean placeholder center space
