@@ -1,3 +1,4 @@
+mod config;
 mod ui;
 
 use gtk4::prelude::*;

@@ -12,22 +12,31 @@ dependencies = [
 ]
 
 [[package]]
-name = "archvnde-animation"
-version = "0.1.0"
-dependencies = [
- "glib",
- "gtk4",
-]
-
-[[package]]
 name = "archvnde-common"
 version = "0.1.0"
 dependencies = [
  "dirs",
+ "gdk-pixbuf",
+ "gdk4",
+ "gio",
+ "glib",
  "gtk4",
  "serde",
  "toml 0.8.23",
  "tracing",
+]
+
+[[package]]
+name = "archvnde-dock"
+version = "0.1.0"
+dependencies = [
+ "archvnde-common",
+ "gio",
+ "glib",
+ "gtk4",
+ "gtk4-layer-shell",
+ "serde",
+ "toml 0.8.23",
 ]
 
 [[package]]
@@ -43,10 +52,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "archvnde-menu"
+version = "0.1.0"
+dependencies = [
+ "archvnde-common",
+ "archvnde-wallpaper",
+ "gio",
+ "glib",
+ "gtk4",
+ "gtk4-layer-shell",
+]
+
+[[package]]
 name = "archvnde-notification"
 version = "0.1.0"
 dependencies = [
- "archvnde-animation",
  "archvnde-common",
  "glib",
  "gtk4",
@@ -60,14 +80,22 @@ dependencies = [
 name = "archvnde-panel"
 version = "0.1.0"
 dependencies = [
- "archvnde-animation",
  "archvnde-common",
  "chrono",
+ "gdk-pixbuf",
+ "gdk4",
  "glib",
  "gtk4",
  "gtk4-layer-shell",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "archvnde-wallpaper"
+version = "0.1.0"
+dependencies = [
+ "dirs",
 ]
 
 [[package]]

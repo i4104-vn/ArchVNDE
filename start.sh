@@ -8,6 +8,13 @@ mkdir -p "$HOME/.config/labwc"
 AUTOSTART_FILE="$HOME/.config/labwc/autostart"
 RC_FILE="$HOME/.config/labwc/rc.xml"
 
+echo "Stopping any running shell processes..."
+killall archvnde-panel || true
+killall archvnde-launcher || true
+killall archvnde-notification || true
+killall archvnde-menu || true
+killall archvnde-dock || true
+
 # Setup default autostart
 cat << 'EOF' > "$AUTOSTART_FILE"
 #!/bin/bash
