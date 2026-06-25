@@ -28,43 +28,16 @@ fn main() {
         let box_layout = gtk4::CenterBox::new();
         box_layout.add_css_class("panel-box");
 
-        // Center vertical layout to stack notch and notification badge
-        let center_vbox = gtk4::Box::new(gtk4::Orientation::Vertical, 8);
-        center_vbox.set_valign(gtk4::Align::Start);
-        center_vbox.set_halign(gtk4::Align::Center);
-
-        // Create the notch capsule
+        // Create the notch capsule containing notch + automatic badge
         let notch = create_system_notch();
-        center_vbox.append(&notch);
+        box_layout.set_center_widget(Some(&notch));
 
-        // Create the notification badge widget (drops down below notch)
-        let notification_badge = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
-        notification_badge.add_css_class("island-badge");
-        notification_badge.set_valign(gtk4::Align::Start);
-        notification_badge.set_halign(gtk4::Align::Center);
-        notification_badge.set_visible(false); // Hidden by default
-
-        let badge_icon = archvnde_common::icon::get_icon_colored("bell", 14, "#3b82f6");
-        let badge_text_box = gtk4::Box::new(gtk4::Orientation::Vertical, 2);
-        let badge_title = gtk4::Label::new(Some("System Update"));
-        badge_title.add_css_class("badge-title");
-        badge_title.set_halign(gtk4::Align::Start);
-        let badge_desc = gtk4::Label::new(Some("Welcome to ArchVNDE Dynamic Island!"));
-        badge_desc.add_css_class("badge-desc");
-        badge_desc.set_halign(gtk4::Align::Start);
-        
-        badge_text_box.append(&badge_title);
-        badge_text_box.append(&badge_desc);
-
-        notification_badge.append(&badge_icon);
-        notification_badge.append(&badge_text_box);
-        center_vbox.append(&notification_badge);
-
-        box_layout.set_center_widget(Some(&center_vbox));
         window.set_child(Some(&box_layout));
         window.present();
 
-        // --- Demo Step 1: Mock music immediately ---
+        // --- Demo Timeline ---
+
+        // 1. Mock music playing immediately
         let _ = update_island_state(&IslandState {
             active: true,
             title: "ArchVNDE Radio".to_string(),
@@ -72,32 +45,19 @@ fn main() {
             icon: "music".to_string(),
         });
 
-        // --- Demo Step 2: Trigger pop down notification after 3 seconds ---
-        let badge_clone = notification_badge.clone();
+        // 2. Trigger notification popup after 3 seconds (badge will drop down automatically!)
         glib::timeout_add_local(std::time::Duration::from_millis(3000), move || {
-            // Update island state to system warning/bell notification
             let _ = update_island_state(&IslandState {
                 active: true,
                 title: "Update Available".to_string(),
-                subtitle: "New version v1.2".to_string(),
+                subtitle: "New version v1.2 ready to install".to_string(),
                 icon: "bell".to_string(),
             });
-
-            // Make badge visible and trigger slide in animation
-            badge_clone.set_visible(true);
-            archvnde_common::animation::slide_in(
-                badge_clone.clone().upcast_ref(),
-                archvnde_common::animation::SlideDirection::Down,
-                8,
-                200,
-            );
             glib::ControlFlow::Break
         });
 
-        // --- Demo Step 3: Clear notification & hide badge after 7 seconds ---
-        let badge_clone2 = notification_badge.clone();
+        // 3. Clear notification after 7 seconds
         glib::timeout_add_local(std::time::Duration::from_millis(7000), move || {
-            badge_clone2.set_visible(false);
             let _ = clear_island_state();
             glib::ControlFlow::Break
         });
