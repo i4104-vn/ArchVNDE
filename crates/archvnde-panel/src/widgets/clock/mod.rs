@@ -5,7 +5,11 @@ use std::rc::Rc;
 
 /// Creates and returns a clock button widget that updates every second and
 /// spawns a centered, glassmorphic calendar popup dropdown when clicked.
-pub fn create_clock_widget(app: &gtk4::Application) -> gtk4::Button {
+pub fn create_clock_widget(
+    app: &gtk4::Application,
+    quick_settings_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
+    calendar_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
+) -> gtk4::Button {
     let clock_button = gtk4::Button::new();
     clock_button.add_css_class("panel-clock-btn");
 
@@ -17,7 +21,11 @@ pub fn create_clock_widget(app: &gtk4::Application) -> gtk4::Button {
         let clock_label = clock_label.clone();
         move || {
             let now = chrono::Local::now();
-            let time_str = format!("26°C  |  {}", now.format("%a %b %d  |  %I:%M %p").to_string().to_uppercase());
+            let time_str = format!(
+                "{}   {}",
+                now.format("%d/%m").to_string(),
+                now.format("%I:%M %p").to_string().to_uppercase()
+            );
             clock_label.set_text(&time_str);
             glib::ControlFlow::Continue
         }
@@ -25,11 +33,19 @@ pub fn create_clock_widget(app: &gtk4::Application) -> gtk4::Button {
     update_clock(); // Run initially
     glib::timeout_add_local(std::time::Duration::from_secs(1), update_clock);
 
-    let calendar_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>> = Rc::new(RefCell::new(None));
     let cw_clone = calendar_window.clone();
+    let qsw_clone = quick_settings_window.clone();
     let app_clone = app.clone();
 
     clock_button.connect_clicked(move |_| {
+        // Close Quick Settings window if open
+        let qs_win = {
+            qsw_clone.borrow().clone()
+        };
+        if let Some(win) = qs_win {
+            win.close();
+        }
+
         let existing = {
             let borrow = cw_clone.borrow();
             borrow.clone()
@@ -41,9 +57,11 @@ pub fn create_clock_widget(app: &gtk4::Application) -> gtk4::Button {
             c_win.init_layer_shell();
             c_win.set_layer(Layer::Overlay);
 
-            // Center horizontally by anchoring to Top but leaving Left/Right unanchored
+            // Anchor to Top-Right to display calendar dropdown on the right side
             c_win.set_anchor(Edge::Top, true);
-            c_win.set_margin(Edge::Top, 40);
+            c_win.set_anchor(Edge::Right, true);
+            c_win.set_margin(Edge::Top, 10);
+            c_win.set_margin(Edge::Right, 12);
             c_win.set_default_size(320, 360);
             c_win.add_css_class("calendar-window");
 
@@ -93,16 +111,35 @@ pub fn create_clock_widget(app: &gtk4::Application) -> gtk4::Button {
 
             c_win.set_child(Some(&main_box));
 
+            let is_animating = Rc::new(std::cell::Cell::new(false));
+            let is_animating_clone = is_animating.clone();
             let cw_inner = cw_clone.clone();
+            let c_win_clone = c_win.clone();
+            let main_box_clone = main_box.clone();
             c_win.connect_close_request(move |_| {
-                if let Ok(mut borrow) = cw_inner.try_borrow_mut() {
-                    *borrow = None;
+                if is_animating_clone.get() {
+                    return glib::Propagation::Proceed;
                 }
-                glib::Propagation::Proceed
+                is_animating_clone.set(true);
+                let cw_inner_cb = cw_inner.clone();
+                let c_win_cb = c_win_clone.clone();
+                archvnde_common::animation::genie_out(
+                    main_box_clone.upcast_ref(),
+                    320,
+                    360,
+                    200,
+                    move || {
+                        if let Ok(mut borrow) = cw_inner_cb.try_borrow_mut() {
+                            *borrow = None;
+                        }
+                        c_win_cb.destroy();
+                    }
+                );
+                glib::Propagation::Stop
             });
 
             c_win.present();
-            archvnde_animation::slide_in(main_box.upcast_ref(), archvnde_animation::SlideDirection::Down, 10, 220);
+            archvnde_common::animation::genie_in(main_box.upcast_ref(), 320, 360, 250);
             if let Ok(mut borrow) = cw_clone.try_borrow_mut() {
                 *borrow = Some(c_win);
             }

@@ -3,7 +3,7 @@ pub mod sliders;
 pub mod power_actions;
 
 use gtk4::prelude::*;
-use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
+use gtk4_layer_shell::{Edge, Layer, LayerShell};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -73,7 +73,6 @@ pub fn create_status_indicators(
             let q_win = gtk4::ApplicationWindow::new(&app_clone);
             q_win.init_layer_shell();
             q_win.set_layer(Layer::Overlay);
-            q_win.set_keyboard_mode(KeyboardMode::OnDemand);
 
             q_win.set_anchor(Edge::Top, true);
             q_win.set_anchor(Edge::Right, true);
@@ -116,9 +115,11 @@ pub fn create_status_indicators(
                 is_animating_clone.set(true);
                 let qsw_inner_cb = qsw_inner.clone();
                 let q_win_cb = q_win_clone.clone();
-                archvnde_common::animation::css_genie_out(
+                archvnde_common::animation::genie_out(
                     main_box_clone.upcast_ref(),
-                    280,
+                    360,
+                    360,
+                    200,
                     move || {
                         if let Ok(mut borrow) = qsw_inner_cb.try_borrow_mut() {
                             *borrow = None;
@@ -130,7 +131,7 @@ pub fn create_status_indicators(
             });
 
             q_win.present();
-            archvnde_common::animation::css_genie_in(main_box.upcast_ref());
+            archvnde_common::animation::genie_in(main_box.upcast_ref(), 360, 360, 250);
             if let Ok(mut borrow) = qsw_clone.try_borrow_mut() {
                 *borrow = Some(q_win);
             }

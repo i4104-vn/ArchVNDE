@@ -1,5 +1,3 @@
-//! UI layout renderer for the Dynamic Island media controller popover.
-
 use gtk4::prelude::*;
 
 /// Builds and registers the glassmorphic media control Popover anchored to the notch capsule.
@@ -21,6 +19,7 @@ pub fn create_media_popover(
     let popover_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
     popover_box.add_css_class("media-popover-box");
 
+    // Header (App Source)
     let popover_header = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
     popover_header.add_css_class("media-popover-header");
     popover_header.set_valign(gtk4::Align::Center);
@@ -31,21 +30,24 @@ pub fn create_media_popover(
     popover_header.append(&popover_app_name);
     popover_box.append(&popover_header);
 
+    // Cover Art Container
     let popover_art_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
     popover_art_container.set_valign(gtk4::Align::Fill);
     popover_art_container.set_halign(gtk4::Align::Fill);
-=======
-    popover_art_container.set_valign(gtk4::Align::Center);
-    popover_art_container.set_halign(gtk4::Align::Center);
+    popover_art_container.set_hexpand(true);
+    popover_art_container.set_vexpand(true);
     
-    let default_popover_art = archvnde_common::icon::get_icon_colored("music", 64, "#3b82f6");
+    let default_popover_art = archvnde_common::icon::get_icon_colored("music", 120, "#3b82f6");
     default_popover_art.add_css_class("media-popover-art");
-    default_popover_art.set_size_request(160, 160);
+    default_popover_art.set_size_request(240, 240);
+    default_popover_art.set_hexpand(true);
+    default_popover_art.set_vexpand(true);
+    default_popover_art.set_halign(gtk4::Align::Fill);
+    default_popover_art.set_valign(gtk4::Align::Fill);
     popover_art_container.append(&default_popover_art);
->>>>>>> 98b8697 (feat: polish notch media control popover layout, fix overlap transition bug, and enlarge play icon):crates/archvnde-panel/src/widgets/notch/popover.rs
     popover_box.append(&popover_art_container);
 
+    // Title & Artist
     let popover_title = gtk4::Label::new(Some("Unknown Title"));
     popover_title.add_css_class("media-popover-title");
     popover_title.set_halign(gtk4::Align::Center);
@@ -63,10 +65,7 @@ pub fn create_media_popover(
     popover_box.append(&popover_title);
     popover_box.append(&popover_artist);
 
-<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
-=======
     // Controls
->>>>>>> 98b8697 (feat: polish notch media control popover layout, fix overlap transition bug, and enlarge play icon):crates/archvnde-panel/src/widgets/notch/popover.rs
     let controls_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 18);
     controls_box.add_css_class("media-popover-controls");
     controls_box.set_halign(gtk4::Align::Center);
@@ -82,17 +81,10 @@ pub fn create_media_popover(
 
     let play_btn = gtk4::Button::new();
     play_btn.add_css_class("media-control-btn");
-<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
-    let play_btn_icon = gtk4::Image::from_icon_name("media-playback-start-symbolic");
-    play_btn_icon.set_pixel_size(22);
-    play_btn.set_child(Some(&play_btn_icon));
-    let play_btn_icon_clone = play_btn_icon.clone();
-=======
     let play_img = gtk4::Image::from_icon_name("media-playback-start-symbolic");
     play_img.set_pixel_size(22);
     play_btn.set_child(Some(&play_img));
     let play_img_clone = play_img.clone();
->>>>>>> 98b8697 (feat: polish notch media control popover layout, fix overlap transition bug, and enlarge play icon):crates/archvnde-panel/src/widgets/notch/popover.rs
     play_btn.connect_clicked(move |_| {
         let _ = std::process::Command::new("playerctl").arg("play-pause").spawn();
     });
@@ -113,6 +105,7 @@ pub fn create_media_popover(
 
     popover.set_child(Some(&popover_box));
 
+    // Toggle popover on notch_capsule click
     let click_gesture = gtk4::GestureClick::new();
     let popover_clone = popover.clone();
     let popover_box_clone = popover_box.clone();
@@ -129,9 +122,11 @@ pub fn create_media_popover(
             let is_animating_cb = is_animating_clone.clone();
             is_animating_cb.set(true);
             
-            archvnde_common::animation::css_genie_out(
+            archvnde_common::animation::genie_out(
                 popover_box_clone.upcast_ref(),
-                280,
+                240,
+                380,
+                200,
                 move || {
                     p_clone.popdown();
                     is_animating_cb.set(false);
@@ -143,10 +138,14 @@ pub fn create_media_popover(
     });
     notch_capsule.add_controller(click_gesture);
 
+    // Genie-in when the popover maps (opens)
     let popover_box_clone2 = popover_box.clone();
     popover.connect_map(move |_| {
-        archvnde_common::animation::css_genie_in(
+        archvnde_common::animation::genie_in(
             popover_box_clone2.upcast_ref(),
+            240,
+            380,
+            250,
         );
     });
 
@@ -156,7 +155,6 @@ pub fn create_media_popover(
         popover_artist,
         popover_art_container,
         popover_app_name,
-        play_btn_icon_clone,
+        play_img_clone,
     )
 }
-

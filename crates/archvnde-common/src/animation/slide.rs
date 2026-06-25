@@ -1,17 +1,23 @@
-//! Directional slide-in / slide-out widget animations.
-
 use gtk4::prelude::*;
 use super::easing;
 
-/// Direction axis for a slide transition.
+/// Direction for slide animations.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SlideDirection {
+    /// Slide downward (moves Down).
     Down,
+    /// Slide upward (moves Up).
     Up,
+    /// Slide leftward (moves Left).
     Left,
+    /// Slide rightward (moves Right).
     Right,
 }
 
+/// Slide a widget into view by animating its margin,
+/// combined with a fade-in for a polished entrance.
+///
+/// `distance_px` — how many pixels the widget travels during the slide.
 pub fn slide_in(widget: &gtk4::Widget, direction: SlideDirection, distance_px: i32, duration_ms: u64) {
     widget.set_opacity(0.0);
     widget.set_visible(true);
@@ -21,6 +27,7 @@ pub fn slide_in(widget: &gtk4::Widget, direction: SlideDirection, distance_px: i
     let original_margin_start = widget.margin_start();
     let original_margin_end = widget.margin_end();
 
+    // Offset the widget before animation starts
     match direction {
         SlideDirection::Down => widget.set_margin_top(original_margin_top - distance_px),
         SlideDirection::Up => widget.set_margin_bottom(original_margin_bottom - distance_px),
@@ -28,14 +35,10 @@ pub fn slide_in(widget: &gtk4::Widget, direction: SlideDirection, distance_px: i
         SlideDirection::Left => widget.set_margin_end(original_margin_end - distance_px),
     }
 
-    let start_cell = std::cell::Cell::new(None);
+    let start = std::time::Instant::now();
     let dur = std::time::Duration::from_millis(duration_ms);
 
     widget.add_tick_callback(move |w, _clock| {
-        if start_cell.get().is_none() {
-            start_cell.set(Some(std::time::Instant::now()));
-        }
-        let start = start_cell.get().unwrap();
         let elapsed = start.elapsed();
         if elapsed >= dur {
             w.set_opacity(1.0);
@@ -48,13 +51,8 @@ pub fn slide_in(widget: &gtk4::Widget, direction: SlideDirection, distance_px: i
             return glib::ControlFlow::Break;
         }
 
-<<<<<<< HEAD:crates/archvnde-common/src/animation/slide.rs
         let t = elapsed.as_secs_f64() / dur.as_secs_f64();
         let eased = easing::ease_out_back(t);
-=======
-        let t = elapsed_us as f64 / dur_us as f64;
-        let eased = easing::ease_out_cubic(t);
->>>>>>> fff5272 (style: modern launcher redesign, gentle animations, close on focus loss (OnDemand keyboard mode), logo click toggle):libs/archvnde-common/src/animation/slide.rs
 
         w.set_opacity(eased.min(1.0).max(0.0));
         match direction {
@@ -83,6 +81,8 @@ pub fn slide_in(widget: &gtk4::Widget, direction: SlideDirection, distance_px: i
     });
 }
 
+/// Slide a widget out of view by animating its margin,
+/// combined with a fade-out. Optionally hides the widget at the end.
 pub fn slide_out(
     widget: &gtk4::Widget,
     direction: SlideDirection,
@@ -96,14 +96,10 @@ pub fn slide_out(
     let original_margin_start = widget.margin_start();
     let original_margin_end = widget.margin_end();
 
-    let start_cell = std::cell::Cell::new(None);
+    let start = std::time::Instant::now();
     let dur = std::time::Duration::from_millis(duration_ms);
 
     widget.add_tick_callback(move |w, _clock| {
-        if start_cell.get().is_none() {
-            start_cell.set(Some(std::time::Instant::now()));
-        }
-        let start = start_cell.get().unwrap();
         let elapsed = start.elapsed();
         if elapsed >= dur {
             w.set_opacity(0.0);
@@ -120,7 +116,7 @@ pub fn slide_out(
         }
 
         let t = elapsed.as_secs_f64() / dur.as_secs_f64();
-        let eased = easing::ease_out_cubic(t);
+        let eased = easing::ease_out_cubic(t); // Smooth deceleration on exit
 
         w.set_opacity((start_opacity * (1.0 - eased)).min(1.0).max(0.0));
         match direction {
@@ -145,6 +141,8 @@ pub fn slide_out(
     });
 }
 
+/// Slide a widget out of view by animating its margin,
+/// combined with a fade-out, and invoke a callback upon completion.
 pub fn slide_out_cb<F>(
     widget: &gtk4::Widget,
     direction: SlideDirection,
@@ -161,16 +159,12 @@ pub fn slide_out_cb<F>(
     let original_margin_start = widget.margin_start();
     let original_margin_end = widget.margin_end();
 
-    let start_cell = std::cell::Cell::new(None);
+    let start = std::time::Instant::now();
     let dur = std::time::Duration::from_millis(duration_ms);
 
     let on_complete_opt = std::cell::RefCell::new(Some(on_complete));
 
     widget.add_tick_callback(move |w, _clock| {
-        if start_cell.get().is_none() {
-            start_cell.set(Some(std::time::Instant::now()));
-        }
-        let start = start_cell.get().unwrap();
         let elapsed = start.elapsed();
         if elapsed >= dur {
             w.set_opacity(0.0);
@@ -211,59 +205,6 @@ pub fn slide_out_cb<F>(
                 w.set_margin_start(current);
             }
         }
-        glib::ControlFlow::Continue
-    });
-}
-
-pub fn fade_in(widget: &gtk4::Widget, duration_ms: u64) {
-    widget.set_opacity(0.0);
-    widget.set_visible(true);
-
-    let start = std::time::Instant::now();
-    let dur = std::time::Duration::from_millis(duration_ms);
-
-    widget.add_tick_callback(move |w, _clock| {
-        let elapsed = start.elapsed();
-        if elapsed >= dur {
-            w.set_opacity(1.0);
-            return glib::ControlFlow::Break;
-        }
-
-        let t = elapsed.as_secs_f64() / dur.as_secs_f64();
-        let eased = easing::ease_out_cubic(t);
-
-        w.set_opacity(eased.min(1.0).max(0.0));
-        glib::ControlFlow::Continue
-    });
-}
-
-pub fn fade_out_cb<F>(
-    widget: &gtk4::Widget,
-    duration_ms: u64,
-    on_complete: F,
-) where
-    F: FnOnce() + 'static,
-{
-    let start_opacity = widget.opacity();
-    let start = std::time::Instant::now();
-    let dur = std::time::Duration::from_millis(duration_ms);
-
-    let on_complete_opt = std::cell::RefCell::new(Some(on_complete));
-
-    widget.add_tick_callback(move |w, _clock| {
-        let elapsed = start.elapsed();
-        if elapsed >= dur {
-            w.set_opacity(0.0);
-            if let Some(cb) = on_complete_opt.borrow_mut().take() {
-                cb();
-            }
-            return glib::ControlFlow::Break;
-        }
-
-        let t = elapsed.as_secs_f64() / dur.as_secs_f64();
-        let eased = easing::ease_out_cubic(t);
-
-        w.set_opacity((start_opacity * (1.0 - eased)).min(1.0).max(0.0));
         glib::ControlFlow::Continue
     });
 }
