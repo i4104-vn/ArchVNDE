@@ -105,11 +105,11 @@ pub fn start_player_polling_loop(
             music_view.set_visible(true);
             if !notch_capsule.is_visible() {
                 notch_capsule.add_css_class("active-music");
-                archvnde_common::animation::zoom_in(
+                archvnde_common::animation::island_zoom_in(
                     notch_capsule.clone().upcast_ref(),
                     200,
                     22,
-                    300,
+                    500,
                 );
             }
         } else {
@@ -284,11 +284,11 @@ pub fn start_player_polling_loop(
                 music_view.set_visible(true);
                 if !notch_capsule.is_visible() {
                     notch_capsule.add_css_class("active-music");
-                    archvnde_common::animation::zoom_in(
+                    archvnde_common::animation::island_zoom_in(
                         notch_capsule.clone().upcast_ref(),
                         200,
-                        22,
-                        300,
+                        10,
+                        600,
                     );
                 }
             } else {
@@ -309,13 +309,13 @@ pub fn start_player_polling_loop(
 
                 if notch_capsule.is_visible() {
                     let notch_capsule_clone = notch_capsule.clone();
-                    archvnde_common::animation::zoom_out(
+                    archvnde_common::animation::island_zoom_out(
                         notch_capsule.clone().upcast_ref(),
                         200,
-                        300,
+                        500,
                         true,
                     );
-                    glib::timeout_add_local_once(std::time::Duration::from_millis(300), move || {
+                    glib::timeout_add_local_once(std::time::Duration::from_millis(500), move || {
                         notch_capsule_clone.remove_css_class("active-music");
                     });
                 }
