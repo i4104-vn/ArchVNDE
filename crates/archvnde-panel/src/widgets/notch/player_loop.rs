@@ -171,10 +171,10 @@ pub fn start_player_polling_loop(
             music_view.set_visible(true);
             if !notch_capsule.is_visible() {
                 notch_capsule.add_css_class("active-music");
-                archvnde_common::animation::slide_in(
+                archvnde_common::animation::zoom_in(
                     notch_capsule.clone().upcast_ref(),
-                    archvnde_common::animation::SlideDirection::Down,
-                    10,
+                    200,
+                    22,
                     300,
                 );
             }
@@ -182,10 +182,9 @@ pub fn start_player_polling_loop(
             is_playing_state.set(false);
             if notch_capsule.is_visible() {
                 let notch_capsule_clone = notch_capsule.clone();
-                archvnde_common::animation::slide_out(
+                archvnde_common::animation::zoom_out(
                     notch_capsule.clone().upcast_ref(),
-                    archvnde_common::animation::SlideDirection::Up,
-                    10,
+                    200,
                     300,
                     true,
                 );
