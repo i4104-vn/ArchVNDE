@@ -32,8 +32,18 @@ pub fn create_media_popover(
     popover_box.append(&popover_header);
 
     let popover_art_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
     popover_art_container.set_valign(gtk4::Align::Fill);
     popover_art_container.set_halign(gtk4::Align::Fill);
+=======
+    popover_art_container.set_valign(gtk4::Align::Center);
+    popover_art_container.set_halign(gtk4::Align::Center);
+    
+    let default_popover_art = archvnde_common::icon::get_icon_colored("music", 64, "#3b82f6");
+    default_popover_art.add_css_class("media-popover-art");
+    default_popover_art.set_size_request(160, 160);
+    popover_art_container.append(&default_popover_art);
+>>>>>>> 98b8697 (feat: polish notch media control popover layout, fix overlap transition bug, and enlarge play icon):crates/archvnde-panel/src/widgets/notch/popover.rs
     popover_box.append(&popover_art_container);
 
     let popover_title = gtk4::Label::new(Some("Unknown Title"));
@@ -53,6 +63,10 @@ pub fn create_media_popover(
     popover_box.append(&popover_title);
     popover_box.append(&popover_artist);
 
+<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
+=======
+    // Controls
+>>>>>>> 98b8697 (feat: polish notch media control popover layout, fix overlap transition bug, and enlarge play icon):crates/archvnde-panel/src/widgets/notch/popover.rs
     let controls_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 18);
     controls_box.add_css_class("media-popover-controls");
     controls_box.set_halign(gtk4::Align::Center);
@@ -68,10 +82,17 @@ pub fn create_media_popover(
 
     let play_btn = gtk4::Button::new();
     play_btn.add_css_class("media-control-btn");
+<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
     let play_btn_icon = gtk4::Image::from_icon_name("media-playback-start-symbolic");
     play_btn_icon.set_pixel_size(22);
     play_btn.set_child(Some(&play_btn_icon));
     let play_btn_icon_clone = play_btn_icon.clone();
+=======
+    let play_img = gtk4::Image::from_icon_name("media-playback-start-symbolic");
+    play_img.set_pixel_size(22);
+    play_btn.set_child(Some(&play_img));
+    let play_img_clone = play_img.clone();
+>>>>>>> 98b8697 (feat: polish notch media control popover layout, fix overlap transition bug, and enlarge play icon):crates/archvnde-panel/src/widgets/notch/popover.rs
     play_btn.connect_clicked(move |_| {
         let _ = std::process::Command::new("playerctl").arg("play-pause").spawn();
     });

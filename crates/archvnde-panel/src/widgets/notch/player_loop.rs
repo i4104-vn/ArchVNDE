@@ -186,14 +186,14 @@ pub fn start_player_polling_loop(
                         popover_art_container.remove(&child);
                     }
                     let new_large_art = if !art_url.is_empty() {
-                        load_album_art(&art_url, 120).unwrap_or_else(|| {
+                        load_album_art(&art_url, 160).unwrap_or_else(|| {
                             archvnde_common::icon::get_icon_colored("music", 64, "#3b82f6")
                         })
                     } else {
                         archvnde_common::icon::get_icon_colored("music", 64, "#3b82f6")
                     };
                     new_large_art.add_css_class("media-popover-art");
-                    new_large_art.set_size_request(180, 120);
+                    new_large_art.set_size_request(160, 160);
                     popover_art_container.append(&new_large_art);
                 }
 
