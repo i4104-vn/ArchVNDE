@@ -21,9 +21,8 @@ window.notification-card {
 }
 
 /* ================================================================
-   TOP STATUS BAR (PANEL) — Transparent HUD Overlay
-   The bar is fully transparent, items float directly on the desktop
-   like a heads-up display with no visible container.
+   TOP STATUS BAR (PANEL) — Glassmorphic HUD Overlay
+   A clean, modern translucent glass bar spanning the top with rounded UI elements.
    ================================================================ */
 
 .panel-box {
@@ -33,83 +32,91 @@ window.notification-card {
     margin: 0px;
     padding: 0px 18px;
     min-height: 36px;
-    border-radius: 0px;
     border: none;
     box-shadow: none;
 }
 
-/* Brand logo / title */
-.panel-title {
-    font-weight: 800;
-    color: #ffffff;
-    font-size: 13px;
-    margin-right: 12px;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.50);
-}
-
-.workspace-box {
-    margin-left: 6px;
-    margin-right: 6px;
-}
-
-/* Workspace Pills — Subtle floating pills */
-button.workspace-button {
-    background-color: rgba(255, 255, 255, 0.08);
-    background-image: none;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 9999px;
-    color: rgba(255, 255, 255, 0.70);
-    padding: 3px 14px;
-    font-size: 11px;
-    font-weight: 600;
-    margin-right: 6px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.20);
-    min-height: 24px;
-}
-
-button.workspace-button:hover {
-    background-color: rgba(255, 255, 255, 0.16);
-    background-image: none;
-    color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-}
-
-button.workspace-button.active {
-    background-color: rgba(37, 99, 235, 0.60);
-    background-image: linear-gradient(135deg, rgba(59, 130, 246, 0.65) 0%, rgba(29, 78, 216, 0.55) 100%);
-    border-color: rgba(96, 165, 250, 0.35);
-    color: #ffffff;
-    font-weight: 700;
-    box-shadow: 0 3px 12px rgba(37, 99, 235, 0.40);
-}
-
-/* System Clock */
-.panel-clock {
-    font-weight: 600;
-    font-size: 12px;
-    color: #ffffff;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.50);
-}
-
-/* Quick Settings Trigger Button — Transparent floating */
-button.panel-settings-btn {
+/* Brand logo button */
+button.panel-logo-btn {
     background-color: transparent;
     background-image: none;
     border: none;
-    border-radius: 9999px;
-    color: rgba(255, 255, 255, 0.90);
-    padding: 2px 8px;
+    color: #ffffff;
+    padding: 4px;
+    margin-right: 6px;
+    border-radius: 8px;
     box-shadow: none;
     min-height: 24px;
+    min-width: 24px;
 }
 
-button.panel-settings-btn:hover {
-    background-color: rgba(255, 255, 255, 0.10);
-    background-image: none;
-    color: #ffffff;
-    border: none;
+button.panel-logo-btn:hover {
+    background-color: rgba(255, 255, 255, 0.12);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Workspace Capsule */
+.workspace-box {
+    margin-left: 8px;
+    margin-right: 8px;
+    background-color: rgba(20, 20, 22, 0.65);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(20, 20, 22, 0.70) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 9999px;
+    padding: 3px 10px;
+    min-height: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* Minimalist dot buttons */
+button.workspace-dot {
+    background-color: rgba(255, 255, 255, 0.40);
+    background-image: none;
+    border: none;
+    border-radius: 9999px;
+    min-width: 8px;
+    min-height: 8px;
+    margin: 0px 3px;
+    padding: 0;
+    box-shadow: none;
+}
+
+button.workspace-dot:hover {
+    background-color: rgba(255, 255, 255, 0.80);
+}
+
+/* Dynamic dot expansion on active */
+button.workspace-dot.active {
+    background-color: #3b82f6;
+    background-image: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+    min-width: 12px;
+    min-height: 8px;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.40);
+}
+
+/* System Clock Label inside clock button */
+.panel-clock {
+    font-weight: 600;
+    font-size: 11px;
+    color: #ffffff;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.50);
+}
+
+/* Unified Status Indicators Capsule */
+.status-indicators-box {
+    background-color: rgba(20, 20, 22, 0.65);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(20, 20, 22, 0.70) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 9999px;
+    padding: 3px 8px;
+    min-height: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .status-text {
@@ -128,18 +135,27 @@ button.panel-settings-btn:hover {
     margin-right: 6px;
 }
 
-/* Clock trigger button — Fully transparent */
+/* Transparent triggers inside unified capsule */
+button.panel-status-btn,
 button.panel-clock-btn {
     background-color: transparent;
     background-image: none;
     border: none;
     color: #ffffff;
-    padding: 2px 12px;
+    padding: 2px 10px;
     box-shadow: none;
-    min-height: 24px;
-    border-radius: 8px;
+    min-height: 20px;
+    border-radius: 9999px;
 }
 
+button.panel-status-btn:hover,
 button.panel-clock-btn:hover {
     background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Vertical separator line inside capsule */
+.capsule-separator {
+    color: rgba(255, 255, 255, 0.15);
+    font-size: 11px;
+    margin: 0 2px;
 }

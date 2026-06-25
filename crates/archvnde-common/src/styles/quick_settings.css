@@ -3,16 +3,16 @@
    ================================================================ */
 
 .quick-settings-box {
-    background-color: rgba(255, 255, 255, 0.12);
-    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.06) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    border-top: 1px solid rgba(255, 255, 255, 0.32);
-    border-left: 1px solid rgba(255, 255, 255, 0.26);
-    border-radius: 20px;
+    background-color: rgba(20, 20, 22, 0.92);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(20, 20, 22, 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-left: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 24px;
     color: rgba(255, 255, 255, 0.95);
-    padding: 16px;
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    padding: 20px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .quick-settings-title {
@@ -23,24 +23,22 @@
 
 /* Toggle Grid Cards (Inactive State) — Frosted Glass */
 button.quick-tile {
-    background-color: rgba(255, 255, 255, 0.06);
-    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 12px;
-    color: rgba(255, 255, 255, 0.75);
-    padding: 6px 10px;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    background-color: rgba(255, 255, 255, 0.05);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 14px;
+    color: rgba(255, 255, 255, 0.80);
+    padding: 8px 12px;
+    box-shadow: none;
     min-width: 120px;
-    min-height: 44px;
+    min-height: 46px;
 }
 
 button.quick-tile:hover {
-    background-color: rgba(255, 255, 255, 0.12);
-    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.06) 100%);
-    border-color: rgba(255, 255, 255, 0.20);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10),
-                0 2px 8px rgba(0, 0, 0, 0.12);
+    background-color: rgba(255, 255, 255, 0.09);
+    background-image: none;
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
 }
 
 /* Inner labels of Toggle Grid Cards */
@@ -58,30 +56,28 @@ button.quick-tile:hover {
 
 .tile-subtitle {
     font-size: 10px;
-    color: rgba(255, 255, 255, 0.55);
+    color: rgba(255, 255, 255, 0.50);
 }
 
 .tile-chevron {
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.35);
+    color: rgba(255, 255, 255, 0.30);
     margin-left: 4px;
 }
 
 /* Toggle Grid Cards (Active Blue State) — Translucent Glass Blue */
 button.quick-tile.active {
-    background-color: rgba(37, 99, 235, 0.55);
-    background-image: linear-gradient(135deg, rgba(59, 130, 246, 0.60) 0%, rgba(37, 99, 235, 0.50) 100%);
-    border: 1px solid rgba(96, 165, 250, 0.40);
-    border-top: 1px solid rgba(147, 197, 253, 0.35);
-    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25),
-                inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    background-color: rgba(59, 130, 246, 0.75);
+    background-image: linear-gradient(135deg, rgba(96, 165, 250, 0.80) 0%, rgba(37, 99, 235, 0.70) 100%);
+    border: 1px solid rgba(147, 197, 253, 0.20);
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.30),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 button.quick-tile.active:hover {
-    background-color: rgba(29, 78, 216, 0.60);
-    background-image: linear-gradient(135deg, rgba(37, 99, 235, 0.65) 0%, rgba(29, 78, 216, 0.55) 100%);
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35),
-                inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    background-color: rgba(37, 99, 235, 0.85);
+    background-image: linear-gradient(135deg, rgba(96, 165, 250, 0.88) 0%, rgba(37, 99, 235, 0.80) 100%);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.40);
 }
 
 button.quick-tile.active .tile-subtitle {
@@ -94,17 +90,15 @@ button.quick-tile.active .tile-chevron {
 
 /* Toggle Grid Cards (Active Light White State) — Frosted White Glass */
 button.quick-tile.active-light {
-    background-color: rgba(255, 255, 255, 0.70);
-    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.80) 0%, rgba(255, 255, 255, 0.60) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    border-top: 1px solid rgba(255, 255, 255, 0.75);
-    box-shadow: 0 4px 16px rgba(255, 255, 255, 0.10),
-                inset 0 1px 0 rgba(255, 255, 255, 0.40);
+    background-color: rgba(255, 255, 255, 0.85);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.80) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 4px 16px rgba(255, 255, 255, 0.10);
 }
 
 button.quick-tile.active-light:hover {
-    background-color: rgba(255, 255, 255, 0.78);
-    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.68) 100%);
+    background-color: rgba(255, 255, 255, 0.92);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.88) 100%);
 }
 
 button.quick-tile.active-light .tile-icon {
