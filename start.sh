@@ -2,6 +2,7 @@
 
 # Ensure local bin is in PATH
 export PATH="$HOME/.local/bin:$PATH"
+export GSK_RENDERER=cairo
 
 # Write config files for labwc
 mkdir -p "$HOME/.config/labwc"
