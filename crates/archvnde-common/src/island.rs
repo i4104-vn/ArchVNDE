@@ -2,13 +2,8 @@ use serde::{Serialize, Deserialize};
 use std::fs;
 use std::path::PathBuf;
 
-#[derive(Serialize, Deserialize, Clone, Debug, Default)]
-pub struct IslandState {
-    pub active: bool,
-    pub title: String,
-    pub subtitle: String,
-    pub icon: String,
-}
+use crate::models::IslandState;
+
 
 pub fn get_island_state_path() -> PathBuf {
     std::env::temp_dir().join("archvnde-island.toml")

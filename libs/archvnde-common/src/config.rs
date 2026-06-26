@@ -1,5 +1,9 @@
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-use std::fs;
+
+use crate::models::{ThemeConfig, ShellConfig};
+
+
 // Helper to get configuration directory path (~/.config/archvnde)
 pub fn get_archvnde_config_dir() -> PathBuf {
     dirs::config_dir()
@@ -9,4 +13,3 @@ pub fn get_archvnde_config_dir() -> PathBuf {
         })
         .join("archvnde")
 }
-

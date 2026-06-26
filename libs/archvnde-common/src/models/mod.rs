@@ -5,4 +5,3 @@ pub mod island_state;
 pub use theme_config::ThemeConfig;
 pub use shell_config::ShellConfig;
 pub use island_state::IslandState;
-

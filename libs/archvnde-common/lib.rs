@@ -8,9 +8,11 @@ pub mod animation;
 pub mod icon;
 #[path = "src/island.rs"]
 pub mod island;
+#[path = "src/models/mod.rs"]
+pub mod models;
 
 
-pub use config::{ThemeConfig, ShellConfig, get_archvnde_config_dir};
+pub use models::{ThemeConfig, ShellConfig, IslandState};
+pub use config::get_archvnde_config_dir;
 pub use theme::init_theme;
-pub use island::{IslandState, update_island_state, clear_island_state, get_island_state_path};
-
+pub use island::{update_island_state, clear_island_state, get_island_state_path};
