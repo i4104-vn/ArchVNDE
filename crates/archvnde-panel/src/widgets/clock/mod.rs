@@ -322,12 +322,6 @@ pub fn create_clock_widget(
                                 app_title.set_halign(gtk4::Align::Start);
                                 header_box.append(&app_title);
 
-                                if list.len() > 1 {
-                                    let badge = gtk4::Label::new(Some(&format!("+{}", list.len() - 1)));
-                                    badge.add_css_class("notif-count-badge");
-                                    header_box.append(&badge);
-                                }
-
                                 let body_lbl = gtk4::Label::new(Some(&latest_notif.body));
                                 body_lbl.add_css_class("notif-item-body");
                                 body_lbl.set_halign(gtk4::Align::Start);
@@ -337,11 +331,25 @@ pub fn create_clock_widget(
                                 text_box.append(&header_box);
                                 text_box.append(&body_lbl);
 
-                                let chevron = archvnde_common::icon::get_icon_colored("chevron-down", 12, "rgba(255, 255, 255, 0.4)");
+                                let right_widget = if list.len() > 1 {
+                                    let badge = gtk4::Label::new(Some(&format!("{}", list.len())));
+                                    badge.add_css_class("notif-count-badge");
+                                    badge.add_css_class("notif-item-sub-time");
+                                    badge.set_halign(gtk4::Align::End);
+                                    badge.set_valign(gtk4::Align::Center);
+                                    badge.upcast::<gtk4::Widget>()
+                                } else {
+                                    let time_str = format_elapsed_time(latest_notif.timestamp);
+                                    let time_lbl = gtk4::Label::new(Some(&time_str));
+                                    time_lbl.add_css_class("notif-item-sub-time");
+                                    time_lbl.set_halign(gtk4::Align::End);
+                                    time_lbl.set_valign(gtk4::Align::Center);
+                                    time_lbl.upcast::<gtk4::Widget>()
+                                };
 
                                 main_item.append(&icon_widget);
                                 main_item.append(&text_box);
-                                main_item.append(&chevron);
+                                main_item.append(&right_widget);
                                 group_container.append(&main_item);
 
                                 // 3D Stack look if more than 1 notification
