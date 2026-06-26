@@ -231,6 +231,12 @@ pub fn create_clock_widget(
 
             c_win.set_child(Some(&main_box));
 
+            c_win.connect_is_active_notify(|win| {
+                if !win.is_active() {
+                    win.close();
+                }
+            });
+
             let is_animating = Rc::new(std::cell::Cell::new(false));
             let is_animating_clone = is_animating.clone();
             let cw_inner = cw_clone.clone();

@@ -104,6 +104,12 @@ pub fn create_status_indicators(
 
             q_win.set_child(Some(&main_box));
 
+            q_win.connect_is_active_notify(|win| {
+                if !win.is_active() {
+                    win.close();
+                }
+            });
+
             let is_animating = Rc::new(std::cell::Cell::new(false));
             let is_animating_clone = is_animating.clone();
             let qsw_inner = qsw_clone.clone();
