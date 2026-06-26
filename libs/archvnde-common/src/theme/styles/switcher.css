@@ -1,167 +1,105 @@
+/* Switcher Window & Container styling */
 .switcher-window {
     background-color: transparent;
     background-image: none;
 }
 
 .switcher-box {
-    background-color: rgba(14, 14, 18, 0.92);
-    background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.05) 0%, rgba(0, 0, 0, 0.15) 100%);
-    -gtk-background-blur: 24;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 0px; /* Full-screen width bar looks best with no rounded corners at the screen edges */
-    padding: 24px 0px;
+    background-color: rgba(18, 18, 20, 0.90);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(15, 15, 17, 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    border-left: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 28px;
+    padding: 24px;
     color: #ffffff;
-    box-shadow: none;
-    min-height: 140px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    min-width: 620px;
 }
 
+/* App list row */
 .switcher-list-row {
-    margin: 0px;
+    margin-top: 18px;
 }
 
 .switcher-item-btn {
-    background-color: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 18px;
     padding: 12px;
-    transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
-    min-width: 96px;
-    min-height: 96px;
-    transform: skewX(-15deg);
+    transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    min-width: 80px;
+    min-height: 80px;
 }
 
 .switcher-item-btn:hover {
-    background-color: rgba(255, 255, 255, 0.07);
-    border-color: rgba(255, 255, 255, 0.14);
-    border-top-color: rgba(255, 255, 255, 0.20);
-    transform: skewX(-15deg) translateY(-2px);
-    box-shadow: none;
+    background-color: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
 }
 
 .switcher-item-btn.selected {
-    background-color: rgba(59, 130, 246, 0.14);
-    background-image: linear-gradient(160deg, rgba(147, 197, 253, 0.08) 0%, rgba(59, 130, 246, 0.05) 100%);
-    border-color: rgba(96, 165, 250, 0.40);
-    border-top-color: rgba(147, 197, 253, 0.60);
-    box-shadow: none;
-    min-width: 180px; /* Expanding width on tab selection */
-    transform: skewX(-15deg) scale(1.04);
+    background-color: rgba(0, 242, 254, 0.08);
+    border-color: rgba(0, 242, 254, 0.40);
+    box-shadow: 0 0 20px rgba(0, 242, 254, 0.25);
+    transform: scale(1.08) translateY(-4px);
 }
 
 .switcher-item-icon {
-    /* Counter-skew the icon so it remains perfectly vertical and upright */
-    transform: skewX(15deg);
-    transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 200ms ease;
 }
 
 .switcher-item-btn.selected .switcher-item-icon {
-    /* Retain counter-skew and scale up the icon slightly */
-    transform: skewX(15deg) scale(1.15);
-}
-
-.switcher-app-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: #ffffff;
-    letter-spacing: 0.3px;
-}
-
-/* Screenshot Toolbar Color Dots */
-.color-dot-btn {
-    border-radius: 50%;
-    min-width: 14px;
-    min-height: 14px;
-    margin: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 0;
-    background-image: none;
-    box-shadow: none;
-    transition: all 200ms ease;
-}
-
-.color-dot-btn:hover {
-    transform: scale(1.2);
-}
-
-.color-dot-red { background-color: #ef4444; }
-.color-dot-green { background-color: #10b981; }
-.color-dot-blue { background-color: #3b82f6; }
-.color-dot-yellow { background-color: #f59e0b; }
-
-.color-dot-btn.color-active {
-    border: 2px solid #ffffff;
     transform: scale(1.1);
 }
 
-/* Screenshot Toolbar (Compact & Sleek Capsule) */
-.screenshot-toolbar {
-    background-color: rgb(20, 20, 26);
-    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(0, 0, 0, 0.08) 100%);
-    -gtk-background-blur: 24;
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-top: 1px solid rgba(255, 255, 255, 0.20);
-    border-radius: 9999px;
-    padding: 3px 12px;
-}
-
-.screenshot-toolbar-btn {
-    background: none;
-    border: 1px solid transparent;
-    border-radius: 9999px;
-    padding: 4px 10px;
-    margin: 0 2px;
-    color: rgba(255, 255, 255, 0.8);
-    transition: all 200ms ease;
-    min-height: 24px;
-}
-
-.screenshot-toolbar-btn:hover {
-    background-color: rgba(255, 255, 255, 0.10);
-    border-color: rgba(255, 255, 255, 0.05);
-    border-top-color: rgba(255, 255, 255, 0.12);
+/* App Name display */
+.switcher-app-title {
+    font-size: 16px;
+    font-weight: 700;
     color: #ffffff;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
 }
 
-.screenshot-toolbar-btn.selected {
-    background-color: rgba(59, 130, 246, 0.16) !important;
-    background-image: linear-gradient(180deg, rgba(147, 197, 253, 0.10) 0%, rgba(59, 130, 246, 0.08) 100%) !important;
-    border: 1px solid rgba(96, 165, 250, 0.35) !important;
-    border-top: 1px solid rgba(147, 197, 253, 0.50) !important;
-    color: #60a5fa !important;
+.switcher-app-subtitle {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.40);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
 }
 
-/* Screenshot Toolbar Color Dots */
-.color-dot-btn {
-    border-radius: 50% !important;
-    width: 14px !important;
-    height: 14px !important;
-    min-width: 14px !important;
-    min-height: 14px !important;
-    max-width: 14px !important;
-    max-height: 14px !important;
-    margin: 4px 3px !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    padding: 0 !important;
-    background-image: none !important;
-    box-shadow: none !important;
-    transition: all 200ms ease;
+/* Details area layout */
+.switcher-details-box {
+    margin-bottom: 12px;
 }
 
-.color-dot-btn:hover {
-    transform: scale(1.25);
-    border-color: rgba(255, 255, 255, 0.6) !important;
+/* Mock Previews Frame */
+.preview-frame {
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    width: 572px;
+    height: 300px;
+    overflow: hidden;
+    margin-bottom: 14px;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
 }
 
-.color-dot-red { background: #ef4444 !important; }
-.color-dot-green { background: #10b981 !important; }
-.color-dot-blue { background: #3b82f6 !important; }
-.color-dot-yellow { background: #f59e0b !important; }
-
-.color-dot-btn.color-active {
-    border: 2px solid #ffffff !important;
-    transform: scale(1.15);
+/* Generic Preview */
+.preview-generic {
+    background-image: linear-gradient(135deg, rgba(0, 242, 254, 0.1) 0%, rgba(79, 172, 254, 0.1) 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-
+.preview-generic-box {
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 24px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    min-width: 320px;
+}
