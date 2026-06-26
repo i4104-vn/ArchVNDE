@@ -14,10 +14,14 @@
     padding: 8px;
 <<<<<<< HEAD:libs/archvnde-common/src/styles/menu.css
     overflow: hidden;
+<<<<<<< HEAD:libs/archvnde-common/src/styles/menu.css
 =======
 >>>>>>> e6a28c9 (style: change panels and menu to dark glassmorphism and fix menu positioning):crates/archvnde-common/src/styles/menu.css
     box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55),
                 inset 0 1px 0 rgba(255, 255, 255, 0.06);
+=======
+    box-shadow: none;
+>>>>>>> b181e68 (style: dong bo giao dien launcher, tai cau truc quick settings, bo shadow panel va cap nhat app icon dong cho player):libs/archvnde-common/src/theme/styles/menu.css
 }
 
 .menu-item {
