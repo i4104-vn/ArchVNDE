@@ -6,7 +6,8 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use widgets::panel::create_status_indicators;
 use widgets::workspace::create_workspace_switcher;
-use widgets::notch::create_system_notch;
+use widgets::sys_monitor::create_sys_monitor_widget;
+use archvnde_island::create_system_island;
 
 fn main() {
     println!("Starting ArchVNDE Panel...");
@@ -33,7 +34,7 @@ fn main() {
         window.set_layer(Layer::Top);
 
         // Set exclusive zone so other maximized windows don't overlap it
-        window.set_exclusive_zone(36);
+        window.set_exclusive_zone(35);
 
         // Anchor it to the top, left, and right edges of the screen
         window.set_anchor(Edge::Top, true);
@@ -41,7 +42,7 @@ fn main() {
         window.set_anchor(Edge::Right, true);
 
         // Set default height of the panel
-        window.set_default_size(0, 36);
+        window.set_default_size(0, 35);
 
         // Add styling class
         window.add_css_class("panel-window");
@@ -76,6 +77,8 @@ fn main() {
             calendar_window.clone(),
         );
 
+        let sys_monitor = create_sys_monitor_widget();
+
         // Left-aligned section: Workspaces capsule (now containing logo + separator + dots)
         let left_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
         left_box.set_hexpand(true);
@@ -88,7 +91,7 @@ fn main() {
         center_box.set_halign(gtk4::Align::Center);
         center_box.set_valign(gtk4::Align::Start);
 
-        let notch_capsule = create_system_notch();
+        let notch_capsule = create_system_island();
         center_box.append(&notch_capsule);
 
         // Right-aligned section: Status & Clock capsule
@@ -96,6 +99,7 @@ fn main() {
         right_box.set_hexpand(true);
         right_box.set_halign(gtk4::Align::End);
         right_box.set_valign(gtk4::Align::Center);
+        right_box.append(&sys_monitor);
         right_box.append(&status_indicators);
 
         // Assemble columns into the main panel box using CenterBox
