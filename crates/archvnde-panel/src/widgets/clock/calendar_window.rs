@@ -28,39 +28,25 @@ pub fn show_calendar_window(
     main_box.set_vexpand(true);
     main_box.set_valign(gtk4::Align::Fill);
 
-    // 1. Header: Big clock & Date
-    let header_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
-    header_box.set_halign(gtk4::Align::Center);
+    // 1. Header: Date on left
+    let top_row = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+    top_row.add_css_class("calendar-top-row");
 
-    let big_time = gtk4::Label::new(None);
-    big_time.add_css_class("calendar-header-time");
-    
-    let big_date = gtk4::Label::new(None);
-    big_date.add_css_class("calendar-header-date");
+    let date_label = gtk4::Label::new(None);
+    date_label.add_css_class("calendar-top-date");
+    date_label.set_halign(gtk4::Align::Start);
+    date_label.set_hexpand(true);
 
-    // Update header time/date initial values
-    let now = chrono::Local::now();
-    big_time.set_text(&now.format("%I:%M %p").to_string());
-    big_date.set_text(&now.format("%A, %B %d").to_string());
+    top_row.append(&date_label);
+    main_box.append(&top_row);
 
-    header_box.append(&big_time);
-    header_box.append(&big_date);
-    main_box.append(&header_box);
-
-    // 2. Divider line
-    let divider = gtk4::Separator::new(gtk4::Orientation::Horizontal);
-    divider.add_css_class("calendar-divider");
-    main_box.append(&divider);
+    // Dummy time label to satisfy setup_notifications_list signature without displaying it
+    let dummy_time = gtk4::Label::new(None);
 
     // 3. Calendar widget
     let calendar = gtk4::Calendar::new();
     calendar.add_css_class("calendar-widget");
     main_box.append(&calendar);
-
-    // 4. Divider line
-    let divider2 = gtk4::Separator::new(gtk4::Orientation::Horizontal);
-    divider2.add_css_class("calendar-divider");
-    main_box.append(&divider2);
 
     // 5. Notifications Header
     let notif_header = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
@@ -95,7 +81,7 @@ pub fn show_calendar_window(
     main_box.append(&scrolled_win);
 
     // 7. Setup and Render Notifications list
-    notifications::setup_notifications_list(&notif_stack, &clear_btn, &big_time, &big_date);
+    notifications::setup_notifications_list(&notif_stack, &clear_btn, &dummy_time, &date_label);
 
     c_win.set_child(Some(&main_box));
 

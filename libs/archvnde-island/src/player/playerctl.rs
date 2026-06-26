@@ -54,3 +54,25 @@ pub fn load_album_art(art_url: &str, size: i32) -> Option<gtk4::Image> {
     img.set_pixel_size(size);
     Some(img)
 }
+
+pub fn load_album_art_pixbuf(art_url: &str, size: i32) -> Option<gdk_pixbuf::Pixbuf> {
+    if art_url.is_empty() {
+        return None;
+    }
+
+    let local_path = if let Some(path_str) = art_url.strip_prefix("file://") {
+        decode_uri(path_str)
+    } else if art_url.starts_with('/') {
+        art_url.to_string()
+    } else {
+        return None;
+    };
+
+    gdk_pixbuf::Pixbuf::from_file_at_scale(
+        &local_path,
+        size,
+        size,
+        false,
+    ).ok()
+}
+
