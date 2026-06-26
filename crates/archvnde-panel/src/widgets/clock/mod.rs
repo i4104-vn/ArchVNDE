@@ -224,7 +224,10 @@ pub fn create_clock_widget(
                                 title_lbl.set_halign(gtk4::Align::Start);
                                 title_lbl.set_hexpand(true);
 
-                                let chevron = archvnde_common::icon::get_icon_colored("chevron-up", 12, "rgba(255, 255, 255, 0.4)");
+                                let chevron = gtk4::Image::from_icon_name("pan-up-symbolic");
+                                chevron.set_pixel_size(12);
+                                chevron.set_opacity(0.4);
+                                chevron.set_valign(gtk4::Align::Center);
 
                                 group_header.append(&icon_widget);
                                 group_header.append(&title_lbl);
