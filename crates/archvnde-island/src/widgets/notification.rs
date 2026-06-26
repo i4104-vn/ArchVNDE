@@ -40,7 +40,7 @@ pub struct NotificationService {
 impl NotificationService {
     async fn notify(
         &self,
-        _app_name: &str,
+        app_name: &str,
         _replaces_id: u32,
         app_icon: &str,
         summary: &str,
@@ -52,10 +52,16 @@ impl NotificationService {
         let id = self.current_id.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
         println!("Received Notification via D-Bus: [{}] {}", summary, body);
         
+        let icon = if app_icon.is_empty() {
+            app_name.to_lowercase()
+        } else {
+            app_icon.to_string()
+        };
+        
         let _ = self.sender.send(NotificationMsg::New {
             summary: summary.to_string(),
             body: body.to_string(),
-            icon: app_icon.to_string(),
+            icon,
             timeout: expire_timeout,
         });
         
@@ -220,14 +226,8 @@ pub fn show_notification_popup(summary: &str, body: &str, icon_name: &str, timeo
     text_box.append(&header_box);
     text_box.append(&body_label);
 
-    let avatar_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-    avatar_box.add_css_class("popup-avatar-box");
-    let avatar_icon = archvnde_common::icon::get_icon_colored("user", 16, "#ffffff");
-    avatar_box.append(&avatar_icon);
-
     content_row.append(&app_icon_box);
     content_row.append(&text_box);
-    content_row.append(&avatar_box);
 
     container_box.append(&content_row);
     window.set_child(Some(&container_box));
