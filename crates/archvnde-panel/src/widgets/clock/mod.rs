@@ -215,6 +215,8 @@ pub fn create_clock_widget(
                                     gtk4::Image::from_icon_name(name)
                                 };
                                 icon_widget.set_pixel_size(18);
+                                icon_widget.set_valign(gtk4::Align::Center);
+                                icon_widget.set_halign(gtk4::Align::Center);
                                 icon_widget.add_css_class("notif-item-icon");
 
                                 let title_lbl = gtk4::Label::new(Some(&display_app_name));
@@ -311,6 +313,8 @@ pub fn create_clock_widget(
                                     gtk4::Image::from_icon_name(name)
                                 };
                                 icon_widget.set_pixel_size(18);
+                                icon_widget.set_valign(gtk4::Align::Center);
+                                icon_widget.set_halign(gtk4::Align::Center);
                                 icon_widget.add_css_class("notif-item-icon");
 
                                 let text_box = gtk4::Box::new(gtk4::Orientation::Vertical, 2);
