@@ -18,6 +18,7 @@ pub fn create_status_indicators(
     app: &gtk4::Application,
     quick_settings_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
     calendar_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
+    launcher_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
 ) -> gtk4::Box {
     let status_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
     status_box.add_css_class("status-indicators-box");
@@ -48,12 +49,20 @@ pub fn create_status_indicators(
 
     let qsw_clone = quick_settings_window.clone();
     let cw_clone = calendar_window.clone();
+    let lw_clone = launcher_window.clone();
     let app_clone = app.clone();
     status_button.connect_clicked(move |_| {
         let cal_win = {
             cw_clone.borrow().clone()
         };
         if let Some(win) = cal_win {
+            win.close();
+        }
+        
+        let launch_win = {
+            lw_clone.borrow().clone()
+        };
+        if let Some(win) = launch_win {
             win.close();
         }
 
@@ -78,6 +87,7 @@ pub fn create_status_indicators(
         app,
         quick_settings_window.clone(),
         calendar_window.clone(),
+        launcher_window.clone(),
     );
 
     status_box.append(&status_button);

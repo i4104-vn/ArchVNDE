@@ -196,6 +196,8 @@ pub fn show_notification_popup(summary: &str, body: &str, icon_name: &str, timeo
     body_label.add_css_class("popup-body");
     body_label.set_halign(gtk4::Align::Start);
     body_label.set_wrap(true);
+    body_label.set_ellipsize(gtk4::pango::EllipsizeMode::End);
+    body_label.set_lines(2);
     body_label.set_max_width_chars(32);
 
     text_box.append(&header_box);

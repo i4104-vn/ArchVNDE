@@ -26,6 +26,7 @@ fn main() {
         // Define shared window states for mutual exclusivity
         let quick_settings_window = Rc::new(RefCell::new(None));
         let calendar_window = Rc::new(RefCell::new(None));
+        let launcher_window = Rc::new(RefCell::new(None));
 
         // Initialize layer shell properties on the window
         window.init_layer_shell();
@@ -56,8 +57,29 @@ fn main() {
         logo_btn.add_css_class("panel-logo-btn");
         let logo_icon = archvnde_common::icon::get_icon("logo", 16);
         logo_btn.set_child(Some(&logo_icon));
-        logo_btn.connect_clicked(|_| {
-            let _ = std::process::Command::new("archvnde-launcher").spawn();
+        
+        let lw_clone = launcher_window.clone();
+        let qsw_clone = quick_settings_window.clone();
+        let cw_clone = calendar_window.clone();
+        let app_clone = app.clone();
+        logo_btn.connect_clicked(move |_| {
+            // Close other windows
+            if let Some(win) = qsw_clone.borrow().clone() {
+                win.close();
+            }
+            if let Some(win) = cw_clone.borrow().clone() {
+                win.close();
+            }
+            
+            let existing = lw_clone.borrow().clone();
+            if let Some(win) = existing {
+                win.close();
+            } else {
+                let l_win = archvnde_launcher::widgets::build_launcher_ui(&app_clone, lw_clone.clone());
+                if let Ok(mut borrow) = lw_clone.try_borrow_mut() {
+                    *borrow = Some(l_win);
+                }
+            }
         });
 
         // 2. Workspace Switcher
@@ -75,6 +97,7 @@ fn main() {
             app,
             quick_settings_window.clone(),
             calendar_window.clone(),
+            launcher_window.clone(),
         );
 
         let sys_monitor = create_sys_monitor_widget();

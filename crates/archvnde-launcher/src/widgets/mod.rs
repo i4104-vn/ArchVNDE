@@ -12,7 +12,10 @@ use footer::create_launcher_footer;
 use app_row::create_list_app_widget;
 use search::populate_search_results;
 
-pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
+pub fn build_launcher_ui(
+    app: &gtk4::Application,
+    launcher_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
+) -> gtk4::ApplicationWindow {
     let window = gtk4::ApplicationWindow::new(app);
     
     archvnde_common::window::init_layer_window(
@@ -106,11 +109,15 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     let is_animating_clone = is_animating.clone();
     let win_clone_close = window.clone();
     let box_layout_clone_close = box_layout.clone();
+    let lw_inner = launcher_window.clone();
     window.connect_close_request(move |_| {
         if is_animating_clone.get() {
             return gtk4::glib::Propagation::Proceed;
         }
         is_animating_clone.set(true);
+        if let Ok(mut borrow) = lw_inner.try_borrow_mut() {
+            *borrow = None;
+        }
         let win_cb = win_clone_close.clone();
         let box_layout_cb = box_layout_clone_close.clone();
         archvnde_common::animation::slide_out_cb(
