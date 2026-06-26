@@ -250,7 +250,7 @@ button.panel-clock-btn:hover {
 }
 
 /* Hover Scale Transition for active music notch */
-.panel-notch.active-music:hover {
+.panel-notch.active-music:not(.popover-open):hover {
     transform: scale(1.04);
     background-color: rgba(16, 16, 18, 0.98);
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45),

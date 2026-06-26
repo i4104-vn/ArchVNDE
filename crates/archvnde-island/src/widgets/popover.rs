@@ -13,7 +13,7 @@ pub fn create_media_popover(
 ) {
     let popover = gtk4::Popover::new();
     popover.set_parent(notch_capsule);
-    popover.set_has_arrow(true);
+    popover.set_has_arrow(false);
     popover.add_css_class("media-popover");
 
     let popover_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
@@ -138,10 +138,21 @@ pub fn create_media_popover(
 
     // Genie-in when the popover maps (opens)
     let popover_box_clone2 = popover_box.clone();
+    let notch_capsule_clone = notch_capsule.clone();
     popover.connect_map(move |_| {
+<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
         archvnde_common::animation::css_zoom_in(
+=======
+        notch_capsule_clone.add_css_class("popover-open");
+        archvnde_common::animation::genie_in(
+>>>>>>> 63e642f (style: remove player popover arrow and disable island hover scale when popover is open):libs/archvnde-island/src/widgets/popover.rs
             popover_box_clone2.upcast_ref(),
         );
+    });
+
+    let notch_capsule_clone2 = notch_capsule.clone();
+    popover.connect_unmap(move |_| {
+        notch_capsule_clone2.remove_css_class("popover-open");
     });
 
     (
