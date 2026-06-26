@@ -10,10 +10,14 @@ pub fn island_zoom_in(widget: &gtk4::Widget, target_width: i32, target_height: i
         child.set_opacity(0.0);
     }
 
-    let start = std::time::Instant::now();
+    let start_cell = std::cell::Cell::new(None);
     let dur = std::time::Duration::from_millis(duration_ms);
 
     widget.add_tick_callback(move |w, _clock| {
+        if start_cell.get().is_none() {
+            start_cell.set(Some(std::time::Instant::now()));
+        }
+        let start = start_cell.get().unwrap();
         let elapsed = start.elapsed();
         if elapsed >= dur {
             w.set_size_request(target_width, target_height);
@@ -49,10 +53,14 @@ pub fn island_zoom_out(widget: &gtk4::Widget, target_width: i32, duration_ms: u6
         child.set_opacity(1.0);
     }
 
-    let start = std::time::Instant::now();
+    let start_cell = std::cell::Cell::new(None);
     let dur = std::time::Duration::from_millis(duration_ms);
 
     widget.add_tick_callback(move |w, _clock| {
+        if start_cell.get().is_none() {
+            start_cell.set(Some(std::time::Instant::now()));
+        }
+        let start = start_cell.get().unwrap();
         let elapsed = start.elapsed();
         if elapsed >= dur {
             w.set_size_request(0, 0);

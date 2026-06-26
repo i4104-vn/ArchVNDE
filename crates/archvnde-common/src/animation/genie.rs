@@ -8,10 +8,14 @@ pub fn genie_in(widget: &gtk4::Widget, target_width: i32, target_height: i32, du
     widget.set_visible(true);
     widget.set_size_request(20, 20);
 
-    let start = std::time::Instant::now();
+    let start_cell = std::cell::Cell::new(None);
     let dur = std::time::Duration::from_millis(duration_ms);
 
     widget.add_tick_callback(move |w, _clock| {
+        if start_cell.get().is_none() {
+            start_cell.set(Some(std::time::Instant::now()));
+        }
+        let start = start_cell.get().unwrap();
         let elapsed = start.elapsed();
         if elapsed >= dur {
             w.set_size_request(target_width, target_height);
@@ -39,12 +43,16 @@ pub fn genie_out<F>(widget: &gtk4::Widget, target_width: i32, target_height: i32
 where
     F: FnOnce() + 'static,
 {
-    let start = std::time::Instant::now();
+    let start_cell = std::cell::Cell::new(None);
     let dur = std::time::Duration::from_millis(duration_ms);
 
     let mut on_complete_opt = Some(on_complete);
 
     widget.add_tick_callback(move |w, _clock| {
+        if start_cell.get().is_none() {
+            start_cell.set(Some(std::time::Instant::now()));
+        }
+        let start = start_cell.get().unwrap();
         let elapsed = start.elapsed();
         if elapsed >= dur {
             w.set_size_request(0, 0);

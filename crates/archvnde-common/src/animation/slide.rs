@@ -25,10 +25,14 @@ pub fn slide_in(widget: &gtk4::Widget, direction: SlideDirection, distance_px: i
         SlideDirection::Left => widget.set_margin_end(original_margin_end - distance_px),
     }
 
-    let start = std::time::Instant::now();
+    let start_cell = std::cell::Cell::new(None);
     let dur = std::time::Duration::from_millis(duration_ms);
 
     widget.add_tick_callback(move |w, _clock| {
+        if start_cell.get().is_none() {
+            start_cell.set(Some(std::time::Instant::now()));
+        }
+        let start = start_cell.get().unwrap();
         let elapsed = start.elapsed();
         if elapsed >= dur {
             w.set_opacity(1.0);
@@ -84,10 +88,14 @@ pub fn slide_out(
     let original_margin_start = widget.margin_start();
     let original_margin_end = widget.margin_end();
 
-    let start = std::time::Instant::now();
+    let start_cell = std::cell::Cell::new(None);
     let dur = std::time::Duration::from_millis(duration_ms);
 
     widget.add_tick_callback(move |w, _clock| {
+        if start_cell.get().is_none() {
+            start_cell.set(Some(std::time::Instant::now()));
+        }
+        let start = start_cell.get().unwrap();
         let elapsed = start.elapsed();
         if elapsed >= dur {
             w.set_opacity(0.0);
@@ -145,12 +153,16 @@ pub fn slide_out_cb<F>(
     let original_margin_start = widget.margin_start();
     let original_margin_end = widget.margin_end();
 
-    let start = std::time::Instant::now();
+    let start_cell = std::cell::Cell::new(None);
     let dur = std::time::Duration::from_millis(duration_ms);
 
     let on_complete_opt = std::cell::RefCell::new(Some(on_complete));
 
     widget.add_tick_callback(move |w, _clock| {
+        if start_cell.get().is_none() {
+            start_cell.set(Some(std::time::Instant::now()));
+        }
+        let start = start_cell.get().unwrap();
         let elapsed = start.elapsed();
         if elapsed >= dur {
             w.set_opacity(0.0);
