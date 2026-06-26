@@ -97,7 +97,17 @@ pub fn start_player_polling_loop(
                 art_container.remove(&child);
             }
             let icon_symbol = if notif.icon.is_empty() { "bell" } else { &notif.icon };
-            let notif_icon = archvnde_common::icon::get_icon_colored(icon_symbol, 14, "#3b82f6");
+            let notif_icon = if icon_symbol.starts_with('/') {
+                gtk4::Image::from_file(icon_symbol)
+            } else {
+                let name = if icon_symbol == "bell" {
+                    "preferences-system-notifications-symbolic"
+                } else {
+                    icon_symbol
+                };
+                gtk4::Image::from_icon_name(name)
+            };
+            notif_icon.set_pixel_size(14);
             notif_icon.add_css_class("notch-album-art");
             art_container.append(&notif_icon);
 
