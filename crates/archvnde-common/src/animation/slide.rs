@@ -194,4 +194,3 @@ pub fn slide_out_cb<F>(
         glib::ControlFlow::Continue
     });
 }
-
