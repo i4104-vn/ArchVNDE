@@ -70,22 +70,6 @@ pub fn start_player_polling_loop(
             // Slide down the sub-island notification badge underneath the capsule
             if !was_custom_active.get() {
                 was_custom_active.set(true);
-                badge_title.set_text(&notif.title);
-                badge_desc.set_text(&notif.body);
-
-                if let Some(child) = badge_icon_container.first_child() {
-                    badge_icon_container.remove(&child);
-                }
-                let badge_icon = archvnde_common::icon::get_icon_colored(icon_symbol, 14, "#3b82f6");
-                badge_icon_container.append(&badge_icon);
-
-                notification_badge.set_visible(true);
-                archvnde_common::animation::slide_in(
-                    notification_badge.clone().upcast_ref(),
-                    archvnde_common::animation::SlideDirection::Down,
-                    8,
-                    200,
-                );
             }
 
             default_view.set_visible(false);
@@ -103,13 +87,6 @@ pub fn start_player_polling_loop(
             // Remove notification badge if it just expired
             if was_custom_active.get() {
                 was_custom_active.set(false);
-                archvnde_common::animation::slide_out(
-                    notification_badge.clone().upcast_ref(),
-                    archvnde_common::animation::SlideDirection::Up,
-                    8,
-                    200,
-                    true,
-                );
             }
 
             // 2. Fallback to playerctl music state
