@@ -1,71 +1,109 @@
 pub mod app_row;
+pub mod footer;
+pub mod file_search;
+pub mod search;
 
 use crate::core::find_desktop_apps;
-use crate::models::DesktopApp;
 use gtk4::prelude::*;
 use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
 use std::rc::Rc;
-use app_row::create_app_row;
+use std::cell::RefCell;
+use footer::create_launcher_footer;
+use app_row::create_list_app_widget;
+use search::populate_search_results;
 
 pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     let window = gtk4::ApplicationWindow::new(app);
-    window.init_layer_shell();
-    window.set_layer(Layer::Overlay);
-    window.set_keyboard_mode(KeyboardMode::Exclusive);
+    
+    archvnde_common::window::init_layer_window(
+        &window,
+        Layer::Overlay,
+        KeyboardMode::OnDemand,
+        -1,
+        &[
+            (Edge::Top, true),
+            (Edge::Bottom, false),
+            (Edge::Left, true),
+            (Edge::Right, false),
+        ],
+        -1,
+    );
+    window.set_margin(Edge::Top, 0);
+    window.set_margin(Edge::Left, 0);
 
-    window.set_anchor(Edge::Top, false);
-    window.set_anchor(Edge::Bottom, false);
-    window.set_anchor(Edge::Left, false);
-    window.set_anchor(Edge::Right, false);
-    window.set_default_size(450, 550);
+    window.set_default_size(780, 560);
     window.add_css_class("launcher-window");
 
-    let box_layout = gtk4::Box::new(gtk4::Orientation::Vertical, 15);
+    let box_layout = gtk4::Box::new(gtk4::Orientation::Vertical, 12);
     box_layout.add_css_class("launcher-box");
-    box_layout.set_margin_start(20);
-    box_layout.set_margin_end(20);
-    box_layout.set_margin_top(20);
-    box_layout.set_margin_bottom(20);
+    box_layout.set_margin_top(10);
+    box_layout.set_margin_bottom(12);
+    box_layout.set_margin_start(12);
+    box_layout.set_margin_end(12);
 
     let search_entry = gtk4::Entry::new();
-    search_entry.set_placeholder_text(Some("Search apps, files, settings..."));
+    search_entry.set_placeholder_text(Some("Tìm ứng dụng hoặc tệp tin..."));
     search_entry.add_css_class("launcher-search");
+    search_entry.set_margin_top(16);
+    search_entry.set_margin_start(16);
+    search_entry.set_margin_end(16);
 
-    let scrolled_window = gtk4::ScrolledWindow::new();
-    scrolled_window.set_vexpand(true);
+    // Horizontal split box for two columns
+    let columns_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 12);
+    columns_box.add_css_class("launcher-columns-box");
+    columns_box.set_vexpand(true);
 
-    let list_box = gtk4::ListBox::new();
-    list_box.add_css_class("launcher-list");
+    // Left column: scrollable all apps list (always shows all apps)
+    let left_scroll = gtk4::ScrolledWindow::new();
+    left_scroll.add_css_class("launcher-left-column");
+    left_scroll.set_size_request(280, -1);
+    left_scroll.set_policy(gtk4::PolicyType::Never, gtk4::PolicyType::Automatic);
+
+    let left_list_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
 
     let apps = find_desktop_apps();
     let apps_rc = Rc::new(apps);
 
-    let populate_list = {
-        let list_box = list_box.clone();
-        let window_clone = window.clone();
-        move |filtered_apps: Vec<DesktopApp>| {
-            while let Some(row) = list_box.first_child() {
-                list_box.remove(&row);
-            }
-            for app in filtered_apps {
-                let row = create_app_row(&app, &window_clone);
-                list_box.append(&row);
-            }
+    for app in apps_rc.iter() {
+        let btn = create_list_app_widget(app, &window);
+        left_list_box.append(&btn);
+    }
+    left_scroll.set_child(Some(&left_list_box));
+
+    // Right column: dynamic search results
+    let right_scroll = gtk4::ScrolledWindow::new();
+    right_scroll.add_css_class("launcher-right-column");
+    right_scroll.set_hexpand(true);
+    right_scroll.set_policy(gtk4::PolicyType::Never, gtk4::PolicyType::Automatic);
+
+    let current_query = Rc::new(RefCell::new(String::new()));
+
+    let populate_impl = {
+        let current_query = current_query.clone();
+        let apps_rc = apps_rc.clone();
+        let right_scroll = right_scroll.clone();
+        let window = window.clone();
+
+        move || {
+            populate_search_results(
+                &right_scroll,
+                &current_query.borrow(),
+                &apps_rc,
+                &window,
+            );
         }
     };
 
-    populate_list(apps_rc.as_ref().clone());
+    let populate_impl_rc = Rc::new(populate_impl);
 
-    let apps_search = apps_rc.clone();
-    let populate_search = populate_list.clone();
+    // Initial populate
+    populate_impl_rc();
+
+    let current_query_search = current_query.clone();
+    let populate_grid_search = populate_impl_rc.clone();
     search_entry.connect_changed(move |entry| {
-        let query = entry.text().to_string().to_lowercase();
-        let filtered: Vec<DesktopApp> = apps_search
-            .iter()
-            .filter(|app| app.name.to_lowercase().contains(&query))
-            .cloned()
-            .collect();
-        populate_search(filtered);
+        *current_query_search.borrow_mut() = entry.text().to_string();
+        populate_grid_search();
     });
 
     let is_animating = Rc::new(std::cell::Cell::new(false));
@@ -79,13 +117,12 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
         is_animating_clone.set(true);
         let win_cb = win_clone_close.clone();
         let box_layout_cb = box_layout_clone_close.clone();
-        let w = box_layout_cb.width().max(450);
-        let h = box_layout_cb.height().max(550);
-        archvnde_common::animation::genie_out(
+        archvnde_common::animation::slide_out_cb(
             box_layout_cb.upcast_ref(),
-            w,
-            h,
+            archvnde_common::animation::SlideDirection::Up,
+            40,
             200,
+            false,
             move || {
                 win_cb.destroy();
             }
@@ -111,12 +148,36 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     });
     window.add_controller(key_controller);
 
-    scrolled_window.set_child(Some(&list_box));
     box_layout.append(&search_entry);
-    box_layout.append(&scrolled_window);
+    
+    columns_box.append(&left_scroll);
+    columns_box.append(&right_scroll);
+    columns_box.set_margin_start(16);
+    columns_box.set_margin_end(16);
+    box_layout.append(&columns_box);
+
+    let footer_sep = gtk4::Separator::new(gtk4::Orientation::Horizontal);
+    footer_sep.add_css_class("launcher-footer-separator");
+    footer_sep.set_margin_start(16);
+    footer_sep.set_margin_end(16);
+    box_layout.append(&footer_sep);
+
+    let footer = create_launcher_footer();
+    footer.set_margin_start(16);
+    footer.set_margin_end(16);
+    footer.set_margin_bottom(16);
+    box_layout.append(&footer);
+
     window.set_child(Some(&box_layout));
 
-    archvnde_common::animation::genie_in(box_layout.upcast_ref(), 450, 550, 240);
+    archvnde_common::animation::slide_in(
+        box_layout.upcast_ref(),
+        archvnde_common::animation::SlideDirection::Down,
+        40,
+        250,
+    );
+
+    search_entry.grab_focus();
 
     window
 }

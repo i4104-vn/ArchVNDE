@@ -171,3 +171,154 @@ scale trough slider {
 scale trough slider:hover {
     box-shadow: 0 2px 12px rgba(255, 255, 255, 0.30);
 }
+
+/* ================================================================
+   CONTROL CENTER LAYOUT STYLING
+   ================================================================ */
+
+.control-left-toggles-box {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 6px;
+}
+
+button.control-tile-row {
+    background-color: transparent;
+    border: none;
+    border-radius: 12px;
+    padding: 8px 10px;
+    color: #ffffff;
+    box-shadow: none;
+    transition: all 150ms ease;
+    margin: 2px 0;
+}
+
+button.control-tile-row:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.control-icon-circle {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    padding: 8px;
+    min-width: 14px;
+    min-height: 14px;
+    transition: all 150ms ease;
+    align-self: center;
+}
+
+.control-icon-circle.active {
+    background-color: #3b82f6;
+    background-image: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+}
+
+button.control-dnd-tile {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 10px 12px;
+    color: #ffffff;
+    box-shadow: none;
+    transition: all 150ms ease;
+}
+
+button.control-dnd-tile:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+    transform: translateY(-1px);
+}
+
+button.control-dnd-tile.active {
+    background-color: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.25);
+}
+
+button.control-dnd-tile.active .control-icon-circle {
+    background-color: #3b82f6;
+    background-image: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+}
+
+button.control-square-tile {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 12px 6px;
+    color: #ffffff;
+    box-shadow: none;
+    transition: all 150ms ease;
+}
+
+button.control-square-tile:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+    transform: translateY(-1px);
+}
+
+button.control-square-tile.active {
+    background-color: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.25);
+}
+
+button.control-square-tile.active image {
+    color: #ffffff;
+}
+
+.control-square-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.2;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.control-slider-card {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 10px 14px;
+}
+
+.control-slider-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.55);
+    margin-bottom: 2px;
+}
+
+.control-media-box {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 10px 12px;
+}
+
+.control-music-art {
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.control-music-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.control-music-artist {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+button.control-music-btn {
+    background-color: transparent;
+    border: none;
+    color: #ffffff;
+    padding: 4px;
+    min-width: 28px;
+    min-height: 28px;
+    border-radius: 50%;
+    box-shadow: none;
+    transition: all 150ms ease;
+}
+
+button.control-music-btn:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
