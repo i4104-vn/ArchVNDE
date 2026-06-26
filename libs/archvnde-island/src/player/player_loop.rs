@@ -2,7 +2,7 @@ use gtk4::prelude::*;
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
-use super::playerctl::{load_album_art, run_playerctl, SendPixbuf};
+use super::playerctl::{load_album_art, run_playerctl, load_album_art_from_bytes, decode_uri};
 use crate::models::IslandWidgets;
 
 /// Starts a background timer loop that polls active D-Bus notifications and playerctl
@@ -44,7 +44,7 @@ pub fn start_player_polling_loop(
         }
     });
 
-    let (art_sender, mut art_receiver) = tokio::sync::mpsc::unbounded_channel::<(String, String, Option<(SendPixbuf, SendPixbuf)>)>();
+    let (art_sender, mut art_receiver) = tokio::sync::mpsc::unbounded_channel::<(String, String, Result<Vec<u8>, ()>)>();
     let widgets_clone = widgets.clone();
     let last_art_url_clone = last_art_url.clone();
     let last_attempted_url_clone = last_attempted_url.clone();
@@ -54,34 +54,59 @@ pub fn start_player_polling_loop(
     glib::MainContext::default().spawn_local(async move {
         while let Some((url, app_icon_name, result)) = art_receiver.recv().await {
             if url == *last_attempted_url_clone.borrow() {
-                if let Some((SendPixbuf(s_pb), SendPixbuf(l_pb))) = result {
-                    *last_art_url_clone.borrow_mut() = url;
-                    art_loaded_clone.set(true);
+                if let Ok(bytes) = result {
+                    let small_art = load_album_art_from_bytes(&bytes, 16);
+                    let large_art = load_album_art_from_bytes(&bytes, 240);
 
-                    let s_texture = gdk4::Texture::for_pixbuf(&s_pb);
-                    let s_art = gtk4::Image::from_paintable(Some(&s_texture));
-                    s_art.set_pixel_size(16);
+                    if let (Some(s_art), Some(l_art)) = (small_art, large_art) {
+                        *last_art_url_clone.borrow_mut() = url;
+                        art_loaded_clone.set(true);
 
-                    let l_texture = gdk4::Texture::for_pixbuf(&l_pb);
-                    let l_art = gtk4::Image::from_paintable(Some(&l_texture));
-                    l_art.set_pixel_size(240);
+                        if let Some(child) = widgets_clone.art_container.first_child() {
+                            widgets_clone.art_container.remove(&child);
+                        }
+                        s_art.add_css_class("notch-album-art");
+                        widgets_clone.art_container.append(&s_art);
 
-                    if let Some(child) = widgets_clone.art_container.first_child() {
-                        widgets_clone.art_container.remove(&child);
+                        if let Some(child) = widgets_clone.popover_art_container.first_child() {
+                            widgets_clone.popover_art_container.remove(&child);
+                        }
+                        l_art.add_css_class("media-popover-art");
+                        l_art.set_size_request(240, 240);
+                        l_art.set_hexpand(true);
+                        l_art.set_vexpand(true);
+                        l_art.set_halign(gtk4::Align::Fill);
+                        l_art.set_valign(gtk4::Align::Fill);
+                        widgets_clone.popover_art_container.append(&l_art);
+                    } else {
+                        let current_fails = fail_count_clone.get() + 1;
+                        fail_count_clone.set(current_fails);
+                        if current_fails >= 3 {
+                            *last_art_url_clone.borrow_mut() = url;
+                            art_loaded_clone.set(true);
+
+                            if let Some(child) = widgets_clone.art_container.first_child() {
+                                widgets_clone.art_container.remove(&child);
+                            }
+                            let music_icon_s = archvnde_common::icon::get_icon_colored(&app_icon_name, 14, "#3b82f6");
+                            music_icon_s.add_css_class("notch-album-art");
+                            widgets_clone.art_container.append(&music_icon_s);
+
+                            if let Some(child) = widgets_clone.popover_art_container.first_child() {
+                                widgets_clone.popover_art_container.remove(&child);
+                            }
+                            let music_icon_l = archvnde_common::icon::get_icon_colored(&app_icon_name, 120, "#3b82f6");
+                            music_icon_l.add_css_class("media-popover-art");
+                            music_icon_l.set_size_request(240, 240);
+                            music_icon_l.set_hexpand(true);
+                            music_icon_l.set_vexpand(true);
+                            music_icon_l.set_halign(gtk4::Align::Fill);
+                            music_icon_l.set_valign(gtk4::Align::Fill);
+                            widgets_clone.popover_art_container.append(&music_icon_l);
+                        } else {
+                            *last_attempted_url_clone.borrow_mut() = String::new();
+                        }
                     }
-                    s_art.add_css_class("notch-album-art");
-                    widgets_clone.art_container.append(&s_art);
-
-                    if let Some(child) = widgets_clone.popover_art_container.first_child() {
-                        widgets_clone.popover_art_container.remove(&child);
-                    }
-                    l_art.add_css_class("media-popover-art");
-                    l_art.set_size_request(240, 240);
-                    l_art.set_hexpand(true);
-                    l_art.set_vexpand(true);
-                    l_art.set_halign(gtk4::Align::Fill);
-                    l_art.set_valign(gtk4::Align::Fill);
-                    widgets_clone.popover_art_container.append(&l_art);
                 } else {
                     let current_fails = fail_count_clone.get() + 1;
                     fail_count_clone.set(current_fails);
@@ -309,7 +334,7 @@ fn update_player_view(
     artist: &str,
     player_name_raw: &str,
     art_url: &str,
-    art_sender: &tokio::sync::mpsc::UnboundedSender<(String, String, Option<(SendPixbuf, SendPixbuf)>)>,
+    art_sender: &tokio::sync::mpsc::UnboundedSender<(String, String, Result<Vec<u8>, ()>)>,
 ) {
     is_playing_state.set(playing);
 
@@ -397,12 +422,22 @@ fn update_player_view(
                 let art_sender_clone = art_sender.clone();
 
                 std::thread::spawn(move || {
-                    let small_pb = super::playerctl::load_album_art_pixbuf(&art_url_clone, 16);
-                    let large_pb = super::playerctl::load_album_art_pixbuf(&art_url_clone, 240);
-                    if let (Some(s_pb), Some(l_pb)) = (small_pb, large_pb) {
-                        let _ = art_sender_clone.send((art_url_clone, app_icon_name_clone, Some((s_pb, l_pb))));
+                    let local_path = if let Some(path_str) = art_url_clone.strip_prefix("file://") {
+                        decode_uri(&path_str)
+                    } else if art_url_clone.starts_with('/') {
+                        art_url_clone.to_string()
                     } else {
-                        let _ = art_sender_clone.send((art_url_clone, app_icon_name_clone, None));
+                        let _ = art_sender_clone.send((art_url_clone, app_icon_name_clone, Err(())));
+                        return;
+                    };
+
+                    match std::fs::read(&local_path) {
+                        Ok(bytes) => {
+                            let _ = art_sender_clone.send((art_url_clone, app_icon_name_clone, Ok(bytes)));
+                        }
+                        Err(_) => {
+                            let _ = art_sender_clone.send((art_url_clone, app_icon_name_clone, Err(())));
+                        }
                     }
                 });
             }
