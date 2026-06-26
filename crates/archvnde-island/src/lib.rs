@@ -128,13 +128,11 @@ pub fn create_system_island() -> gtk4::Box {
                     badge_card.append(&badge_icon_box);
                     badge_card.append(&badge_text_box);
 
-                    // Append and animate in
-                    notif_badge_clone.append(&badge_card);
-                    archvnde_common::animation::slide_in(
+                    // Prepend and animate in
+                    notif_badge_clone.prepend(&badge_card);
+                    archvnde_common::animation::fade_in(
                         badge_card.upcast_ref(),
-                        archvnde_common::animation::SlideDirection::Down,
-                        8,
-                        200,
+                        250,
                     );
 
                     // Keep maximum of 3 active badges
@@ -148,15 +146,13 @@ pub fn create_system_island() -> gtk4::Box {
                     if children.len() > 3 {
                         let items_to_remove = children.len() - 3;
                         for i in 0..items_to_remove {
-                            let old_card = children[i].clone();
+                            let old_idx = children.len() - 1 - i;
+                            let old_card = children[old_idx].clone();
                             let nb_c = notif_badge_clone.clone();
                             let old_card_clone = old_card.clone();
-                            archvnde_common::animation::slide_out_cb(
+                            archvnde_common::animation::fade_out_cb(
                                 &old_card,
-                                archvnde_common::animation::SlideDirection::Up,
-                                8,
-                                200,
-                                false,
+                                250,
                                 move || {
                                     nb_c.remove(&old_card_clone);
                                 }
@@ -170,12 +166,9 @@ pub fn create_system_island() -> gtk4::Box {
                     glib::timeout_add_local_once(std::time::Duration::from_secs(5), move || {
                         if badge_card_expire.parent().is_some() {
                             let bce_clone = badge_card_expire.clone();
-                            archvnde_common::animation::slide_out_cb(
+                            archvnde_common::animation::fade_out_cb(
                                 badge_card_expire.upcast_ref(),
-                                archvnde_common::animation::SlideDirection::Up,
-                                8,
-                                200,
-                                false,
+                                250,
                                 move || {
                                     nb_expire.remove(&bce_clone);
                                 }
