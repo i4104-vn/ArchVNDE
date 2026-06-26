@@ -176,7 +176,7 @@ pub fn show_notification_popup(summary: &str, body: &str, icon_name: &str, timeo
     window.set_anchor(Edge::Left, false);
     window.set_anchor(Edge::Right, false);
     window.set_anchor(Edge::Bottom, false);
-    window.set_margin(Edge::Top, 30);
+    window.set_margin(Edge::Top, 10);
 
     window.add_css_class("notification-popup-card");
 
