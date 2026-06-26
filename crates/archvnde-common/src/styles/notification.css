@@ -20,6 +20,7 @@ window.notification-popup-card {
     color: rgba(255, 255, 255, 0.95);
     padding: 16px 20px;
 <<<<<<< HEAD:crates/archvnde-common/src/styles/notification.css
+<<<<<<< HEAD:crates/archvnde-common/src/styles/notification.css
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65),
                 inset 0 1px 0 rgba(255, 255, 255, 0.04);
 =======
@@ -35,6 +36,8 @@ window.notification-popup-card {
     transform: scale(1);
     opacity: 1;
 >>>>>>> 947d587 (perf: use FrameClock timing and halve animation durations for buttery-smooth 120hz):libs/archvnde-common/src/styles/notification.css
+=======
+>>>>>>> 94d71fe (perf: migrate genie animations from css transitions to pure rust tick callbacks):libs/archvnde-common/src/styles/notification.css
 }
 
 /* Green speech-bubble app icon container */

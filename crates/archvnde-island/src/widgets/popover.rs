@@ -115,7 +115,7 @@ pub fn create_media_popover(
             
             archvnde_common::animation::css_genie_out(
                 popover_box_clone.upcast_ref(),
-                200,
+                400,
                 move || {
                     p_clone.popdown();
                     is_animating_cb.set(false);

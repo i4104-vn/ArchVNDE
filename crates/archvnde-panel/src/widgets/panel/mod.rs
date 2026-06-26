@@ -146,7 +146,7 @@ fn create_quick_settings_window(
         let q_win_cb = q_win_clone.clone();
         archvnde_common::animation::css_genie_out(
             main_box_clone.upcast_ref(),
-            200,
+            400,
             move || {
                 if let Ok(mut borrow) = qsw_inner_cb.try_borrow_mut() {
                     *borrow = None;

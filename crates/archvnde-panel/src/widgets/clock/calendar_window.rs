@@ -121,7 +121,7 @@ pub fn show_calendar_window(
         let c_win_cb = c_win_clone.clone();
         archvnde_common::animation::css_genie_out(
             main_box_clone.upcast_ref(),
-            200,
+            400,
             move || {
                 if let Ok(mut borrow) = cw_inner_cb.try_borrow_mut() {
                     *borrow = None;
