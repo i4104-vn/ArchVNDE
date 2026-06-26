@@ -1,7 +1,10 @@
 #[path = "src/config.rs"]
 mod config;
+#[path = "src/models/mod.rs"]
+pub mod models;
 #[path = "src/widgets/mod.rs"]
 mod widgets;
+
 
 
 use gtk4::prelude::*;

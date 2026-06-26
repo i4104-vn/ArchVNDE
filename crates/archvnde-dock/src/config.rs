@@ -2,57 +2,8 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct PinnedApp {
-    pub name: String,
-    pub icon: String,
-    pub command: String,
-    pub args: Vec<String>,
-}
+pub use crate::models::{PinnedApp, DockConfig};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DockConfig {
-    pub pinned_apps: Vec<PinnedApp>,
-}
-
-impl Default for DockConfig {
-    fn default() -> Self {
-        Self {
-            pinned_apps: vec![
-                PinnedApp {
-                    name: "Terminal".to_string(),
-                    icon: "terminal".to_string(),
-                    command: "foot".to_string(),
-                    args: vec![],
-                },
-                PinnedApp {
-                    name: "Files".to_string(),
-                    icon: "folder".to_string(),
-                    command: "pcmanfm".to_string(),
-                    args: vec![],
-                },
-                PinnedApp {
-                    name: "Web Browser".to_string(),
-                    icon: "search".to_string(),
-                    command: "firefox".to_string(),
-                    args: vec![],
-                },
-                PinnedApp {
-                    name: "Music Player".to_string(),
-                    icon: "music".to_string(),
-                    command: "amberol".to_string(),
-                    args: vec![],
-                },
-                PinnedApp {
-                    name: "System Settings".to_string(),
-                    icon: "settings".to_string(),
-                    command: "gnome-control-center".to_string(),
-                    args: vec![],
-                },
-            ],
-        }
-    }
-}
 
 pub fn get_dock_config_path() -> PathBuf {
     archvnde_common::get_archvnde_config_dir().join("dock.toml")
