@@ -111,16 +111,20 @@ fn create_quick_settings_window(
     q_win.set_layer(Layer::Overlay);
     q_win.set_keyboard_mode(KeyboardMode::OnDemand);
 
+    // Anchor to all 4 edges to cover the entire screen transparently
     q_win.set_anchor(Edge::Top, true);
+    q_win.set_anchor(Edge::Bottom, true);
+    q_win.set_anchor(Edge::Left, true);
     q_win.set_anchor(Edge::Right, true);
-    q_win.set_margin(Edge::Top, 10);
-    q_win.set_margin(Edge::Right, 12);
-    q_win.set_default_size(360, 480);
     q_win.add_css_class("quick-settings-window");
 
     let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 14);
     main_box.add_css_class("quick-settings-box");
+    main_box.set_halign(gtk4::Align::End);
     main_box.set_valign(gtk4::Align::Start);
+    main_box.set_size_request(360, 480);
+    main_box.set_margin_top(10);
+    main_box.set_margin_end(12);
 
     main_box.append(&create_header_row());
     main_box.append(&create_control_center_grid());
@@ -137,6 +141,21 @@ fn create_quick_settings_window(
     main_box.append(&disk_box);
 
     q_win.set_child(Some(&main_box));
+
+    // Dismiss when clicking outside the quick settings box area
+    let click_gesture = gtk4::GestureClick::new();
+    let main_box_c = main_box.clone();
+    let window_c = q_win.clone();
+    click_gesture.connect_pressed(move |_, _, x, y| {
+        let picked = window_c.pick(x, y, gtk4::PickFlags::DEFAULT);
+        let inside = picked
+            .map(|w| w.is_ancestor(&main_box_c) || w == main_box_c)
+            .unwrap_or(false);
+        if !inside {
+            window_c.close();
+        }
+    });
+    q_win.add_controller(click_gesture);
 
     q_win.connect_is_active_notify(|win| {
         if !win.is_active() {
