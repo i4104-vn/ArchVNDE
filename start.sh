@@ -11,8 +11,6 @@ RC_FILE="$HOME/.config/labwc/rc.xml"
 
 echo "Stopping any running shell processes..."
 killall archvnde-panel || true
-killall archvnde-launcher || true
-killall archvnde-notification || true
 killall archvnde-menu || true
 killall dunst || true
 killall mako || true

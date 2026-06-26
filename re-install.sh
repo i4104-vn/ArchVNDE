@@ -28,7 +28,6 @@ mkdir -p "$LOCAL_BIN"
 # 5. Kill any running instances first so the new binaries can be loaded
 echo "Stopping any running shell processes..."
 killall archvnde-panel || true
-killall archvnde-launcher || true
 killall archvnde-menu || true
 killall archvnde-switcher || true
 killall archvnde-notification || true
@@ -39,7 +38,6 @@ rm -f "$LOCAL_BIN/archvnde-notification"
 # 6. Reinstall the binaries
 echo "Overwriting binaries in $LOCAL_BIN..."
 cp target/release/archvnde-panel "$LOCAL_BIN/archvnde-panel"
-cp target/release/archvnde-launcher "$LOCAL_BIN/archvnde-launcher"
 cp target/release/archvnde-menu "$LOCAL_BIN/archvnde-menu"
 cp target/release/archvnde-switcher "$LOCAL_BIN/archvnde-switcher"
 
