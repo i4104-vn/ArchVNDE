@@ -3,17 +3,15 @@
     -gtk-icon-style: symbolic;
 }
 
-button,
-.workspace-dot,
-.panel-notch,
-popover>contents {
+/* Specific interactive element transitions */
+button, .workspace-dot, .panel-notch, popover > contents {
     transition: all 200ms ease;
 }
 
 window,
 window.background,
 window.panel-window,
-window.control-center-window,
+window.quick-settings-window,
 window.launcher-window,
 window.notification-card {
     background-color: transparent;
@@ -21,18 +19,18 @@ window.notification-card {
     box-shadow: none;
     border: none;
 }
-
 .panel-box {
     background-color: transparent;
     background-image: none;
     color: rgba(255, 255, 255, 0.95);
-    margin: 0;
-    padding: 0px 4px;
+    margin: 0px;
+    padding: 0px 18px;
     min-height: 36px;
     border: none;
     box-shadow: none;
 }
 
+/* Brand logo button */
 button.panel-logo-btn {
     background-color: transparent;
     background-image: none;
@@ -47,81 +45,90 @@ button.panel-logo-btn {
 }
 
 button.panel-logo-btn:hover {
-    background-color: rgba(255, 255, 255, 0.10);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.12);
 }
 
+/* Workspace Capsule */
 .workspace-box {
-    margin-left: 4px;
-    margin-right: 4px;
-    background-color: rgb(20, 20, 26);
-    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(0, 0, 0, 0.08) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-top: 1px solid rgba(255, 255, 255, 0.20);
+    margin-left: 8px;
+    margin-right: 8px;
+    background-color: rgba(20, 20, 22, 0.65);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(20, 20, 22, 0.70) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 9999px;
     padding: 3px 10px;
     min-height: 24px;
-    box-shadow: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
+/* Minimalist dot buttons */
 button.workspace-dot {
-    background-color: rgba(255, 255, 255, 0.35);
+    background-color: rgba(255, 255, 255, 0.40);
     background-image: none;
     border: none;
     border-radius: 9999px;
-    min-width: 6px;
-    min-height: 6px;
+    min-width: 8px;
+    min-height: 8px;
     margin: 0px 3px;
     padding: 0;
     box-shadow: none;
 }
 
 button.workspace-dot:hover {
-    background-color: rgba(255, 255, 255, 0.75);
+    background-color: rgba(255, 255, 255, 0.80);
 }
 
+/* Dynamic dot expansion on active */
 button.workspace-dot.active {
-    background-color: #60a5fa;
-    background-image: linear-gradient(135deg, #93c5fd 0%, #3b82f6 100%);
-    min-width: 14px;
-    min-height: 6px;
-    box-shadow: none;
+    background-color: #3b82f6;
+    background-image: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+    min-width: 12px;
+    min-height: 8px;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.40);
 }
 
+/* System Clock Label inside clock button */
 .panel-clock {
     font-weight: 600;
     font-size: 11px;
     color: #ffffff;
-    text-shadow: none;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.50);
 }
 
+/* Unified Status Indicators Capsule */
 .status-indicators-box {
-    background-color: rgb(20, 20, 26);
-    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(0, 0, 0, 0.08) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-top: 1px solid rgba(255, 255, 255, 0.20);
+    background-color: rgba(20, 20, 22, 0.65);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(20, 20, 22, 0.70) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 9999px;
     padding: 3px 8px;
     min-height: 24px;
-    box-shadow: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .status-text {
     font-size: 11px;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.90);
-    text-shadow: none;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
     margin-left: 2px;
     margin-right: 2px;
 }
 
 .status-icon {
     color: rgba(255, 255, 255, 0.90);
-    text-shadow: none;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
     margin-left: 6px;
     margin-right: 6px;
 }
 
+/* Transparent triggers inside unified capsule */
 button.panel-status-btn,
 button.panel-clock-btn {
     background-color: transparent;
@@ -136,14 +143,19 @@ button.panel-clock-btn {
 
 button.panel-status-btn:hover,
 button.panel-clock-btn:hover {
-    background-color: rgba(255, 255, 255, 0.10);
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
+/* Vertical separator line inside capsule */
 .capsule-separator {
-    color: rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.15);
     font-size: 11px;
     margin: 0 2px;
 }
+
+/* ================================================================
+   INTERACTIVE SYSTEM NOTCH (dropdown notch)
+   ================================================================ */
 
 .panel-notch {
     background-color: transparent;
@@ -154,21 +166,20 @@ button.panel-clock-btn:hover {
     padding: 0;
     box-shadow: none;
     transition: all 400ms cubic-bezier(0.16, 1, 0.3, 1);
-    overflow: hidden;
+    overflow: hidden; /* Prevent child content from overflowing during scale/zoom transitions */
 }
 
 .panel-notch.active-music {
-    background-color: rgba(14, 14, 18, 0.96);
-    background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.06) 0%, rgba(0, 0, 0, 0.15) 100%);
-    -gtk-background-blur: 24;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-top: 1px solid rgba(255, 255, 255, 0.28);
+    background-color: rgba(10, 10, 12, 0.95);
+    background-image: linear-gradient(180deg, rgba(20, 20, 22, 0.95) 0%, rgba(10, 10, 12, 0.85) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 9999px;
     min-width: 0;
     min-height: 0;
     padding: 3px 10px;
     margin-top: 4px;
-    box-shadow: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.40),
+                0 0 12px rgba(59, 130, 246, 0.15);
 }
 
 .notch-content {
@@ -184,52 +195,59 @@ button.panel-clock-btn:hover {
     margin: 0 2px;
 }
 
+/* Album Art */
 .notch-album-art {
     border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
+/* Music Visualizer WAVE */
 .notch-visualizer {
     margin-left: 4px;
 }
 
 .visualizer-bar {
-    background-color: #60a5fa;
-    background-image: linear-gradient(180deg, #93c5fd 0%, #3b82f6 100%);
+    background-color: #3b82f6;
+    background-image: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
     border-radius: 9999px;
     transition: all 100ms ease;
 }
 
+/* Island Notification Badge */
 .island-badge {
-    background-color: rgb(14, 14, 18);
-    background-image: none;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-top: 1px solid rgba(255, 255, 255, 0.20);
-    border-radius: 16px;
-    padding: 8px 14px;
+    background-color: rgba(12, 12, 14, 0.95);
+    background-image: linear-gradient(180deg, rgba(20, 20, 22, 0.98) 0%, rgba(10, 10, 12, 0.92) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 6px 12px;
     min-width: 220px;
     max-width: 240px;
-    box-shadow: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 .badge-title {
     font-size: 10px;
     font-weight: 700;
-    color: #60a5fa;
+    color: #3b82f6;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .badge-desc {
     font-size: 9px;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.80);
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
+/* Hover Scale Transition for active music notch */
 .panel-notch.active-music:not(.popover-open):hover {
     transform: scale(1.04);
-    background-color: rgba(24, 24, 30, 0.96);
-    box-shadow: none;
+    background-color: rgba(16, 16, 18, 0.98);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45),
+                0 0 16px rgba(59, 130, 246, 0.25);
 }
 
+/* Media Popover Styling */
 popover.media-popover {
     background-color: transparent;
     padding: 0;
@@ -238,15 +256,13 @@ popover.media-popover {
     border: none;
 }
 
-popover.media-popover>contents {
-    background-color: rgba(14, 14, 18, 0.96);
-    background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.06) 0%, rgba(0, 0, 0, 0.15) 100%);
-    -gtk-background-blur: 24;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-top: 1px solid rgba(255, 255, 255, 0.28);
-    border-radius: 20px;
+popover.media-popover > contents {
+    background-color: rgba(12, 12, 14, 0.95);
+    background-image: linear-gradient(180deg, rgba(20, 20, 22, 0.98) 0%, rgba(10, 10, 12, 0.92) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
     padding: 16px;
-    box-shadow: none;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.50);
 }
 
 .media-popover-box {
@@ -262,14 +278,13 @@ popover.media-popover>contents {
 .media-popover-app-name {
     font-size: 11px;
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.55);
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .media-popover-art {
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 14px;
-    box-shadow: none;
 }
 
 .media-popover-title {
@@ -282,7 +297,7 @@ popover.media-popover>contents {
 .media-popover-artist {
     font-size: 10px;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.55);
+    color: rgba(255, 255, 255, 0.6);
     margin-bottom: 8px;
 }
 
@@ -291,9 +306,9 @@ popover.media-popover>contents {
 }
 
 .media-control-btn {
-    background-color: rgba(255, 255, 255, 0.06);
+    background-color: transparent;
     background-image: none;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: none;
     border-radius: 50%;
     color: #ffffff;
     padding: 8px;
@@ -304,20 +319,23 @@ popover.media-popover>contents {
 }
 
 .media-control-btn:hover {
-    background-color: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.18);
-    box-shadow: none;
+    background-color: rgba(255, 255, 255, 0.08);
 }
+
+/* ================================================================
+   MEDIA TIMELINE / PROGRESS BAR
+   ================================================================ */
 
 .media-timeline-box {
     margin: 0 4px;
     padding: 0;
 }
 
+/* Override the generic scale styling for media timeline */
 scale.media-timeline-scale trough {
     min-height: 4px;
     border-radius: 2px;
-    background-color: rgba(255, 255, 255, 0.10);
+    background-color: rgba(255, 255, 255, 0.12);
     border: none;
 }
 
@@ -334,7 +352,7 @@ scale.media-timeline-scale trough slider {
     margin: -3px;
     border-radius: 5px;
     background-color: #ffffff;
-    box-shadow: none;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.40);
     border: none;
     opacity: 0;
     transition: opacity 150ms ease;
@@ -347,275 +365,6 @@ scale.media-timeline-scale:hover trough slider {
 .media-time-label {
     font-size: 9px;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.40);
+    color: rgba(255, 255, 255, 0.45);
     margin: 0 2px;
-}
-
-.sys-monitor-box {
-    background-color: rgb(20, 20, 26);
-    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(0, 0, 0, 0.08) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-top: 1px solid rgba(255, 255, 255, 0.20);
-    border-radius: 9999px;
-    padding: 3px 12px;
-    min-height: 24px;
-    box-shadow: none;
-    transition: all 200ms ease;
-}
-
-.sys-monitor-box:hover {
-    background-color: rgb(28, 28, 36);
-    border-color: rgba(255, 255, 255, 0.14);
-}
-
-popover.sys-monitor-popover {
-    background-color: transparent;
-    padding: 0;
-    margin: 0;
-    border: none;
-    box-shadow: none;
-}
-
-popover.sys-monitor-popover>contents {
-    background-color: rgba(14, 14, 18, 0.96);
-    background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.06) 0%, rgba(0, 0, 0, 0.15) 100%);
-    -gtk-background-blur: 24;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-top: 1px solid rgba(255, 255, 255, 0.28);
-    border-radius: 20px;
-    padding: 14px;
-    box-shadow: none;
-}
-
-popover.sys-monitor-popover progressbar trough {
-    min-height: 6px;
-    border-radius: 9999px;
-    background-color: rgba(255, 255, 255, 0.08);
-    border: none;
-}
-
-popover.sys-monitor-popover progressbar progress {
-    border-radius: 9999px;
-    background-color: #3b82f6;
-    background-image: linear-gradient(90deg, #60a5fa 0%, #3b82f6 100%);
-}
-
-popover.sys-monitor-popover .sys-chart {
-    background-color: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
-    margin-top: 6px;
-    margin-bottom: 10px;
-}
-
-.panel-tray-box {
-    margin-right: 4px;
-    background-color: rgb(20, 20, 26);
-    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(0, 0, 0, 0.08) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-top: 1px solid rgba(255, 255, 255, 0.20);
-    border-radius: 9999px;
-    padding: 3px 8px;
-    min-height: 24px;
-    box-shadow: none;
-}
-
-button.panel-tray-item-btn {
-    background-color: transparent;
-    background-image: none;
-    border: none;
-    padding: 2px 4px;
-    margin: 0;
-    border-radius: 6px;
-    box-shadow: none;
-    min-height: 20px;
-    min-width: 20px;
-    transition: all 150ms ease;
-}
-
-button.panel-tray-item-btn:hover {
-    background-color: rgba(255, 255, 255, 0.10);
-}
-
-/* Grouped Taskbar Styles */
-.taskbar-parent-box {
-    background-color: rgb(20, 20, 26);
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-top: 1px solid rgba(255, 255, 255, 0.20);
-    border-radius: 9999px;
-    padding: 3px 8px;
-    min-height: 24px;
-    box-shadow: none;
-}
-
-.taskbar-apps-box {
-    margin-left: 6px;
-    padding: 0;
-}
-
-button.taskbar-app-btn {
-    background-color: rgb(20, 20, 26);
-    background-image: none;
-    border: none;
-    border-radius: 6px;
-    padding: 2px;
-    margin: 0 1px;
-    min-width: 22px;
-    min-height: 22px;
-    transition: all 200ms ease;
-    box-shadow: none;
-}
-
-button.taskbar-app-btn:hover {
-    background-color: rgba(36, 35, 35, 0.85);
-    border-bottom: 2px solid #3b82f6;
-}
-
-button.taskbar-app-btn.active {
-    background-color: rgba(255, 255, 255, 0.15);
-    border-bottom: 2px solid #3b82f6;
-}
-
-button.taskbar-app-btn.active:hover {
-    background-color: rgba(255, 255, 255, 0.22);
-    border-bottom: 2px solid #60a5fa;
-}
-
-popover.taskbar-popover {
-    background-color: rgb(20, 20, 26);
-    padding: 0;
-    margin: 0;
-    border: none;
-    box-shadow: none;
-}
-
-popover.taskbar-popover>contents {
-    background-color: #14141c !important;
-    background-image: none !important;
-    -gtk-background-blur: none !important;
-    border: 1px solid rgba(255, 255, 255, 0.16) !important;
-    border-radius: 12px !important;
-    padding: 8px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
-    min-width: 200px !important;
-    max-width: 200px !important;
-    opacity: 1.0 !important;
-}
-
-.taskbar-previews-header-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.95);
-    margin: 10px;
-
-}
-
-/* Previews popup container */
-.taskbar-previews-container {
-    padding: 2px;
-}
-
-.taskbar-preview-list-item-box {
-    margin: 2px 0;
-}
-
-button.taskbar-preview-list-btn {
-    background-image: none;
-    border: none;
-    border-radius: 6px;
-    padding: 6px 10px;
-    transition: all 150ms ease;
-    box-shadow: none;
-    text-align: left;
-}
-
-button.taskbar-preview-list-btn:hover {
-    background-color: rgba(36, 35, 35, 0.85);
-}
-
-.taskbar-preview-title {
-    font-size: 12px;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.95);
-    text-shadow: none;
-    margin: 0;
-}
-
-.taskbar-popover-header-title {
-    font-size: 10px;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.5);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-left: 4px;
-}
-
-button.taskbar-popover-close-btn {
-    background-color: transparent;
-    background-image: none;
-    border: none;
-    box-shadow: none;
-    border-radius: 4px;
-    padding: 2px;
-    color: rgba(255, 255, 255, 0.5);
-    transition: all 150ms ease;
-}
-
-button.taskbar-popover-close-btn:hover {
-    background-color: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
-}
-
-button.taskbar-preview-list-kill-btn {
-    background-color: transparent;
-    background-image: none;
-    border: none;
-    box-shadow: none;
-    border-radius: 6px;
-    padding: 4px 8px;
-    color: rgba(255, 255, 255, 0.4);
-    transition: all 150ms ease;
-}
-
-button.taskbar-preview-list-kill-btn:hover {
-    background-color: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
-}
-
-/* Taskbar Popover action elements (Close all, launch new) */
-.taskbar-preview-separator {
-    background-color: rgba(255, 255, 255, 0.12);
-    margin: 6px 4px;
-    min-height: 1px;
-}
-
-.taskbar-preview-action-icon {
-    color: red;
-}
-
-button.taskbar-preview-action-btn {
-    background-image: none;
-    background-color: transparent;
-    border: none;
-    border-radius: 6px;
-    padding: 6px 8px;
-    transition: all 150ms ease;
-    box-shadow: none;
-    text-align: left;
-    margin: 2px 0;
-}
-
-button.taskbar-preview-action-btn:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-}
-
-.taskbar-preview-action-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.85);
-    text-shadow: none;
-}
-
-button.taskbar-preview-action-btn:hover .taskbar-preview-action-label {
-    color: #ffffff;
 }

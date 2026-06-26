@@ -1,7 +1,10 @@
+<<<<<<< HEAD:libs/archvnde-common/src/styles/notification.css
 /* ================================================================
    macOS/iOS STYLE GLASSMORPHIC NOTIFICATION POPUP
    ================================================================ */
 
+=======
+>>>>>>> 83739ca (chore: remove section header comments from CSS stylesheets):libs/archvnde-common/src/theme/styles/notification.css
 window.notification-popup-card {
     background-color: transparent;
     background-image: none;
