@@ -1,14 +1,15 @@
-mod core;
-mod ui;
+#[path = "src/widgets/mod.rs"]
+mod widgets;
+
 
 use gtk4::prelude::*;
-use ui::build_launcher_ui;
+use widgets::build_menu_ui;
 
 fn main() {
-    println!("Starting ArchVNDE Launcher...");
+    println!("Starting ArchVNDE Context Menu...");
 
     let application = gtk4::Application::new(
-        Some("org.archvnde.launcher"),
+        Some("org.archvnde.menu"),
         Default::default(),
     );
 
@@ -16,8 +17,8 @@ fn main() {
         // Initialize style provider
         archvnde_common::init_theme();
 
-        // Build launcher window layout (from ui module)
-        let window = build_launcher_ui(app);
+        // Build menu window layout (from ui module)
+        let window = build_menu_ui(app);
 
         // Present window
         window.present();

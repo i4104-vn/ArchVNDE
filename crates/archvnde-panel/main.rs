@@ -1,4 +1,6 @@
+#[path = "src/widgets/mod.rs"]
 mod widgets;
+
 
 use gtk4::prelude::*;
 use gtk4_layer_shell::{Edge, Layer, LayerShell};
