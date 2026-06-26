@@ -41,6 +41,52 @@ cp target/release/archvnde-launcher "$LOCAL_BIN/archvnde-launcher"
 cp target/release/archvnde-menu "$LOCAL_BIN/archvnde-menu"
 cp target/release/archvnde-dock "$LOCAL_BIN/archvnde-dock"
 
+# 7. Write/update labwc configuration files
+echo "Updating labwc configuration files..."
+mkdir -p "$HOME/.config/labwc"
+cat << 'EOF' > "$HOME/.config/labwc/autostart"
+#!/bin/bash
+# Autostart configuration for labwc with ArchVNDE shell
+
+# Start Wayland wallpaper daemon
+awww-daemon &
+sleep 0.5
+
+# Set the default wallpaper
+awww img wallpaper.png &
+
+# Start ArchVNDE status panel
+~/.local/bin/archvnde-panel &
+EOF
+chmod +x "$HOME/.config/labwc/autostart"
+
+cat << 'EOF' > "$HOME/.config/labwc/rc.xml"
+<?xml version="1.0" encoding="UTF-8"?>
+<labwc_config>
+  <keyboard>
+    <default />
+    <!-- Override Alt-Tab with custom archvnde-switcher -->
+    <keybind key="A-Tab">
+      <action name="Execute" command="~/.local/bin/archvnde-switcher" />
+    </keybind>
+  </keyboard>
+  <mouse>
+    <default />
+    <!-- Custom context menu for desktop right-click -->
+    <context name="Root">
+      <mousebind button="Right" action="Press">
+        <action name="Execute" command="~/.local/bin/archvnde-menu" />
+      </mousebind>
+    </context>
+  </mouse>
+</labwc_config>
+EOF
+
+# 8. Reload configuration and restart panel
+echo "Reloading labwc configuration and starting panel..."
+labwc --reconfigure || true
+~/.local/bin/archvnde-panel &
+
 echo "============================================="
 echo "Reinstall complete!"
 echo "Binaries updated at: $LOCAL_BIN"
