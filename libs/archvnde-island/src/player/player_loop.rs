@@ -2,7 +2,7 @@ use gtk4::prelude::*;
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
-use super::playerctl::{run_playerctl, load_album_art_from_bytes, decode_uri};
+use super::playerctl::{load_album_art, run_playerctl};
 use crate::models::IslandWidgets;
 
 /// Starts a background timer loop that polls active D-Bus notifications and playerctl
@@ -41,101 +41,6 @@ pub fn start_player_polling_loop(
     glib::MainContext::default().spawn_local(async move {
         while let Some(metadata) = receiver.recv().await {
             *latest_metadata_clone.borrow_mut() = metadata;
-        }
-    });
-
-    let (art_sender, mut art_receiver) = tokio::sync::mpsc::unbounded_channel::<(String, String, Result<Vec<u8>, ()>)>();
-    let widgets_clone = widgets.clone();
-    let last_art_url_clone = last_art_url.clone();
-    let last_attempted_url_clone = last_attempted_url.clone();
-    let art_loaded_clone = art_loaded_for_current_song.clone();
-    let fail_count_clone = fail_count.clone();
-
-    glib::MainContext::default().spawn_local(async move {
-        while let Some((url, app_icon_name, result)) = art_receiver.recv().await {
-            if url == *last_attempted_url_clone.borrow() {
-                if let Ok(bytes) = result {
-                    let small_art = load_album_art_from_bytes(&bytes, 16);
-                    let large_art = load_album_art_from_bytes(&bytes, 240);
-
-                    if let (Some(s_art), Some(l_art)) = (small_art, large_art) {
-                        *last_art_url_clone.borrow_mut() = url;
-                        art_loaded_clone.set(true);
-
-                        if let Some(child) = widgets_clone.art_container.first_child() {
-                            widgets_clone.art_container.remove(&child);
-                        }
-                        s_art.add_css_class("notch-album-art");
-                        widgets_clone.art_container.append(&s_art);
-
-                        if let Some(child) = widgets_clone.popover_art_container.first_child() {
-                            widgets_clone.popover_art_container.remove(&child);
-                        }
-                        l_art.add_css_class("media-popover-art");
-                        l_art.set_hexpand(true);
-                        l_art.set_vexpand(true);
-                        l_art.set_halign(gtk4::Align::Center);
-                        l_art.set_valign(gtk4::Align::Center);
-                        widgets_clone.popover_art_container.append(&l_art);
-                    } else {
-                        let current_fails = fail_count_clone.get() + 1;
-                        fail_count_clone.set(current_fails);
-                        if current_fails >= 3 {
-                            *last_art_url_clone.borrow_mut() = url;
-                            art_loaded_clone.set(true);
-
-                            if let Some(child) = widgets_clone.art_container.first_child() {
-                                widgets_clone.art_container.remove(&child);
-                            }
-                            let music_icon_s = archvnde_common::icon::get_icon_colored(&app_icon_name, 14, "#3b82f6");
-                            music_icon_s.add_css_class("notch-album-art");
-                            widgets_clone.art_container.append(&music_icon_s);
-
-                            if let Some(child) = widgets_clone.popover_art_container.first_child() {
-                                widgets_clone.popover_art_container.remove(&child);
-                            }
-                            let music_icon_l = archvnde_common::icon::get_icon_colored(&app_icon_name, 120, "#3b82f6");
-                            music_icon_l.add_css_class("media-popover-art");
-                            music_icon_l.set_size_request(240, 240);
-                            music_icon_l.set_hexpand(true);
-                            music_icon_l.set_vexpand(true);
-                            music_icon_l.set_halign(gtk4::Align::Fill);
-                            music_icon_l.set_valign(gtk4::Align::Fill);
-                            widgets_clone.popover_art_container.append(&music_icon_l);
-                        } else {
-                            *last_attempted_url_clone.borrow_mut() = String::new();
-                        }
-                    }
-                } else {
-                    let current_fails = fail_count_clone.get() + 1;
-                    fail_count_clone.set(current_fails);
-                    if current_fails >= 3 {
-                        *last_art_url_clone.borrow_mut() = url;
-                        art_loaded_clone.set(true);
-
-                        if let Some(child) = widgets_clone.art_container.first_child() {
-                            widgets_clone.art_container.remove(&child);
-                        }
-                        let music_icon_s = archvnde_common::icon::get_icon_colored(&app_icon_name, 14, "#3b82f6");
-                        music_icon_s.add_css_class("notch-album-art");
-                        widgets_clone.art_container.append(&music_icon_s);
-
-                        if let Some(child) = widgets_clone.popover_art_container.first_child() {
-                            widgets_clone.popover_art_container.remove(&child);
-                        }
-                        let music_icon_l = archvnde_common::icon::get_icon_colored(&app_icon_name, 120, "#3b82f6");
-                        music_icon_l.add_css_class("media-popover-art");
-                        music_icon_l.set_size_request(240, 240);
-                        music_icon_l.set_hexpand(true);
-                        music_icon_l.set_vexpand(true);
-                        music_icon_l.set_halign(gtk4::Align::Fill);
-                        music_icon_l.set_valign(gtk4::Align::Fill);
-                        widgets_clone.popover_art_container.append(&music_icon_l);
-                    } else {
-                        *last_attempted_url_clone.borrow_mut() = String::new();
-                    }
-                }
-            }
         }
     });
 
@@ -196,14 +101,12 @@ pub fn start_player_polling_loop(
                             &last_title,
                             &art_loaded_for_current_song,
                             &last_art_url,
-                            &last_attempted_url,
                             &fail_count,
                             status_str == "Playing",
                             &title,
                             &artist,
                             &player_name_raw,
                             &art_url,
-                            &art_sender,
                         );
                     }
                 }
@@ -326,16 +229,15 @@ fn update_player_view(
     last_title: &RefCell<String>,
     art_loaded_for_current_song: &Cell<bool>,
     last_art_url: &RefCell<String>,
-    last_attempted_url: &RefCell<String>,
     fail_count: &Cell<u32>,
     playing: bool,
     title: &str,
     artist: &str,
     player_name_raw: &str,
     art_url: &str,
-    art_sender: &tokio::sync::mpsc::UnboundedSender<(String, String, Result<Vec<u8>, ()>)>,
 ) {
     is_playing_state.set(playing);
+    let app_icon_name = get_player_icon_name(player_name_raw);
 
     let song_changed = {
         let mut last_title_borrow = last_title.borrow_mut();
@@ -386,7 +288,6 @@ fn update_player_view(
     }
 
     if !art_loaded_for_current_song.get() {
-        let app_icon_name = get_player_icon_name(player_name_raw);
         let mut last_url = last_art_url.borrow_mut();
 
         if art_url.is_empty() {
@@ -412,33 +313,55 @@ fn update_player_view(
             music_icon_l.set_valign(gtk4::Align::Fill);
             widgets.popover_art_container.append(&music_icon_l);
         } else {
-            if art_url != *last_attempted_url.borrow() {
-                *last_attempted_url.borrow_mut() = art_url.to_string();
-                fail_count.set(0);
+            let small_art = load_album_art(art_url, 16);
+            let large_art = load_album_art(art_url, 240);
 
-                let art_url_clone = art_url.to_string();
-                let app_icon_name_clone = app_icon_name.clone();
-                let art_sender_clone = art_sender.clone();
+            if let (Some(s_art), Some(l_art)) = (small_art, large_art) {
+                *last_url = art_url.to_string();
+                art_loaded_for_current_song.set(true);
 
-                std::thread::spawn(move || {
-                    let local_path = if let Some(path_str) = art_url_clone.strip_prefix("file://") {
-                        decode_uri(&path_str)
-                    } else if art_url_clone.starts_with('/') {
-                        art_url_clone.to_string()
-                    } else {
-                        let _ = art_sender_clone.send((art_url_clone, app_icon_name_clone, Err(())));
-                        return;
-                    };
+                if let Some(child) = widgets.art_container.first_child() {
+                    widgets.art_container.remove(&child);
+                }
+                s_art.add_css_class("notch-album-art");
+                widgets.art_container.append(&s_art);
 
-                    match std::fs::read(&local_path) {
-                        Ok(bytes) => {
-                            let _ = art_sender_clone.send((art_url_clone, app_icon_name_clone, Ok(bytes)));
-                        }
-                        Err(_) => {
-                            let _ = art_sender_clone.send((art_url_clone, app_icon_name_clone, Err(())));
-                        }
+                if let Some(child) = widgets.popover_art_container.first_child() {
+                    widgets.popover_art_container.remove(&child);
+                }
+                l_art.add_css_class("media-popover-art");
+                l_art.set_size_request(240, 240);
+                l_art.set_hexpand(true);
+                l_art.set_vexpand(true);
+                l_art.set_halign(gtk4::Align::Fill);
+                l_art.set_valign(gtk4::Align::Fill);
+                widgets.popover_art_container.append(&l_art);
+            } else {
+                let current_fails = fail_count.get() + 1;
+                fail_count.set(current_fails);
+                if current_fails >= 3 {
+                    *last_url = art_url.to_string();
+                    art_loaded_for_current_song.set(true);
+
+                    if let Some(child) = widgets.art_container.first_child() {
+                        widgets.art_container.remove(&child);
                     }
-                });
+                    let music_icon_s = archvnde_common::icon::get_icon_colored(&app_icon_name, 14, "#3b82f6");
+                    music_icon_s.add_css_class("notch-album-art");
+                    widgets.art_container.append(&music_icon_s);
+
+                    if let Some(child) = widgets.popover_art_container.first_child() {
+                        widgets.popover_art_container.remove(&child);
+                    }
+                    let music_icon_l = archvnde_common::icon::get_icon_colored(&app_icon_name, 120, "#3b82f6");
+                    music_icon_l.add_css_class("media-popover-art");
+                    music_icon_l.set_size_request(240, 240);
+                    music_icon_l.set_hexpand(true);
+                    music_icon_l.set_vexpand(true);
+                    music_icon_l.set_halign(gtk4::Align::Fill);
+                    music_icon_l.set_valign(gtk4::Align::Fill);
+                    widgets.popover_art_container.append(&music_icon_l);
+                }
             }
         }
     }
