@@ -7,6 +7,7 @@ use super::file_search::{search_files, create_file_row};
 pub fn populate_search_results(
     right_scroll: &gtk4::ScrolledWindow,
     query: &str,
+    apps_rc: &[DesktopApp],
     window: &gtk4::ApplicationWindow,
 ) {
     let query_trimmed = query.trim();
@@ -16,7 +17,7 @@ pub fn populate_search_results(
     
     if query_trimmed.is_empty() {
         // If empty, display a placeholder guide or nothing
-        let welcome_label = gtk4::Label::new(Some(&archvnde_common::i18n::t("launcher.welcome")));
+        let welcome_label = gtk4::Label::new(Some("Nhập từ khóa để tìm kiếm ứng dụng và tệp tin..."));
         welcome_label.add_css_class("launcher-no-results");
         welcome_label.set_halign(gtk4::Align::Center);
         welcome_label.set_valign(gtk4::Align::Center);
@@ -24,13 +25,34 @@ pub fn populate_search_results(
         welcome_label.set_hexpand(true);
         right_content.append(&welcome_label);
     } else {
-        // Search results view: Files, Browser Search
+        // Search results view: Apps, Files, Browser Search
         let query_lower = query_trimmed.to_lowercase();
+        
+        // Match Apps
+        let matched_apps: Vec<DesktopApp> = apps_rc
+            .iter()
+            .filter(|app| app.name.to_lowercase().contains(&query_lower))
+            .cloned()
+            .collect();
+        
+        if !matched_apps.is_empty() {
+            let apps_title = gtk4::Label::new(Some("Ứng dụng"));
+            apps_title.add_css_class("launcher-section-title");
+            apps_title.set_halign(gtk4::Align::Start);
+            right_content.append(&apps_title);
+            
+            let apps_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
+            for app in matched_apps.iter().take(5) {
+                let btn = create_list_app_widget(app, window);
+                apps_box.append(&btn);
+            }
+            right_content.append(&apps_box);
+        }
         
         // Match Files
         let matched_files = search_files(query_trimmed);
         if !matched_files.is_empty() {
-            let files_title = gtk4::Label::new(Some(&archvnde_common::i18n::t("launcher.files")));
+            let files_title = gtk4::Label::new(Some("Tập tin"));
             files_title.add_css_class("launcher-section-title");
             files_title.set_halign(gtk4::Align::Start);
             right_content.append(&files_title);
@@ -43,8 +65,8 @@ pub fn populate_search_results(
             right_content.append(&files_box);
         }
         
-        if matched_files.is_empty() {
-            let no_results = gtk4::Label::new(Some(&archvnde_common::i18n::t("launcher.no_results")));
+        if matched_apps.is_empty() && matched_files.is_empty() {
+            let no_results = gtk4::Label::new(Some("Không tìm thấy kết quả phù hợp"));
             no_results.add_css_class("launcher-no-results");
             no_results.set_halign(gtk4::Align::Center);
             no_results.set_valign(gtk4::Align::Center);
@@ -63,8 +85,7 @@ pub fn populate_search_results(
         web_icon.set_pixel_size(20);
         web_icon.set_valign(gtk4::Align::Center);
         
-        let search_fmt = archvnde_common::i18n::t("launcher.google_search");
-        let browser_lbl = gtk4::Label::new(Some(&search_fmt.replace("{}", query_trimmed)));
+        let browser_lbl = gtk4::Label::new(Some(&format!("Tìm trên Google cho \"{}\"", query_trimmed)));
         browser_lbl.set_halign(gtk4::Align::Start);
         browser_lbl.set_ellipsize(gtk4::pango::EllipsizeMode::End);
         browser_lbl.set_valign(gtk4::Align::Center);
