@@ -253,17 +253,14 @@ pub fn create_clock_widget(
                                     text_box.append(&title_lbl);
                                     text_box.append(&body_lbl);
 
-                                    let name = if app_key == "system" { "preferences-system" } else { &app_key };
-                                    let icon_w = if name.starts_with('/') {
-                                        gtk4::Image::from_file(name)
-                                    } else {
-                                        gtk4::Image::from_icon_name(name)
-                                    };
-                                    icon_w.set_pixel_size(14);
-                                    icon_w.add_css_class("notif-item-sub-icon");
-
-                                    item_box.append(&icon_w);
+                                    let time_str = format_elapsed_time(notif.timestamp);
+                                    let time_lbl = gtk4::Label::new(Some(&time_str));
+                                    time_lbl.add_css_class("notif-item-sub-time");
+                                    time_lbl.set_halign(gtk4::Align::End);
+                                    time_lbl.set_valign(gtk4::Align::Center);
+ 
                                     item_box.append(&text_box);
+                                    item_box.append(&time_lbl);
                                     sub_box.append(&item_box);
                                 }
 
@@ -468,4 +465,17 @@ pub fn create_clock_widget(
     });
 
     clock_button
+}
+
+fn format_elapsed_time(instant: std::time::Instant) -> String {
+    let secs = instant.elapsed().as_secs();
+    if secs < 60 {
+        "Vừa xong".to_string()
+    } else if secs < 3600 {
+        format!("{} phút trước", secs / 60)
+    } else if secs < 86400 {
+        format!("{} giờ trước", secs / 3600)
+    } else {
+        format!("{} ngày trước", secs / 86400)
+    }
 }
