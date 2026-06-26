@@ -239,6 +239,17 @@ pub fn create_clock_widget(
                                     let item_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 10);
                                     item_box.add_css_class("notif-stack-item");
 
+                                    let name = if app_key == "system" { "preferences-system" } else { &app_key };
+                                    let icon_widget = if name.starts_with('/') {
+                                        gtk4::Image::from_file(name)
+                                    } else {
+                                        gtk4::Image::from_icon_name(name)
+                                    };
+                                    icon_widget.set_pixel_size(18);
+                                    icon_widget.set_valign(gtk4::Align::Center);
+                                    icon_widget.set_halign(gtk4::Align::Center);
+                                    icon_widget.add_css_class("notif-item-icon");
+
                                     let text_box = gtk4::Box::new(gtk4::Orientation::Vertical, 2);
                                     text_box.set_hexpand(true);
 
@@ -261,6 +272,7 @@ pub fn create_clock_widget(
                                     time_lbl.set_halign(gtk4::Align::End);
                                     time_lbl.set_valign(gtk4::Align::Center);
  
+                                    item_box.append(&icon_widget);
                                     item_box.append(&text_box);
                                     item_box.append(&time_lbl);
                                     sub_box.append(&item_box);
