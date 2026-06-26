@@ -19,8 +19,22 @@ window.notification-popup-card {
     border-radius: 24px;
     color: rgba(255, 255, 255, 0.95);
     padding: 16px 20px;
+<<<<<<< HEAD:crates/archvnde-common/src/styles/notification.css
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65),
                 inset 0 1px 0 rgba(255, 255, 255, 0.04);
+=======
+    box-shadow: none;
+    transform: scale(0.0);
+    transform-origin: top center;
+    opacity: 0;
+    transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 150ms ease;
+}
+
+.notification-popup-box.genie-visible {
+    transform: scale(1);
+    opacity: 1;
+>>>>>>> 947d587 (perf: use FrameClock timing and halve animation durations for buttery-smooth 120hz):libs/archvnde-common/src/styles/notification.css
 }
 
 /* Green speech-bubble app icon container */

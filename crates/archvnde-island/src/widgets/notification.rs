@@ -139,7 +139,7 @@ fn close_and_fade(window: &gtk4::Window, container_box: &gtk4::Box) {
     let win = window.clone();
     archvnde_common::animation::css_genie_out(
         container_box.upcast_ref(),
-        400,
+        200,
         move || {
             win.close();
         }

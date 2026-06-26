@@ -23,21 +23,17 @@ pub fn create_status_indicators(
     status_box.add_css_class("status-indicators-box");
     status_box.set_valign(gtk4::Align::Center);
 
-    // --- 1. Status indicators button ---
     let status_button = gtk4::Button::new();
     status_button.add_css_class("panel-status-btn");
 
     let status_content = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
 
-    // Bluetooth icon
     let bluetooth_icon = archvnde_common::icon::get_icon("bluetooth", 14);
     bluetooth_icon.add_css_class("status-icon");
 
-    // Wi-Fi icon
     let wifi_icon = archvnde_common::icon::get_icon("wifi", 14);
     wifi_icon.add_css_class("status-icon");
 
-    // Battery with percentage
     let battery_icon = archvnde_common::icon::get_icon("battery", 14);
     battery_icon.add_css_class("status-icon");
     let battery_percent = gtk4::Label::new(Some("100%"));
@@ -50,12 +46,10 @@ pub fn create_status_indicators(
 
     status_button.set_child(Some(&status_content));
 
-    // Toggle Quick Settings
     let qsw_clone = quick_settings_window.clone();
     let cw_clone = calendar_window.clone();
     let app_clone = app.clone();
     status_button.connect_clicked(move |_| {
-        // Close calendar if open
         let cal_win = {
             cw_clone.borrow().clone()
         };
@@ -70,84 +64,16 @@ pub fn create_status_indicators(
         if let Some(existing_window) = existing {
             existing_window.close();
         } else {
-            let q_win = gtk4::ApplicationWindow::new(&app_clone);
-            q_win.init_layer_shell();
-            q_win.set_layer(Layer::Overlay);
-            q_win.set_keyboard_mode(KeyboardMode::OnDemand);
-
-            q_win.set_anchor(Edge::Top, true);
-            q_win.set_anchor(Edge::Right, true);
-            q_win.set_margin(Edge::Top, 10);
-            q_win.set_margin(Edge::Right, 12);
-            q_win.set_default_size(360, 360);
-            q_win.add_css_class("quick-settings-window");
-
-            let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 10);
-            main_box.add_css_class("quick-settings-box");
-            main_box.set_valign(gtk4::Align::Start);
-
-            // 1. Header with Title & Circle Actions
-            main_box.append(&create_header_row());
-
-            // 2. Volume control slider
-            main_box.append(&create_slider_row("volume", 80.0, |val| {
-                println!("Volume changed: {}%", val as i32);
-            }));
-
-            // 3. Brightness control slider
-            main_box.append(&create_slider_row("brightness", 60.0, |val| {
-                println!("Brightness changed: {}%", val as i32);
-            }));
-
-            // 4. Grid toggles
-            main_box.append(&create_quick_settings_grid());
-
-            q_win.set_child(Some(&main_box));
-
-            q_win.connect_is_active_notify(|win| {
-                if !win.is_active() {
-                    win.close();
-                }
-            });
-
-            let is_animating = Rc::new(std::cell::Cell::new(false));
-            let is_animating_clone = is_animating.clone();
-            let qsw_inner = qsw_clone.clone();
-            let q_win_clone = q_win.clone();
-            let main_box_clone = main_box.clone();
-            q_win.connect_close_request(move |_| {
-                if is_animating_clone.get() {
-                    return glib::Propagation::Proceed;
-                }
-                is_animating_clone.set(true);
-                let qsw_inner_cb = qsw_inner.clone();
-                let q_win_cb = q_win_clone.clone();
-                archvnde_common::animation::css_genie_out(
-                    main_box_clone.upcast_ref(),
-                    400,
-                    move || {
-                        if let Ok(mut borrow) = qsw_inner_cb.try_borrow_mut() {
-                            *borrow = None;
-                        }
-                        q_win_cb.destroy();
-                    }
-                );
-                glib::Propagation::Stop
-            });
-
-            q_win.present();
-            archvnde_common::animation::css_genie_in(main_box.upcast_ref());
+            let q_win = create_quick_settings_window(&app_clone, qsw_clone.clone());
             if let Ok(mut borrow) = qsw_clone.try_borrow_mut() {
                 *borrow = Some(q_win);
             }
         }
     });
 
-    // --- 2. Separator line ---
     let separator = gtk4::Label::new(Some("│"));
     separator.add_css_class("capsule-separator");
 
-    // --- 3. Clock widget button ---
     let clock_button = crate::widgets::clock::create_clock_widget(
         app,
         quick_settings_window.clone(),
@@ -159,4 +85,79 @@ pub fn create_status_indicators(
     status_box.append(&clock_button);
 
     status_box
+}
+
+/// Builds and maps a glassmorphic Quick Settings popup ApplicationWindow anchored
+/// to the top-right corner. It binds volume and brightness sliders, grid settings toggles,
+/// and registers Genie animations on close and map events.
+fn create_quick_settings_window(
+    app: &gtk4::Application,
+    quick_settings_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
+) -> gtk4::ApplicationWindow {
+    use gtk4_layer_shell::{KeyboardMode, Layer, Edge};
+
+    let q_win = gtk4::ApplicationWindow::new(app);
+    q_win.init_layer_shell();
+    q_win.set_layer(Layer::Overlay);
+    q_win.set_keyboard_mode(KeyboardMode::OnDemand);
+
+    q_win.set_anchor(Edge::Top, true);
+    q_win.set_anchor(Edge::Right, true);
+    q_win.set_margin(Edge::Top, 10);
+    q_win.set_margin(Edge::Right, 12);
+    q_win.set_default_size(360, 360);
+    q_win.add_css_class("quick-settings-window");
+
+    let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 10);
+    main_box.add_css_class("quick-settings-box");
+    main_box.set_valign(gtk4::Align::Start);
+
+    main_box.append(&create_header_row());
+
+    main_box.append(&create_slider_row("volume", 80.0, |val| {
+        println!("Volume changed: {}%", val as i32);
+    }));
+
+    main_box.append(&create_slider_row("brightness", 60.0, |val| {
+        println!("Brightness changed: {}%", val as i32);
+    }));
+
+    main_box.append(&create_quick_settings_grid());
+
+    q_win.set_child(Some(&main_box));
+
+    q_win.connect_is_active_notify(|win| {
+        if !win.is_active() {
+            win.close();
+        }
+    });
+
+    let is_animating = Rc::new(std::cell::Cell::new(false));
+    let is_animating_clone = is_animating.clone();
+    let qsw_inner = quick_settings_window.clone();
+    let q_win_clone = q_win.clone();
+    let main_box_clone = main_box.clone();
+    q_win.connect_close_request(move |_| {
+        if is_animating_clone.get() {
+            return glib::Propagation::Proceed;
+        }
+        is_animating_clone.set(true);
+        let qsw_inner_cb = qsw_inner.clone();
+        let q_win_cb = q_win_clone.clone();
+        archvnde_common::animation::css_genie_out(
+            main_box_clone.upcast_ref(),
+            200,
+            move || {
+                if let Ok(mut borrow) = qsw_inner_cb.try_borrow_mut() {
+                    *borrow = None;
+                }
+                q_win_cb.destroy();
+            }
+        );
+        glib::Propagation::Stop
+    });
+
+    q_win.present();
+    archvnde_common::animation::css_genie_in(main_box.upcast_ref());
+    q_win
 }
