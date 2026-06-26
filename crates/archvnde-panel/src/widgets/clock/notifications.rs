@@ -69,198 +69,11 @@ pub fn setup_notifications_list(
 
                     let is_expanded = expanded_apps.borrow().contains(&app_key);
 
-                    let group_container = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
-                    group_container.add_css_class("notif-group-container");
-
-                    if is_expanded {
-                        // Header for the expanded section (app name, icon, collapse trigger)
-                        let group_header = gtk4::Box::new(gtk4::Orientation::Horizontal, 10);
-                        group_header.add_css_class("notif-group-header");
-
-                        let name = if app_key == "system" { "preferences-system" } else { &app_key };
-                        let icon_widget = if name.starts_with('/') {
-                            gtk4::Image::from_file(name)
-                        } else {
-                            gtk4::Image::from_icon_name(name)
-                        };
-                        icon_widget.set_pixel_size(18);
-                        icon_widget.set_valign(gtk4::Align::Center);
-                        icon_widget.set_halign(gtk4::Align::Center);
-                        icon_widget.add_css_class("notif-item-icon");
-
-                        let title_lbl = gtk4::Label::new(Some(&display_app_name));
-                        title_lbl.add_css_class("notif-item-title");
-                        title_lbl.set_halign(gtk4::Align::Start);
-                        title_lbl.set_hexpand(true);
-
-                        let chevron = gtk4::Image::from_icon_name("pan-up-symbolic");
-                        chevron.set_pixel_size(12);
-                        chevron.set_opacity(0.4);
-                        chevron.set_valign(gtk4::Align::Center);
-
-                        group_header.append(&icon_widget);
-                        group_header.append(&title_lbl);
-                        group_header.append(&chevron);
-                        group_container.append(&group_header);
-
-                        // List of notifications
-                        let sub_box = gtk4::Box::new(gtk4::Orientation::Vertical, 6);
-                        sub_box.add_css_class("notif-sub-box");
-
-                        for notif in list.iter().rev() {
-                            let item_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 10);
-                            item_box.add_css_class("notif-stack-item");
-
-                            let name = if app_key == "system" { "preferences-system" } else { &app_key };
-                            let icon_widget = if name.starts_with('/') {
-                                gtk4::Image::from_file(name)
-                            } else {
-                                gtk4::Image::from_icon_name(name)
-                            };
-                            icon_widget.set_pixel_size(18);
-                            icon_widget.set_valign(gtk4::Align::Center);
-                            icon_widget.set_halign(gtk4::Align::Center);
-                            icon_widget.add_css_class("notif-item-icon");
-
-                            let text_box = gtk4::Box::new(gtk4::Orientation::Vertical, 2);
-                            text_box.set_hexpand(true);
-
-                            let title_lbl = gtk4::Label::new(Some(&notif.title));
-                            title_lbl.add_css_class("notif-item-title");
-                            title_lbl.set_halign(gtk4::Align::Start);
-
-                            let body_lbl = gtk4::Label::new(Some(&notif.body));
-                            body_lbl.add_css_class("notif-item-body");
-                            body_lbl.set_halign(gtk4::Align::Start);
-                            body_lbl.set_wrap(true);
-                            body_lbl.set_max_width_chars(28);
-
-                            text_box.append(&title_lbl);
-                            text_box.append(&body_lbl);
-
-                            let time_str = format_elapsed_time(notif.timestamp);
-                            let time_lbl = gtk4::Label::new(Some(&time_str));
-                            time_lbl.add_css_class("notif-item-sub-time");
-                            time_lbl.set_halign(gtk4::Align::End);
-                            time_lbl.set_valign(gtk4::Align::Center);
- 
-                            item_box.append(&icon_widget);
-                            item_box.append(&text_box);
-                            item_box.append(&time_lbl);
-                            sub_box.append(&item_box);
-                        }
-
-                        group_container.append(&sub_box);
-
-                        // Expand/Collapse click gesture
-                        let click_gesture = gtk4::GestureClick::new();
-                        let ea_c = expanded_apps.clone();
-                        let ak_c = app_key.clone();
-                        let render_c = render_notifications_rc.clone();
-                        let sub_box_c = sub_box.clone();
-                        click_gesture.connect_pressed(move |_, _, _, _| {
-                            let ea_cb = ea_c.clone();
-                            let ak_cb = ak_c.clone();
-                            let render_cb = render_c.clone();
-                            archvnde_common::animation::slide_out_cb(
-                                sub_box_c.upcast_ref(),
-                                archvnde_common::animation::SlideDirection::Up,
-                                15,
-                                200,
-                                false,
-                                move || {
-                                    ea_cb.borrow_mut().remove(&ak_cb);
-                                    render_cb();
-                                }
-                            );
-                        });
-                        group_header.add_controller(click_gesture);
-
-                        // Slide in the sub_box when first expanded
-                        archvnde_common::animation::slide_in(
-                            sub_box.upcast_ref(),
-                            archvnde_common::animation::SlideDirection::Down,
-                            15,
-                            250,
-                        );
+                    let group_container = if is_expanded {
+                        render_expanded_group(&app_key, &display_app_name, list, expanded_apps.clone(), render_notifications_rc.clone())
                     } else {
-                        // Collapsed representation: Show latest notification from this app with badge count
-                        let latest_notif = list.last().unwrap();
-
-                        let main_item = gtk4::Box::new(gtk4::Orientation::Horizontal, 10);
-                        main_item.add_css_class("notif-stack-item");
-
-                        let name = if app_key == "system" { "preferences-system" } else { &app_key };
-                        let icon_widget = if name.starts_with('/') {
-                            gtk4::Image::from_file(name)
-                        } else {
-                            gtk4::Image::from_icon_name(name)
-                        };
-                        icon_widget.set_pixel_size(18);
-                        icon_widget.set_valign(gtk4::Align::Center);
-                        icon_widget.set_halign(gtk4::Align::Center);
-                        icon_widget.add_css_class("notif-item-icon");
-
-                        let text_box = gtk4::Box::new(gtk4::Orientation::Vertical, 2);
-                        text_box.set_hexpand(true);
-
-                        let header_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
-                        let app_title = gtk4::Label::new(Some(&display_app_name));
-                        app_title.add_css_class("notif-item-title");
-                        app_title.set_halign(gtk4::Align::Start);
-                        header_box.append(&app_title);
-
-                        let body_lbl = gtk4::Label::new(Some(&latest_notif.body));
-                        body_lbl.add_css_class("notif-item-body");
-                        body_lbl.set_halign(gtk4::Align::Start);
-                        body_lbl.set_wrap(true);
-                        body_lbl.set_max_width_chars(28);
-
-                        text_box.append(&header_box);
-                        text_box.append(&body_lbl);
-
-                        let right_widget = if list.len() > 1 {
-                            let badge = gtk4::Label::new(Some(&format!("{}", list.len())));
-                            badge.add_css_class("notif-count-badge");
-                            badge.add_css_class("notif-item-sub-time");
-                            badge.set_halign(gtk4::Align::End);
-                            badge.set_valign(gtk4::Align::Center);
-                            badge.upcast::<gtk4::Widget>()
-                        } else {
-                            let time_str = format_elapsed_time(latest_notif.timestamp);
-                            let time_lbl = gtk4::Label::new(Some(&time_str));
-                            time_lbl.add_css_class("notif-item-sub-time");
-                            time_lbl.set_halign(gtk4::Align::End);
-                            time_lbl.set_valign(gtk4::Align::Center);
-                            time_lbl.upcast::<gtk4::Widget>()
-                        };
-
-                        main_item.append(&icon_widget);
-                        main_item.append(&text_box);
-                        main_item.append(&right_widget);
-                        group_container.append(&main_item);
-
-                        // 3D Stack look if more than 1 notification
-                        if list.len() > 1 {
-                            let layer1 = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-                            layer1.add_css_class("notif-stack-item-layered-1");
-                            let layer2 = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-                            layer2.add_css_class("notif-stack-item-layered-2");
-                            group_container.append(&layer2);
-                            group_container.append(&layer1);
-                        }
-
-                        // Click gesture to expand
-                        let click_gesture = gtk4::GestureClick::new();
-                        let ea_c = expanded_apps.clone();
-                        let ak_c = app_key.clone();
-                        let render_c = render_notifications_rc.clone();
-                        click_gesture.connect_pressed(move |_, _, _, _| {
-                            ea_c.borrow_mut().insert(ak_c.clone());
-                            render_c();
-                        });
-                        group_container.add_controller(click_gesture);
-                    }
+                        render_collapsed_group(&app_key, &display_app_name, list, expanded_apps.clone(), render_notifications_rc.clone())
+                    };
 
                     notif_stack.append(&group_container);
                 }
@@ -318,6 +131,218 @@ pub fn setup_notifications_list(
         glib::ControlFlow::Continue
     };
     glib::timeout_add_local(std::time::Duration::from_millis(500), update_header);
+}
+
+fn render_expanded_group(
+    app_key: &str,
+    display_app_name: &str,
+    list: &[archvnde_island::widgets::notification::ActiveNotification],
+    expanded_apps: Rc<RefCell<HashSet<String>>>,
+    render_notifications_rc: Rc<dyn Fn()>,
+) -> gtk4::Box {
+    let group_container = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
+    group_container.add_css_class("notif-group-container");
+
+    // Header for the expanded section (app name, icon, collapse trigger)
+    let group_header = gtk4::Box::new(gtk4::Orientation::Horizontal, 10);
+    group_header.add_css_class("notif-group-header");
+
+    let name = if app_key == "system" { "preferences-system" } else { app_key };
+    let icon_widget = if name.starts_with('/') {
+        gtk4::Image::from_file(name)
+    } else {
+        gtk4::Image::from_icon_name(name)
+    };
+    icon_widget.set_pixel_size(18);
+    icon_widget.set_valign(gtk4::Align::Center);
+    icon_widget.set_halign(gtk4::Align::Center);
+    icon_widget.add_css_class("notif-item-icon");
+
+    let title_lbl = gtk4::Label::new(Some(display_app_name));
+    title_lbl.add_css_class("notif-item-title");
+    title_lbl.set_halign(gtk4::Align::Start);
+    title_lbl.set_hexpand(true);
+
+    let chevron = gtk4::Image::from_icon_name("pan-up-symbolic");
+    chevron.set_pixel_size(12);
+    chevron.set_opacity(0.4);
+    chevron.set_valign(gtk4::Align::Center);
+
+    group_header.append(&icon_widget);
+    group_header.append(&title_lbl);
+    group_header.append(&chevron);
+    group_container.append(&group_header);
+
+    // List of notifications
+    let sub_box = gtk4::Box::new(gtk4::Orientation::Vertical, 6);
+    sub_box.add_css_class("notif-sub-box");
+
+    for notif in list.iter().rev() {
+        let item_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 10);
+        item_box.add_css_class("notif-stack-item");
+
+        let icon_widget = if name.starts_with('/') {
+            gtk4::Image::from_file(name)
+        } else {
+            gtk4::Image::from_icon_name(name)
+        };
+        icon_widget.set_pixel_size(18);
+        icon_widget.set_valign(gtk4::Align::Center);
+        icon_widget.set_halign(gtk4::Align::Center);
+        icon_widget.add_css_class("notif-item-icon");
+
+        let text_box = gtk4::Box::new(gtk4::Orientation::Vertical, 2);
+        text_box.set_hexpand(true);
+
+        let title_lbl = gtk4::Label::new(Some(&notif.title));
+        title_lbl.add_css_class("notif-item-title");
+        title_lbl.set_halign(gtk4::Align::Start);
+
+        let body_lbl = gtk4::Label::new(Some(&notif.body));
+        body_lbl.add_css_class("notif-item-body");
+        body_lbl.set_halign(gtk4::Align::Start);
+        body_lbl.set_wrap(true);
+        body_lbl.set_max_width_chars(28);
+
+        text_box.append(&title_lbl);
+        text_box.append(&body_lbl);
+
+        let time_str = format_elapsed_time(notif.timestamp);
+        let time_lbl = gtk4::Label::new(Some(&time_str));
+        time_lbl.add_css_class("notif-item-sub-time");
+        time_lbl.set_halign(gtk4::Align::End);
+        time_lbl.set_valign(gtk4::Align::Center);
+
+        item_box.append(&icon_widget);
+        item_box.append(&text_box);
+        item_box.append(&time_lbl);
+        sub_box.append(&item_box);
+    }
+
+    group_container.append(&sub_box);
+
+    // Expand/Collapse click gesture
+    let click_gesture = gtk4::GestureClick::new();
+    let ea_c = expanded_apps.clone();
+    let ak_c = app_key.to_string();
+    let render_c = render_notifications_rc.clone();
+    let sub_box_c = sub_box.clone();
+    click_gesture.connect_pressed(move |_, _, _, _| {
+        let ea_cb = ea_c.clone();
+        let ak_cb = ak_c.clone();
+        let render_cb = render_c.clone();
+        archvnde_common::animation::slide_out_cb(
+            sub_box_c.upcast_ref(),
+            archvnde_common::animation::SlideDirection::Up,
+            15,
+            200,
+            false,
+            move || {
+                ea_cb.borrow_mut().remove(&ak_cb);
+                render_cb();
+            }
+        );
+    });
+    group_header.add_controller(click_gesture);
+
+    // Slide in the sub_box when first expanded
+    archvnde_common::animation::slide_in(
+        sub_box.upcast_ref(),
+        archvnde_common::animation::SlideDirection::Down,
+        15,
+        250,
+    );
+
+    group_container
+}
+
+fn render_collapsed_group(
+    app_key: &str,
+    display_app_name: &str,
+    list: &[archvnde_island::widgets::notification::ActiveNotification],
+    expanded_apps: Rc<RefCell<HashSet<String>>>,
+    render_notifications_rc: Rc<dyn Fn()>,
+) -> gtk4::Box {
+    let group_container = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
+    group_container.add_css_class("notif-group-container");
+
+    let latest_notif = list.last().unwrap();
+
+    let main_item = gtk4::Box::new(gtk4::Orientation::Horizontal, 10);
+    main_item.add_css_class("notif-stack-item");
+
+    let name = if app_key == "system" { "preferences-system" } else { app_key };
+    let icon_widget = if name.starts_with('/') {
+        gtk4::Image::from_file(name)
+    } else {
+        gtk4::Image::from_icon_name(name)
+    };
+    icon_widget.set_pixel_size(18);
+    icon_widget.set_valign(gtk4::Align::Center);
+    icon_widget.set_halign(gtk4::Align::Center);
+    icon_widget.add_css_class("notif-item-icon");
+
+    let text_box = gtk4::Box::new(gtk4::Orientation::Vertical, 2);
+    text_box.set_hexpand(true);
+
+    let header_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
+    let app_title = gtk4::Label::new(Some(display_app_name));
+    app_title.add_css_class("notif-item-title");
+    app_title.set_halign(gtk4::Align::Start);
+    header_box.append(&app_title);
+
+    let body_lbl = gtk4::Label::new(Some(&latest_notif.body));
+    body_lbl.add_css_class("notif-item-body");
+    body_lbl.set_halign(gtk4::Align::Start);
+    body_lbl.set_wrap(true);
+    body_lbl.set_max_width_chars(28);
+
+    text_box.append(&header_box);
+    text_box.append(&body_lbl);
+
+    let right_widget = if list.len() > 1 {
+        let badge = gtk4::Label::new(Some(&format!("{}", list.len())));
+        badge.add_css_class("notif-count-badge");
+        badge.add_css_class("notif-item-sub-time");
+        badge.set_halign(gtk4::Align::End);
+        badge.set_valign(gtk4::Align::Center);
+        badge.upcast::<gtk4::Widget>()
+    } else {
+        let time_str = format_elapsed_time(latest_notif.timestamp);
+        let time_lbl = gtk4::Label::new(Some(&time_str));
+        time_lbl.add_css_class("notif-item-sub-time");
+        time_lbl.set_halign(gtk4::Align::End);
+        time_lbl.set_valign(gtk4::Align::Center);
+        time_lbl.upcast::<gtk4::Widget>()
+    };
+
+    main_item.append(&icon_widget);
+    main_item.append(&text_box);
+    main_item.append(&right_widget);
+    group_container.append(&main_item);
+
+    // 3D Stack look if more than 1 notification
+    if list.len() > 1 {
+        let layer1 = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+        layer1.add_css_class("notif-stack-item-layered-1");
+        let layer2 = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+        layer2.add_css_class("notif-stack-item-layered-2");
+        group_container.append(&layer2);
+        group_container.append(&layer1);
+    }
+
+    // Click gesture to expand
+    let click_gesture = gtk4::GestureClick::new();
+    let ea_c = expanded_apps.clone();
+    let ak_c = app_key.to_string();
+    let render_c = render_notifications_rc.clone();
+    click_gesture.connect_pressed(move |_, _, _, _| {
+        ea_c.borrow_mut().insert(ak_c.clone());
+        render_c();
+    });
+    group_container.add_controller(click_gesture);
+
+    group_container
 }
 
 fn format_elapsed_time(instant: std::time::Instant) -> String {
