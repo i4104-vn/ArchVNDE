@@ -1,14 +1,14 @@
 /* ================================================================
-   QUICK SETTINGS CARD — Glassmorphism
+   QUICK SETTINGS CARD — Aquamorphic Design
    ================================================================ */
 
 .quick-settings-box {
-    background-color: rgba(20, 20, 22, 0.92);
-    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(20, 20, 22, 0.95) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-    border-left: 1px solid rgba(255, 255, 255, 0.09);
-    border-radius: 24px;
+    background-color: rgba(10, 18, 38, 0.93);
+    background-image: linear-gradient(135deg, rgba(20, 36, 74, 0.94) 0%, rgba(8, 15, 30, 0.97) 100%);
+    border: 1px solid rgba(0, 168, 204, 0.16);
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 28px;
     color: rgba(255, 255, 255, 0.95);
     padding: 20px;
     box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55),
@@ -35,10 +35,9 @@ button.quick-tile {
 }
 
 button.quick-tile:hover {
-    background-color: rgba(255, 255, 255, 0.09);
+    background-color: rgba(0, 180, 219, 0.08);
     background-image: none;
-    border-color: rgba(255, 255, 255, 0.08);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    border-color: rgba(0, 242, 254, 0.15);
 }
 
 /* Inner labels of Toggle Grid Cards */
@@ -67,17 +66,17 @@ button.quick-tile:hover {
 
 /* Toggle Grid Cards (Active Blue State) — Translucent Glass Blue */
 button.quick-tile.active {
-    background-color: rgba(59, 130, 246, 0.75);
-    background-image: linear-gradient(135deg, rgba(96, 165, 250, 0.80) 0%, rgba(37, 99, 235, 0.70) 100%);
-    border: 1px solid rgba(147, 197, 253, 0.20);
-    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.30),
+    background-color: rgba(0, 180, 219, 0.75);
+    background-image: linear-gradient(135deg, rgba(0, 242, 254, 0.80) 0%, rgba(0, 131, 176, 0.70) 100%);
+    border: 1px solid rgba(0, 242, 254, 0.20);
+    box-shadow: 0 4px 16px rgba(0, 180, 219, 0.30),
                 inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 button.quick-tile.active:hover {
-    background-color: rgba(37, 99, 235, 0.85);
-    background-image: linear-gradient(135deg, rgba(96, 165, 250, 0.88) 0%, rgba(37, 99, 235, 0.80) 100%);
-    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.40);
+    background-color: rgba(0, 131, 176, 0.85);
+    background-image: linear-gradient(135deg, rgba(0, 242, 254, 0.88) 0%, rgba(0, 131, 176, 0.80) 100%);
+    box-shadow: 0 6px 20px rgba(0, 180, 219, 0.40);
 }
 
 button.quick-tile.active .tile-subtitle {
@@ -102,19 +101,19 @@ button.quick-tile.active-light:hover {
 }
 
 button.quick-tile.active-light .tile-icon {
-    color: #161a26;
+    color: #0a1226;
 }
 
 button.quick-tile.active-light .tile-title {
-    color: #161a26;
+    color: #0a1226;
 }
 
 button.quick-tile.active-light .tile-subtitle {
-    color: rgba(22, 26, 38, 0.65);
+    color: rgba(10, 18, 38, 0.65);
 }
 
 button.quick-tile.active-light .tile-chevron {
-    color: rgba(22, 26, 38, 0.40);
+    color: rgba(10, 18, 38, 0.40);
 }
 
 /* Volume / Brightness Sliders */
@@ -124,7 +123,6 @@ button.quick-tile.active-light .tile-chevron {
     font-weight: 600;
     min-width: 28px;
 }
-
 
 /* ================================================================
    CAPSULE SLIDERS STYLING
@@ -144,8 +142,8 @@ scale trough {
 
 scale trough highlight {
     border-radius: 4px;
-    background-color: rgba(37, 99, 235, 0.70);
-    background-image: linear-gradient(to right, rgba(37, 99, 235, 0.75), rgba(96, 165, 250, 0.60));
+    background-color: rgba(0, 180, 219, 0.70);
+    background-image: linear-gradient(to right, rgba(0, 131, 176, 0.75), rgba(0, 242, 254, 0.60));
     min-height: 8px;
 }
 
@@ -160,5 +158,5 @@ scale trough slider {
 }
 
 scale trough slider:hover {
-    box-shadow: 0 2px 12px rgba(255, 255, 255, 0.30);
+    box-shadow: 0 2px 12px rgba(0, 242, 254, 0.30);
 }

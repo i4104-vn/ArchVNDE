@@ -1,19 +1,24 @@
+/* ================================================================
+   TRANSLUCENT GLASSMORPHIC NOTIFICATION POPUP
+   ================================================================ */
+
 window.notification-popup-card {
-    background-color: rgba(14, 14, 18, 0.96);
+    background-color: transparent;
     background-image: none;
     box-shadow: none;
     border: none;
 }
 
 .notification-popup-box {
-    background-color: rgb(14, 14, 18);
-    background-image: none;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-top: 1px solid rgba(255, 255, 255, 0.28);
-    border-radius: 20px;
+    background-color: rgba(22, 22, 26, 0.95);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(10, 10, 12, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-left: 1px solid rgba(255, 255, 255, 0.10);
+    border-right: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 24px;
     color: rgba(255, 255, 255, 0.95);
     padding: 16px 20px;
-    box-shadow: none;
 }
 
 .popup-app-icon-box {
@@ -29,19 +34,19 @@ window.notification-popup-card {
 
 .popup-time {
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.45);
+    color: rgba(255, 255, 255, 0.5);
     margin-right: 4px;
 }
 
 .popup-body {
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.80);
+    color: rgba(255, 255, 255, 0.85);
     line-height: 1.4;
 }
 
+/* Avatar box on the right */
 .popup-avatar-box {
-    background-color: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.10);
+    background-color: rgba(255, 255, 255, 0.10);
     border-radius: 50%;
     padding: 6px;
     min-width: 20px;
@@ -49,22 +54,22 @@ window.notification-popup-card {
     align-self: center;
 }
 
+/* Action pills at the bottom */
 button.popup-action-btn {
     background-color: rgba(255, 255, 255, 0.08);
     background-image: none;
     color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: none;
     border-radius: 9999px;
     font-size: 11px;
     font-weight: 600;
     padding: 6px 16px;
     margin: 0 4px;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    box-shadow: none;
     transition: all 150ms ease;
 }
 
 button.popup-action-btn:hover {
-    background-color: rgba(255, 255, 255, 0.14);
+    background-color: rgba(255, 255, 255, 0.16);
     background-image: none;
-    border-color: rgba(255, 255, 255, 0.14);
 }
