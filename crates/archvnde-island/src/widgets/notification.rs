@@ -185,8 +185,14 @@ pub fn show_notification_popup(summary: &str, body: &str, icon_name: &str, timeo
 
     let app_icon_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
     app_icon_box.add_css_class("popup-app-icon-box");
-    let icon_symbol = if icon_name.is_empty() { "message" } else { icon_name };
-    let app_icon = archvnde_common::icon::get_icon_colored(icon_symbol, 24, "#ffffff");
+    let app_icon = if icon_name.is_empty() {
+        gtk4::Image::from_icon_name("preferences-system-notifications")
+    } else if icon_name.starts_with('/') {
+        gtk4::Image::from_file(icon_name)
+    } else {
+        gtk4::Image::from_icon_name(icon_name)
+    };
+    app_icon.set_pixel_size(32);
     app_icon_box.append(&app_icon);
 
     let text_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);

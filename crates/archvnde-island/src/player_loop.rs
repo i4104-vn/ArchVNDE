@@ -114,7 +114,17 @@ pub fn start_player_polling_loop(
                 if let Some(child) = badge_icon_container.first_child() {
                     badge_icon_container.remove(&child);
                 }
-                let badge_icon = archvnde_common::icon::get_icon_colored(icon_symbol, 14, "#3b82f6");
+                let badge_icon = if icon_symbol.starts_with('/') {
+                    gtk4::Image::from_file(icon_symbol)
+                } else {
+                    let name = if icon_symbol == "message" {
+                        "preferences-system-notifications-symbolic"
+                    } else {
+                        icon_symbol
+                    };
+                    gtk4::Image::from_icon_name(name)
+                };
+                badge_icon.set_pixel_size(14);
                 badge_icon_container.append(&badge_icon);
 
                 notification_badge.set_visible(true);
