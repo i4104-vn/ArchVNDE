@@ -14,6 +14,7 @@ pub fn create_media_popover(
     let popover = gtk4::Popover::new();
     popover.set_parent(notch_capsule);
     popover.set_has_arrow(false);
+    popover.set_offset(0, 10);
     popover.add_css_class("media-popover");
 
     let popover_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
@@ -122,9 +123,17 @@ pub fn create_media_popover(
             let is_animating_cb = is_animating_clone.clone();
             is_animating_cb.set(true);
             
+<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
             archvnde_common::animation::css_zoom_out_cb(
                 popover_box_clone.upcast_ref(),
                 250,
+=======
+            archvnde_common::animation::slide_out_cb(
+                popover_box_clone.upcast_ref(),
+                archvnde_common::animation::SlideDirection::Up,
+                15,
+                400,
+>>>>>>> 897d46c (style: add player popover offset and implement slide animations):libs/archvnde-island/src/widgets/popover.rs
                 move || {
                     p_clone.popdown();
                     is_animating_cb.set(false);
@@ -144,9 +153,17 @@ pub fn create_media_popover(
         archvnde_common::animation::css_zoom_in(
 =======
         notch_capsule_clone.add_css_class("popover-open");
+<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
         archvnde_common::animation::genie_in(
 >>>>>>> 63e642f (style: remove player popover arrow and disable island hover scale when popover is open):libs/archvnde-island/src/widgets/popover.rs
             popover_box_clone2.upcast_ref(),
+=======
+        archvnde_common::animation::slide_in(
+            popover_box_clone2.upcast_ref(),
+            archvnde_common::animation::SlideDirection::Down,
+            15,
+            400,
+>>>>>>> 897d46c (style: add player popover offset and implement slide animations):libs/archvnde-island/src/widgets/popover.rs
         );
     });
 
