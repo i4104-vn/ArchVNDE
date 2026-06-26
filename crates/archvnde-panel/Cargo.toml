@@ -3,9 +3,6 @@ name = "archvnde-panel"
 version = "0.1.0"
 edition = "2021"
 
-[[bin]]
-name = "archvnde-panel"
-path = "main.rs"
 
 
 [dependencies]

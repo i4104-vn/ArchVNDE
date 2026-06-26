@@ -1,20 +1,17 @@
-#[path = "src/config.rs"]
-mod config;
-#[path = "src/models/mod.rs"]
+mod core;
 pub mod models;
-#[path = "src/widgets/mod.rs"]
 mod widgets;
 
 
 
 use gtk4::prelude::*;
-use widgets::build_dock_ui;
+use widgets::build_launcher_ui;
 
 fn main() {
-    println!("Starting ArchVNDE Dock...");
+    println!("Starting ArchVNDE Launcher...");
 
     let application = gtk4::Application::new(
-        Some("org.archvnde.dock"),
+        Some("org.archvnde.launcher"),
         Default::default(),
     );
 
@@ -22,8 +19,8 @@ fn main() {
         // Initialize style provider
         archvnde_common::init_theme();
 
-        // Build dock window layout (from ui module)
-        let window = build_dock_ui(app);
+        // Build launcher window layout (from ui module)
+        let window = build_launcher_ui(app);
 
         // Present window
         window.present();

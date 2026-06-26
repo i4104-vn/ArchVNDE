@@ -1,10 +1,6 @@
-#[path = "src/playerctl.rs"]
 mod playerctl;
-#[path = "src/player_loop.rs"]
 mod player_loop;
-#[path = "src/models/mod.rs"]
 pub mod models;
-#[path = "src/widgets/mod.rs"]
 pub mod widgets;
 
 

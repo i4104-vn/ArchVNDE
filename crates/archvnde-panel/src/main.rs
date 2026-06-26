@@ -1,4 +1,3 @@
-#[path = "src/widgets/mod.rs"]
 mod widgets;
 
 

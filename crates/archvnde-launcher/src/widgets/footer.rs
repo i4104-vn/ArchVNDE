@@ -23,22 +23,22 @@ pub fn create_launcher_footer() -> gtk4::Box {
     power_popover.set_has_arrow(true);
 
     let power_menu = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
-    power_menu.add_css_class("launcher-menu-box");
+    power_menu.add_css_class("dock-menu-box");
 
     let shutdown_btn = gtk4::Button::with_label("Shut Down");
-    shutdown_btn.add_css_class("launcher-menu-item-btn");
+    shutdown_btn.add_css_class("menu-item-btn");
     shutdown_btn.connect_clicked(|_| {
         let _ = std::process::Command::new("systemctl").arg("poweroff").spawn();
     });
 
     let reboot_btn = gtk4::Button::with_label("Restart");
-    reboot_btn.add_css_class("launcher-menu-item-btn");
+    reboot_btn.add_css_class("menu-item-btn");
     reboot_btn.connect_clicked(|_| {
         let _ = std::process::Command::new("systemctl").arg("reboot").spawn();
     });
 
     let suspend_btn = gtk4::Button::with_label("Suspend");
-    suspend_btn.add_css_class("launcher-menu-item-btn");
+    suspend_btn.add_css_class("menu-item-btn");
     suspend_btn.connect_clicked(|_| {
         let _ = std::process::Command::new("systemctl").arg("suspend").spawn();
     });

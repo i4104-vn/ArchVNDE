@@ -7,6 +7,7 @@ use gtk4::prelude::*;
 use gtk4_layer_shell::{Edge, KeyboardMode, Layer};
 use std::rc::Rc;
 use std::cell::RefCell;
+use archvnde_common::config::load_dock_config;
 use grid::populate_grid;
 use footer::create_launcher_footer;
 
@@ -25,7 +26,7 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
             (Edge::Left, false),
             (Edge::Right, false),
         ],
-        12, // margin bottom
+        84, // margin bottom
     );
 
     window.set_default_size(450, 550);
@@ -45,16 +46,21 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     let scrolled_window = gtk4::ScrolledWindow::new();
     scrolled_window.set_vexpand(true);
 
+    let config = Rc::new(RefCell::new(load_dock_config()));
     let apps = find_desktop_apps();
     let apps_rc = Rc::new(apps);
 
     let current_query = Rc::new(RefCell::new(String::new()));
+    let populate_grid_ref = Rc::new(RefCell::new(None));
+    let populate_grid_ref_c = populate_grid_ref.clone();
 
     let populate_impl = {
         let current_query = current_query.clone();
         let apps_rc = apps_rc.clone();
         let scrolled_window = scrolled_window.clone();
         let window = window.clone();
+        let config = config.clone();
+        let populate_grid_ref = populate_grid_ref.clone();
 
         move || {
             populate_grid(
@@ -62,20 +68,26 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
                 &window,
                 &apps_rc,
                 &current_query.borrow(),
+                config.clone(),
+                populate_grid_ref.clone(),
             );
         }
     };
 
-    let populate_impl_rc = Rc::new(populate_impl);
+    *populate_grid_ref_c.borrow_mut() = Some(Rc::new(populate_impl) as Rc<dyn Fn()>);
 
     // Initial populate
-    populate_impl_rc();
+    if let Some(ref f) = *populate_grid_ref.borrow() {
+        f();
+    }
 
     let current_query_search = current_query.clone();
-    let populate_grid_search = populate_impl_rc.clone();
+    let populate_grid_search = populate_grid_ref.clone();
     search_entry.connect_changed(move |entry| {
         *current_query_search.borrow_mut() = entry.text().to_string();
-        populate_grid_search();
+        if let Some(ref f) = *populate_grid_search.borrow() {
+            f();
+        }
     });
 
     let is_animating = Rc::new(std::cell::Cell::new(false));
