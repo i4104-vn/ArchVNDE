@@ -113,8 +113,10 @@ pub fn create_media_popover(
             let is_animating_cb = is_animating_clone.clone();
             is_animating_cb.set(true);
             
-            archvnde_common::animation::css_genie_out(
+            archvnde_common::animation::genie_out(
                 popover_box_clone.upcast_ref(),
+                240,
+                180,
                 400,
                 move || {
                     p_clone.popdown();
@@ -130,8 +132,11 @@ pub fn create_media_popover(
     // Zoom-in when the popover maps (opens)
     let popover_box_clone2 = popover_box.clone();
     popover.connect_map(move |_| {
-        archvnde_common::animation::css_genie_in(
+        archvnde_common::animation::genie_in(
             popover_box_clone2.upcast_ref(),
+            240,
+            180,
+            400,
         );
     });
 

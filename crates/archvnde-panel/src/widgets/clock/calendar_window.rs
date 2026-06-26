@@ -117,23 +117,27 @@ pub fn show_calendar_window(
             return glib::Propagation::Proceed;
         }
         is_animating_clone.set(true);
-        let cw_inner_cb = cw_inner_cb_clone.clone();
+        if let Ok(mut borrow) = cw_inner_cb_clone.try_borrow_mut() {
+            *borrow = None;
+        }
+        let h = main_box_clone.height().max(480);
         let c_win_cb = c_win_clone.clone();
-        archvnde_common::animation::css_genie_out(
+        archvnde_common::animation::genie_out(
             main_box_clone.upcast_ref(),
+            360,
+            h,
             400,
             move || {
-                if let Ok(mut borrow) = cw_inner_cb.try_borrow_mut() {
-                    *borrow = None;
-                }
                 c_win_cb.destroy();
             }
         );
         glib::Propagation::Stop
     });
 
+    let (_, natural_size) = main_box.preferred_size();
+    let target_height = if natural_size.height() > 20 { natural_size.height() } else { 480 };
     c_win.present();
-    archvnde_common::animation::css_genie_in(main_box.upcast_ref());
+    archvnde_common::animation::genie_in(main_box.upcast_ref(), 360, target_height, 400);
 
     c_win
 }

@@ -142,15 +142,16 @@ fn create_quick_settings_window(
             return glib::Propagation::Proceed;
         }
         is_animating_clone.set(true);
-        let qsw_inner_cb = qsw_inner.clone();
+        if let Ok(mut borrow) = qsw_inner.try_borrow_mut() {
+            *borrow = None;
+        }
         let q_win_cb = q_win_clone.clone();
-        archvnde_common::animation::css_genie_out(
+        archvnde_common::animation::genie_out(
             main_box_clone.upcast_ref(),
+            360,
+            360,
             400,
             move || {
-                if let Ok(mut borrow) = qsw_inner_cb.try_borrow_mut() {
-                    *borrow = None;
-                }
                 q_win_cb.destroy();
             }
         );
@@ -158,6 +159,6 @@ fn create_quick_settings_window(
     });
 
     q_win.present();
-    archvnde_common::animation::css_genie_in(main_box.upcast_ref());
+    archvnde_common::animation::genie_in(main_box.upcast_ref(), 360, 360, 400);
     q_win
 }
