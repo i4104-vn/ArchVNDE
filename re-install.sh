@@ -2,6 +2,7 @@
 
 # Exit immediately if a command exits with a non-zero status
 set -e
+git pull origin
 
 echo "============================================="
 echo "   ArchVNDE Fresh Rebuild & Reinstall Script"
@@ -27,17 +28,17 @@ mkdir -p "$LOCAL_BIN"
 echo "Stopping any running shell processes..."
 killall archvnde-panel || true
 killall archvnde-launcher || true
-killall archvnde-notification || true
 killall archvnde-menu || true
-killall archvnde-dock || true
+killall archvnde-notification || true
+
+# Remove old deprecated notification binary
+rm -f "$LOCAL_BIN/archvnde-notification"
 
 # 6. Reinstall the binaries
 echo "Overwriting binaries in $LOCAL_BIN..."
 cp target/release/archvnde-panel "$LOCAL_BIN/archvnde-panel"
 cp target/release/archvnde-launcher "$LOCAL_BIN/archvnde-launcher"
-cp target/release/archvnde-notification "$LOCAL_BIN/archvnde-notification"
 cp target/release/archvnde-menu "$LOCAL_BIN/archvnde-menu"
-cp target/release/archvnde-dock "$LOCAL_BIN/archvnde-dock"
 
 echo "============================================="
 echo "Reinstall complete!"

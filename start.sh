@@ -13,7 +13,10 @@ killall archvnde-panel || true
 killall archvnde-launcher || true
 killall archvnde-notification || true
 killall archvnde-menu || true
-killall archvnde-dock || true
+killall dunst || true
+killall mako || true
+killall fnott || true
+killall xfce4-notifyd || true 
 
 # Setup default autostart
 cat << 'EOF' > "$AUTOSTART_FILE"
@@ -21,20 +24,14 @@ cat << 'EOF' > "$AUTOSTART_FILE"
 # Autostart configuration for labwc with ArchVNDE shell
 
 # Start Wayland wallpaper daemon
-swww-daemon &
+awww-daemon &
 sleep 0.5
 
 # Set the default wallpaper
-swww img /home/tdkhoa-01/Documents/src/I4104/ArchVNDE/wallpaper.png &
+awww img wallpaper.png &
 
 # Start ArchVNDE status panel
 archvnde-panel &
-
-# Start ArchVNDE bottom dock bar
-archvnde-dock &
-
-# Start ArchVNDE notification daemon
-archvnde-notification &
 EOF
 chmod +x "$AUTOSTART_FILE"
 echo "Configured labwc autostart at $AUTOSTART_FILE"
