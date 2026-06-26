@@ -37,40 +37,66 @@
 
 /* Style GTK Calendar Widget */
 calendar.calendar-widget {
-    background-color: transparent;
-    background-image: none;
-    border: none;
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
     color: rgba(255, 255, 255, 0.85);
     font-size: 12px;
-    padding: 4px;
+    padding: 12px;
 }
 
 calendar.calendar-widget header {
     background-color: transparent;
     color: #ffffff;
     font-weight: 700;
-    padding-bottom: 6px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 8px;
 }
 
 calendar.calendar-widget button {
-    background-color: transparent;
+    background-color: rgba(255, 255, 255, 0.03);
     color: rgba(255, 255, 255, 0.85);
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 4px 8px;
+    min-height: 24px;
+    min-width: 24px;
+    transition: all 150ms ease;
 }
 
 calendar.calendar-widget button:hover {
     background-color: rgba(255, 255, 255, 0.10);
-    border-radius: 6px;
+    border-color: rgba(255, 255, 255, 0.10);
+    color: #ffffff;
+}
+
+calendar.calendar-widget label.day-name {
+    color: rgba(255, 255, 255, 0.40);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 0;
+}
+
+calendar.calendar-widget label.day {
+    padding: 6px;
+    border-radius: 8px;
+}
+
+/* Faint the days outside current month */
+calendar.calendar-widget .other-month {
+    color: rgba(255, 255, 255, 0.25);
+    opacity: 0.5;
 }
 
 /* Highlighting today's day — Glass Blue */
 calendar.calendar-widget :selected {
-    background-color: rgba(37, 99, 235, 0.55);
-    background-image: linear-gradient(135deg, rgba(59, 130, 246, 0.60) 0%, rgba(29, 78, 216, 0.50) 100%);
+    background-color: #2563eb;
+    background-image: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     color: #ffffff;
     border-radius: 8px;
     font-weight: 700;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 /* ================================================================
