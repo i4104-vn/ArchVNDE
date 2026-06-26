@@ -42,6 +42,10 @@ cat << 'EOF' > "$RC_FILE"
 <labwc_config>
   <keyboard>
     <default />
+    <!-- Override Alt-Tab with custom archvnde-switcher -->
+    <keybind key="A-Tab">
+      <action name="Execute" command="archvnde-switcher" />
+    </keybind>
   </keyboard>
   <mouse>
     <default />

@@ -24,12 +24,14 @@ echo "Stopping any running shell processes..."
 killall archvnde-panel || true
 killall archvnde-launcher || true
 killall archvnde-menu || true
+killall archvnde-switcher || true
 
 # 5. Install the binaries
 echo "Installing binaries to $LOCAL_BIN..."
 cp target/release/archvnde-panel "$LOCAL_BIN/archvnde-panel"
 cp target/release/archvnde-launcher "$LOCAL_BIN/archvnde-launcher"
 cp target/release/archvnde-menu "$LOCAL_BIN/archvnde-menu"
+cp target/release/archvnde-switcher "$LOCAL_BIN/archvnde-switcher"
 
 echo "============================================="
 echo "Installation complete!"
