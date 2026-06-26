@@ -76,6 +76,7 @@ fn main() {
                 win.close();
             } else {
                 let l_win = archvnde_launcher::widgets::build_launcher_ui(&app_clone, lw_clone.clone());
+                l_win.present();
                 if let Ok(mut borrow) = lw_clone.try_borrow_mut() {
                     *borrow = Some(l_win);
                 }
