@@ -1,4 +1,3 @@
-use gtk4::prelude::*;
 
 pub fn run_playerctl(args: &[&str]) -> Option<String> {
     let output = std::process::Command::new("playerctl")
