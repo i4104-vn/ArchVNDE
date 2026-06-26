@@ -105,7 +105,7 @@ pub fn start_player_polling_loop(
 /// resolves system icon paths, and triggers slide-down animation for the notification badge.
 fn update_notification_view(
     widgets: &IslandWidgets,
-    notif: &crate::models::ActiveNotification,
+    notif: &crate::widgets::notification::ActiveNotification,
     is_playing_state: &Cell<bool>,
     last_art_url: &RefCell<String>,
     last_attempted_url: &RefCell<String>,

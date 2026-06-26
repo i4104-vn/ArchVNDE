@@ -3,6 +3,8 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::collections::HashSet;
 
+/// Configures and manages the interactive historical notifications list stack.
+/// Sets up periodic timers to update clock time, date, and detects when new notifications arrive.
 pub fn setup_notifications_list(
     notif_stack: &gtk4::Box,
     clear_btn: &gtk4::Button,
@@ -41,8 +43,7 @@ pub fn setup_notifications_list(
                 empty_label.set_vexpand(true);
                 notif_stack.append(&empty_label);
             } else {
-                // Group notifications by app/icon name
-                let mut grouped = std::collections::HashMap::<String, Vec<archvnde_island::widgets::notification::ActiveNotification>>::new();
+                let mut grouped = std::collections::HashMap::<String, Vec<archvnde_island::models::ActiveNotification>>::new();
                 let mut app_order = Vec::new();
 
                 for notif in notifications.iter() {
@@ -53,7 +54,7 @@ pub fn setup_notifications_list(
                     grouped.entry(app_key).or_default().push(notif.clone());
                 }
 
-                app_order.reverse(); // Newest app group on top
+                app_order.reverse();
 
                 for app_key in app_order {
                     let list = &grouped[&app_key];
@@ -84,13 +85,15 @@ pub fn setup_notifications_list(
     let render_rc = Rc::new(render_notifications);
     *render_notifications_holder.borrow_mut() = Some(render_rc.clone());
 
-    // Initial render
     render_rc();
 
     let clear_btn_render_clone = render_rc.clone();
     let notif_stack_clear_clone = notif_stack.clone();
     clear_btn.connect_clicked(move |_| {
         let cb = clear_btn_render_clone.clone();
+        archvnde_island::widgets::notification::SHARED_NOTIFICATION.with(|sn| {
+            *sn.borrow_mut() = None;
+        });
         archvnde_island::widgets::notification::HISTORICAL_NOTIFICATIONS.with(|list| {
             list.borrow_mut().clear();
         });
@@ -106,7 +109,6 @@ pub fn setup_notifications_list(
         );
     });
 
-    // Update timer for time, date and notification count change detection
     let last_notif_count = Rc::new(std::cell::Cell::new(
         archvnde_island::widgets::notification::HISTORICAL_NOTIFICATIONS.with(|list| list.borrow().len())
     ));
@@ -133,26 +135,23 @@ pub fn setup_notifications_list(
     glib::timeout_add_local(std::time::Duration::from_millis(500), update_header);
 }
 
+/// Renders the expanded group layout displaying all historical notifications grouped
+/// under the specific application name with slide animation transitions.
 fn render_expanded_group(
     app_key: &str,
     display_app_name: &str,
-    list: &[archvnde_island::widgets::notification::ActiveNotification],
+    list: &[archvnde_island::models::ActiveNotification],
     expanded_apps: Rc<RefCell<HashSet<String>>>,
     render_notifications_rc: Rc<dyn Fn()>,
 ) -> gtk4::Box {
     let group_container = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
     group_container.add_css_class("notif-group-container");
 
-    // Header for the expanded section (app name, icon, collapse trigger)
     let group_header = gtk4::Box::new(gtk4::Orientation::Horizontal, 10);
     group_header.add_css_class("notif-group-header");
 
     let name = if app_key == "system" { "preferences-system" } else { app_key };
-    let icon_widget = if name.starts_with('/') {
-        gtk4::Image::from_file(name)
-    } else {
-        gtk4::Image::from_icon_name(name)
-    };
+    let icon_widget = archvnde_common::icon::get_system_or_file_icon(name, "preferences-system");
     icon_widget.set_pixel_size(18);
     icon_widget.set_valign(gtk4::Align::Center);
     icon_widget.set_halign(gtk4::Align::Center);
@@ -173,7 +172,6 @@ fn render_expanded_group(
     group_header.append(&chevron);
     group_container.append(&group_header);
 
-    // List of notifications
     let sub_box = gtk4::Box::new(gtk4::Orientation::Vertical, 6);
     sub_box.add_css_class("notif-sub-box");
 
@@ -181,11 +179,7 @@ fn render_expanded_group(
         let item_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 10);
         item_box.add_css_class("notif-stack-item");
 
-        let icon_widget = if name.starts_with('/') {
-            gtk4::Image::from_file(name)
-        } else {
-            gtk4::Image::from_icon_name(name)
-        };
+        let icon_widget = archvnde_common::icon::get_system_or_file_icon(name, "preferences-system");
         icon_widget.set_pixel_size(18);
         icon_widget.set_valign(gtk4::Align::Center);
         icon_widget.set_halign(gtk4::Align::Center);
@@ -221,7 +215,6 @@ fn render_expanded_group(
 
     group_container.append(&sub_box);
 
-    // Expand/Collapse click gesture
     let click_gesture = gtk4::GestureClick::new();
     let ea_c = expanded_apps.clone();
     let ak_c = app_key.to_string();
@@ -245,7 +238,6 @@ fn render_expanded_group(
     });
     group_header.add_controller(click_gesture);
 
-    // Slide in the sub_box when first expanded
     archvnde_common::animation::slide_in(
         sub_box.upcast_ref(),
         archvnde_common::animation::SlideDirection::Down,
@@ -256,10 +248,12 @@ fn render_expanded_group(
     group_container
 }
 
+/// Renders the collapsed group layout displaying only the latest notification from an application,
+/// and draws a 3D visual stack layer if the application has multiple unread notifications.
 fn render_collapsed_group(
     app_key: &str,
     display_app_name: &str,
-    list: &[archvnde_island::widgets::notification::ActiveNotification],
+    list: &[archvnde_island::models::ActiveNotification],
     expanded_apps: Rc<RefCell<HashSet<String>>>,
     render_notifications_rc: Rc<dyn Fn()>,
 ) -> gtk4::Box {
@@ -272,11 +266,7 @@ fn render_collapsed_group(
     main_item.add_css_class("notif-stack-item");
 
     let name = if app_key == "system" { "preferences-system" } else { app_key };
-    let icon_widget = if name.starts_with('/') {
-        gtk4::Image::from_file(name)
-    } else {
-        gtk4::Image::from_icon_name(name)
-    };
+    let icon_widget = archvnde_common::icon::get_system_or_file_icon(name, "preferences-system");
     icon_widget.set_pixel_size(18);
     icon_widget.set_valign(gtk4::Align::Center);
     icon_widget.set_halign(gtk4::Align::Center);
@@ -321,7 +311,6 @@ fn render_collapsed_group(
     main_item.append(&right_widget);
     group_container.append(&main_item);
 
-    // 3D Stack look if more than 1 notification
     if list.len() > 1 {
         let layer1 = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
         layer1.add_css_class("notif-stack-item-layered-1");
@@ -331,7 +320,6 @@ fn render_collapsed_group(
         group_container.append(&layer1);
     }
 
-    // Click gesture to expand
     let click_gesture = gtk4::GestureClick::new();
     let ea_c = expanded_apps.clone();
     let ak_c = app_key.to_string();
@@ -345,6 +333,7 @@ fn render_collapsed_group(
     group_container
 }
 
+/// Formats elapsed time since notification trigger into a user-friendly Vietnamese text.
 fn format_elapsed_time(instant: std::time::Instant) -> String {
     let secs = instant.elapsed().as_secs();
     if secs < 60 {

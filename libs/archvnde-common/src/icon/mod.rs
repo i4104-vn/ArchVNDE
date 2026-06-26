@@ -284,3 +284,15 @@ pub fn get_system_or_file_icon(icon_path_or_name: &str, default_fallback: &str) 
         }
     }
 }
+
+/// Loads a system icon by name or from a local absolute file path.
+pub fn get_system_or_file_icon(icon_path_or_name: &str, default_fallback: &str) -> gtk4::Image {
+    if icon_path_or_name.is_empty() {
+        gtk4::Image::from_icon_name(default_fallback)
+    } else if icon_path_or_name.starts_with('/') {
+        gtk4::Image::from_file(icon_path_or_name)
+    } else {
+        gtk4::Image::from_icon_name(icon_path_or_name)
+    }
+}
+

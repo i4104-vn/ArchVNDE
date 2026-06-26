@@ -5,7 +5,6 @@ pub struct IslandWidgets {
     pub music_view: gtk4::Box,
     pub track_label: gtk4::Label,
     pub art_container: gtk4::Box,
-    pub visualizer_box: gtk4::Box,
     pub notification_badge: gtk4::Box,
     pub badge_title: gtk4::Label,
     pub badge_desc: gtk4::Label,
@@ -15,8 +14,4 @@ pub struct IslandWidgets {
     pub popover_art_container: gtk4::Box,
     pub popover_app_name: gtk4::Label,
     pub play_btn_icon: gtk4::Image,
-    pub notification_view: gtk4::Box,
-    pub notif_art_container: gtk4::Box,
-    pub notif_title_lbl: gtk4::Label,
-    pub notif_body_lbl: gtk4::Label,
 }
