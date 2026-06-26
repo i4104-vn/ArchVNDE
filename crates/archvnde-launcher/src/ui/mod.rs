@@ -119,7 +119,41 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
         populate_search(filtered);
     });
 
+<<<<<<< HEAD:crates/archvnde-launcher/src/ui/mod.rs
     // Close on escape key
+=======
+    let is_animating = Rc::new(std::cell::Cell::new(false));
+    let is_animating_clone = is_animating.clone();
+    let win_clone_close = window.clone();
+    let box_layout_clone_close = box_layout.clone();
+    window.connect_close_request(move |_| {
+        if is_animating_clone.get() {
+            return gtk4::glib::Propagation::Proceed;
+        }
+        is_animating_clone.set(true);
+        let win_cb = win_clone_close.clone();
+        let box_layout_cb = box_layout_clone_close.clone();
+        let w = box_layout_cb.width().max(450);
+        let h = box_layout_cb.height().max(550);
+        archvnde_common::animation::genie_out(
+            box_layout_cb.upcast_ref(),
+            w,
+            h,
+            200,
+            move || {
+                win_cb.destroy();
+            }
+        );
+        gtk4::glib::Propagation::Stop
+    });
+
+    window.connect_is_active_notify(|win| {
+        if !win.is_active() {
+            win.close();
+        }
+    });
+
+>>>>>>> 425f13e (fix: resolve launcher compilation error by using gtk4::glib::Propagation):crates/archvnde-launcher/src/widgets/mod.rs
     let key_controller = gtk4::EventControllerKey::new();
     let win_clone = window.clone();
     key_controller.connect_key_pressed(move |_, key, _, _| {
