@@ -150,6 +150,7 @@ pub fn create_system_island() -> gtk4::Box {
                         for i in 0..items_to_remove {
                             let old_card = children[i].clone();
                             let nb_c = notif_badge_clone.clone();
+                            let old_card_clone = old_card.clone();
                             archvnde_common::animation::slide_out_cb(
                                 &old_card,
                                 archvnde_common::animation::SlideDirection::Up,
@@ -157,7 +158,7 @@ pub fn create_system_island() -> gtk4::Box {
                                 200,
                                 false,
                                 move || {
-                                    nb_c.remove(&old_card);
+                                    nb_c.remove(&old_card_clone);
                                 }
                             );
                         }
@@ -168,6 +169,7 @@ pub fn create_system_island() -> gtk4::Box {
                     let nb_expire = notif_badge_clone.clone();
                     glib::timeout_add_local_once(std::time::Duration::from_secs(5), move || {
                         if badge_card_expire.parent().is_some() {
+                            let bce_clone = badge_card_expire.clone();
                             archvnde_common::animation::slide_out_cb(
                                 badge_card_expire.upcast_ref(),
                                 archvnde_common::animation::SlideDirection::Up,
@@ -175,7 +177,7 @@ pub fn create_system_island() -> gtk4::Box {
                                 200,
                                 false,
                                 move || {
-                                    nb_expire.remove(&badge_card_expire);
+                                    nb_expire.remove(&bce_clone);
                                 }
                             );
                         }
