@@ -4,50 +4,57 @@
 }
 
 .launcher-box {
-    background-color: rgba(20, 20, 22, 0.92);
-    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(20, 20, 22, 0.95) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-    border-left: 1px solid rgba(255, 255, 255, 0.09);
+    background-color: rgba(255, 255, 255, 0.07);
+    background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-top: 1px solid rgba(255, 255, 255, 0.22);
     border-radius: 24px;
     color: #ffffff;
-    padding: 24px 20px 20px 20px;
+    padding: 0px;
     overflow: hidden;
-    box-shadow: none;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
-/* Search bar styling - Sleek modern command bar */
-.launcher-search entry {
-    background-color: rgba(255, 255, 255, 0.04);
+entry.launcher-search,
+entry.launcher-search > text {
+    background-color: rgba(255, 255, 255, 0.05);
     background-image: none;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 14px;
     color: #ffffff;
     padding: 12px 16px;
     font-size: 13px;
     font-weight: 500;
     transition: all 200ms ease;
-    box-shadow: none;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
-.launcher-search entry:focus {
-    background-color: rgba(255, 255, 255, 0.07);
-    border-color: rgba(0, 242, 254, 0.40);
-    box-shadow: 0 0 16px rgba(0, 242, 254, 0.15);
+entry.launcher-search:focus,
+entry.launcher-search:focus > text {
+    background-color: rgba(255, 255, 255, 0.09);
+    border-color: rgba(96, 165, 250, 0.40);
+    border-top-color: rgba(147, 197, 253, 0.55);
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.12),
+                inset 0 1px 0 rgba(147, 197, 253, 0.10);
     background-image: none;
 }
 
-/* Scrolled window settings */
+entry.launcher-search placeholder,
+entry.launcher-search > text > placeholder {
+    color: rgba(255, 255, 255, 0.35);
+    opacity: 1.0;
+}
+
 scrolledwindow {
     background: transparent;
 }
 
-/* Grid layout inside the launcher */
 .launcher-grid {
     padding: 8px;
 }
 
-/* Individual Grid App Button */
 button.launcher-grid-item {
     background-color: transparent;
     background-image: none;
@@ -60,30 +67,30 @@ button.launcher-grid-item {
 }
 
 button.launcher-grid-item:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     color: #ffffff;
     transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.20);
 }
 
 button.launcher-grid-item:active {
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.10);
     transform: scale(0.98) translateY(0);
 }
 
-/* Ellipsized small labels */
 .launcher-grid-label {
     font-size: 11px;
     font-weight: 600;
     text-align: center;
     margin-top: 6px;
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(255, 255, 255, 0.82);
 }
 
 button.launcher-grid-item:hover .launcher-grid-label {
     color: #ffffff;
 }
 
-/* Footer layout */
 .launcher-footer-separator {
     background-color: rgba(255, 255, 255, 0.06);
     margin: 14px 0 8px 0;
@@ -91,8 +98,8 @@ button.launcher-grid-item:hover .launcher-grid-label {
 
 .launcher-footer-box {
     padding: 6px 12px;
-    background-color: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 14px;
 }
 
@@ -102,11 +109,10 @@ button.launcher-grid-item:hover .launcher-grid-label {
     color: rgba(255, 255, 255, 0.9);
 }
 
-/* Power button styling */
 button.launcher-power-btn {
-    background-color: rgba(255, 255, 255, 0.03);
+    background-color: rgba(255, 255, 255, 0.04);
     background-image: none;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.07);
     border-radius: 10px;
     padding: 6px;
     transition: all 180ms ease;
@@ -116,17 +122,16 @@ button.launcher-power-btn {
 button.launcher-power-btn:hover {
     background-color: rgba(239, 68, 68, 0.12);
     border-color: rgba(239, 68, 68, 0.25);
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.15);
 }
 
-/* Empty state / error / no results styling */
 .launcher-no-results {
-    color: rgba(255, 255, 255, 0.40);
+    color: rgba(255, 255, 255, 0.38);
     font-size: 12px;
     font-weight: 600;
     margin: 40px 0;
 }
 
-/* Popover Menu Customization for Launcher */
 popover {
     background-color: transparent;
     padding: 0;
@@ -136,12 +141,14 @@ popover {
 }
 
 popover > contents {
-    background-color: rgba(20, 20, 22, 0.94);
-    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(20, 20, 22, 0.95) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.07);
+    background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-top: 1px solid rgba(255, 255, 255, 0.20);
     border-radius: 14px;
     padding: 4px;
-    box-shadow: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .launcher-menu-box {
@@ -163,11 +170,10 @@ button.launcher-menu-item-btn {
 }
 
 button.launcher-menu-item-btn:hover {
-    background-color: rgba(255, 255, 255, 0.06);
+    background-color: rgba(255, 255, 255, 0.08);
     color: #ffffff;
 }
 
-/* Two-column layout grid */
 .launcher-columns-box {
     margin-top: 8px;
 }
@@ -182,7 +188,6 @@ button.launcher-menu-item-btn:hover {
     padding-left: 12px;
 }
 
-/* List Item design for apps list & search matches */
 button.launcher-list-item {
     background-color: transparent;
     background-image: none;
@@ -196,13 +201,14 @@ button.launcher-list-item {
 }
 
 button.launcher-list-item:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     color: #ffffff;
     transform: scale(1.02);
 }
 
 button.launcher-list-item:active {
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.09);
     transform: scale(0.98);
 }
 
@@ -211,41 +217,39 @@ button.launcher-list-item:active {
     font-weight: 600;
 }
 
-/* Section Header Titles */
 .launcher-section-title {
     font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    color: rgba(0, 242, 254, 0.50);
+    color: rgba(96, 165, 250, 0.55);
     margin-bottom: 6px;
     margin-top: 10px;
 }
 
-/* Browser search option row */
 button.launcher-browser-search-row {
-    background-color: rgba(0, 242, 254, 0.04);
+    background-color: rgba(59, 130, 246, 0.06);
     background-image: none;
-    border: 1px dashed rgba(0, 242, 254, 0.15);
+    border: 1px dashed rgba(96, 165, 250, 0.20);
     border-radius: 12px;
     padding: 8px 12px;
     margin-top: 12px;
     transition: all 180ms ease;
-    color: #00f2fe;
+    color: #93c5fd;
 }
 
 button.launcher-browser-search-row:hover {
-    background-color: rgba(0, 242, 254, 0.08);
-    border-color: rgba(0, 242, 254, 0.40);
+    background-color: rgba(59, 130, 246, 0.12);
+    border-color: rgba(96, 165, 250, 0.40);
     color: #ffffff;
     transform: scale(1.01);
+    box-shadow: 0 0 16px rgba(59, 130, 246, 0.15);
 }
 
 button.launcher-browser-search-row:active {
     transform: scale(0.99);
 }
 
-/* File items layout in search results */
 button.launcher-file-item {
     background-color: transparent;
     background-image: none;
@@ -253,12 +257,12 @@ button.launcher-file-item {
     border-radius: 10px;
     padding: 6px 12px;
     margin: 1px 0;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.68);
     transition: all 150ms ease;
 }
 
 button.launcher-file-item:hover {
-    background-color: rgba(255, 255, 255, 0.04);
+    background-color: rgba(255, 255, 255, 0.05);
     color: #ffffff;
     transform: scale(1.01);
 }

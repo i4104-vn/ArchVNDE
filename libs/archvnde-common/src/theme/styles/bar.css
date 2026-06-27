@@ -1,13 +1,8 @@
-/* ================================================================
-   GLOBAL STYLES & FONTS
-   ================================================================ */
-
 * {
     font-family: 'Inter', 'SF Pro Display', 'Ubuntu', 'Segoe UI', sans-serif;
     -gtk-icon-style: symbolic;
 }
 
-/* Specific interactive element transitions */
 button, .workspace-dot, .panel-notch, popover > contents {
     transition: all 200ms ease;
 }
@@ -24,11 +19,6 @@ window.notification-card {
     border: none;
 }
 
-/* ================================================================
-   TOP STATUS BAR (PANEL) — Glassmorphic HUD Overlay
-   A clean, modern translucent glass bar spanning the top with rounded UI elements.
-   ================================================================ */
-
 .panel-box {
     background-color: transparent;
     background-image: none;
@@ -40,7 +30,6 @@ window.notification-card {
     box-shadow: none;
 }
 
-/* Brand logo button */
 button.panel-logo-btn {
     background-color: transparent;
     background-image: none;
@@ -55,90 +44,83 @@ button.panel-logo-btn {
 }
 
 button.panel-logo-btn:hover {
-    background-color: rgba(255, 255, 255, 0.12);
+    background-color: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Workspace Capsule */
 .workspace-box {
     margin-left: 8px;
     margin-right: 8px;
-    background-color: rgba(20, 20, 22, 0.65);
-    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(20, 20, 22, 0.70) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-top: 1px solid rgba(255, 255, 255, 0.10);
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.06);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 9999px;
     padding: 3px 10px;
     min-height: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25),
-                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.20),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-/* Minimalist dot buttons */
 button.workspace-dot {
-    background-color: rgba(255, 255, 255, 0.40);
+    background-color: rgba(255, 255, 255, 0.35);
     background-image: none;
     border: none;
     border-radius: 9999px;
-    min-width: 8px;
-    min-height: 8px;
+    min-width: 6px;
+    min-height: 6px;
     margin: 0px 3px;
     padding: 0;
     box-shadow: none;
 }
 
 button.workspace-dot:hover {
-    background-color: rgba(255, 255, 255, 0.80);
+    background-color: rgba(255, 255, 255, 0.75);
 }
 
-/* Dynamic dot expansion on active */
 button.workspace-dot.active {
-    background-color: #3b82f6;
-    background-image: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
-    min-width: 12px;
-    min-height: 8px;
-    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.40);
+    background-color: #60a5fa;
+    background-image: linear-gradient(135deg, #93c5fd 0%, #3b82f6 100%);
+    min-width: 14px;
+    min-height: 6px;
+    box-shadow: 0 0 8px rgba(96, 165, 250, 0.50);
 }
 
-/* System Clock Label inside clock button */
 .panel-clock {
     font-weight: 600;
     font-size: 11px;
     color: #ffffff;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.50);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.40);
 }
 
-/* Unified Status Indicators Capsule */
 .status-indicators-box {
-    background-color: rgba(20, 20, 22, 0.65);
-    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(20, 20, 22, 0.70) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-top: 1px solid rgba(255, 255, 255, 0.10);
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.06);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 9999px;
     padding: 3px 8px;
     min-height: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25),
-                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.20),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .status-text {
     font-size: 11px;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.90);
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
     margin-left: 2px;
     margin-right: 2px;
 }
 
 .status-icon {
     color: rgba(255, 255, 255, 0.90);
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
     margin-left: 6px;
     margin-right: 6px;
 }
 
-/* Transparent triggers inside unified capsule */
 button.panel-status-btn,
 button.panel-clock-btn {
     background-color: transparent;
@@ -153,19 +135,14 @@ button.panel-clock-btn {
 
 button.panel-status-btn:hover,
 button.panel-clock-btn:hover {
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.10);
 }
 
-/* Vertical separator line inside capsule */
 .capsule-separator {
-    color: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.14);
     font-size: 11px;
     margin: 0 2px;
 }
-
-/* ================================================================
-   INTERACTIVE SYSTEM NOTCH (dropdown notch)
-   ================================================================ */
 
 .panel-notch {
     background-color: transparent;
@@ -176,20 +153,21 @@ button.panel-clock-btn:hover {
     padding: 0;
     box-shadow: none;
     transition: all 400ms cubic-bezier(0.16, 1, 0.3, 1);
-    overflow: hidden; /* Prevent child content from overflowing during scale/zoom transitions */
+    overflow: hidden;
 }
 
 .panel-notch.active-music {
-    background-color: rgba(10, 10, 12, 0.95);
-    background-image: linear-gradient(180deg, rgba(20, 20, 22, 0.95) 0%, rgba(10, 10, 12, 0.85) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.07);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.03) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-top: 1px solid rgba(255, 255, 255, 0.22);
     border-radius: 9999px;
     min-width: 0;
     min-height: 0;
     padding: 3px 10px;
     margin-top: 4px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.40),
-                0 0 12px rgba(59, 130, 246, 0.15);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .notch-content {
@@ -205,58 +183,54 @@ button.panel-clock-btn:hover {
     margin: 0 2px;
 }
 
-/* Album Art */
 .notch-album-art {
     border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-/* Music Visualizer WAVE */
 .notch-visualizer {
     margin-left: 4px;
 }
 
 .visualizer-bar {
-    background-color: #3b82f6;
-    background-image: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
+    background-color: #60a5fa;
+    background-image: linear-gradient(180deg, #93c5fd 0%, #3b82f6 100%);
     border-radius: 9999px;
     transition: all 100ms ease;
 }
 
-/* Island Notification Badge */
 .island-badge {
-    background-color: rgba(12, 12, 14, 0.95);
-    background-image: linear-gradient(180deg, rgba(20, 20, 22, 0.98) 0%, rgba(10, 10, 12, 0.92) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    padding: 6px 12px;
+    background-color: rgba(255, 255, 255, 0.06);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-top: 1px solid rgba(255, 255, 255, 0.20);
+    border-radius: 16px;
+    padding: 8px 14px;
     min-width: 220px;
     max-width: 240px;
-    box-shadow: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.20),
+                inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
 .badge-title {
     font-size: 10px;
     font-weight: 700;
-    color: #3b82f6;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    color: #60a5fa;
 }
 
 .badge-desc {
     font-size: 9px;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.85);
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    color: rgba(255, 255, 255, 0.80);
 }
 
-/* Hover Scale Transition for active music notch */
 .panel-notch.active-music:not(.popover-open):hover {
     transform: scale(1.04);
-    background-color: rgba(16, 16, 18, 0.98);
-    box-shadow: none;
+    background-color: rgba(255, 255, 255, 0.10);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.30),
+                inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
-/* Media Popover Styling */
 popover.media-popover {
     background-color: transparent;
     padding: 0;
@@ -266,12 +240,14 @@ popover.media-popover {
 }
 
 popover.media-popover > contents {
-    background-color: rgba(12, 12, 14, 0.95);
-    background-image: linear-gradient(180deg, rgba(20, 20, 22, 0.98) 0%, rgba(10, 10, 12, 0.92) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
+    background-color: rgba(255, 255, 255, 0.07);
+    background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-top: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 20px;
     padding: 16px;
-    box-shadow: none;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.30),
+                inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
 .media-popover-box {
@@ -287,13 +263,14 @@ popover.media-popover > contents {
 .media-popover-app-name {
     font-size: 11px;
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.55);
 }
 
 .media-popover-art {
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.10);
     margin-bottom: 14px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.30);
 }
 
 .media-popover-title {
@@ -306,7 +283,7 @@ popover.media-popover > contents {
 .media-popover-artist {
     font-size: 10px;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.55);
     margin-bottom: 8px;
 }
 
@@ -315,9 +292,9 @@ popover.media-popover > contents {
 }
 
 .media-control-btn {
-    background-color: transparent;
+    background-color: rgba(255, 255, 255, 0.06);
     background-image: none;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 50%;
     color: #ffffff;
     padding: 8px;
@@ -328,23 +305,20 @@ popover.media-popover > contents {
 }
 
 .media-control-btn:hover {
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
-
-/* ================================================================
-   MEDIA TIMELINE / PROGRESS BAR
-   ================================================================ */
 
 .media-timeline-box {
     margin: 0 4px;
     padding: 0;
 }
 
-/* Override the generic scale styling for media timeline */
 scale.media-timeline-scale trough {
     min-height: 4px;
     border-radius: 2px;
-    background-color: rgba(255, 255, 255, 0.12);
+    background-color: rgba(255, 255, 255, 0.10);
     border: none;
 }
 
@@ -374,6 +348,64 @@ scale.media-timeline-scale:hover trough slider {
 .media-time-label {
     font-size: 9px;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.45);
+    color: rgba(255, 255, 255, 0.40);
     margin: 0 2px;
+}
+
+.sys-monitor-box {
+    background-color: rgba(255, 255, 255, 0.06);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 9999px;
+    padding: 3px 12px;
+    min-height: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.20),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transition: all 200ms ease;
+}
+
+.sys-monitor-box:hover {
+    background-color: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.16);
+}
+
+popover.sys-monitor-popover {
+    background-color: transparent;
+    padding: 0;
+    margin: 0;
+    border: none;
+    box-shadow: none;
+}
+
+popover.sys-monitor-popover > contents {
+    background-color: rgba(255, 255, 255, 0.07);
+    background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-top: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 20px;
+    padding: 14px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28),
+                inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+popover.sys-monitor-popover progressbar trough {
+    min-height: 6px;
+    border-radius: 9999px;
+    background-color: rgba(255, 255, 255, 0.08);
+    border: none;
+}
+
+popover.sys-monitor-popover progressbar progress {
+    border-radius: 9999px;
+    background-color: #3b82f6;
+    background-image: linear-gradient(90deg, #60a5fa 0%, #3b82f6 100%);
+}
+
+popover.sys-monitor-popover .sys-chart {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    margin-top: 6px;
+    margin-bottom: 10px;
 }
