@@ -109,6 +109,12 @@ fn main() {
         left_box.set_halign(gtk4::Align::Start);
         left_box.set_valign(gtk4::Align::Center);
         left_box.append(&workspace_box);
+
+        let left_wrapper = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
+        left_wrapper.set_valign(gtk4::Align::Start);
+        left_wrapper.set_size_request(-1, 35);
+        left_wrapper.append(&left_box);
+
         // Center-aligned section: Clean placeholder center space with interactive notch
         let center_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
         center_box.set_hexpand(true);
@@ -126,10 +132,15 @@ fn main() {
         right_box.append(&sys_monitor);
         right_box.append(&status_indicators);
 
+        let right_wrapper = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
+        right_wrapper.set_valign(gtk4::Align::Start);
+        right_wrapper.set_size_request(-1, 35);
+        right_wrapper.append(&right_box);
+
         // Assemble columns into the main panel box using CenterBox
-        box_layout.set_start_widget(Some(&left_box));
+        box_layout.set_start_widget(Some(&left_wrapper));
         box_layout.set_center_widget(Some(&center_box));
-        box_layout.set_end_widget(Some(&right_box));
+        box_layout.set_end_widget(Some(&right_wrapper));
 
         window.set_child(Some(&box_layout));
 
