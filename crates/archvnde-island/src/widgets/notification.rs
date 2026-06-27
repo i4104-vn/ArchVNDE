@@ -149,9 +149,7 @@ fn close_and_fade(window: &gtk4::Window, container_box: &gtk4::Box) {
     );
 }
 
-pub fn show_notification_popup(summary: &str, body: &str, icon_name: &str, timeout_ms: i32) {
-    close_notification_popup();
-
+pub fn show_notification_popup(summary: &str, body: &str, icon_name: &str, _timeout_ms: i32) {
     // Save to historical notifications list
     let notif = ActiveNotification {
         title: summary.to_string(),
@@ -159,6 +157,11 @@ pub fn show_notification_popup(summary: &str, body: &str, icon_name: &str, timeo
         icon: icon_name.to_string(),
         timestamp: std::time::Instant::now(),
     };
+
+    SHARED_NOTIFICATION.with(|sn| {
+        *sn.borrow_mut() = Some(notif.clone());
+    });
+
     HISTORICAL_NOTIFICATIONS.with(|list| {
         let mut list_borrow = list.borrow_mut();
         list_borrow.push(notif);
@@ -166,6 +169,7 @@ pub fn show_notification_popup(summary: &str, body: &str, icon_name: &str, timeo
             list_borrow.remove(0); // Cap at 50 notifications
         }
     });
+<<<<<<< HEAD:crates/archvnde-island/src/widgets/notification.rs
 
     let window = gtk4::Window::new();
     window.init_layer_shell();
@@ -260,4 +264,6 @@ pub fn show_notification_popup(summary: &str, body: &str, icon_name: &str, timeo
         }
     );
     ACTIVE_TIMER.with(|t| *t.borrow_mut() = Some(timer_id));
+=======
+>>>>>>> 87f8ce9 (Update notification.rs):libs/archvnde-island/src/widgets/notification.rs
 }
