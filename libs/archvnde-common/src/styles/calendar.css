@@ -3,13 +3,15 @@
    ================================================================ */
 
 .calendar-box {
-    background-color: rgba(255, 255, 255, 0.12);
-    background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.06) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-top: 1px solid rgba(255, 255, 255, 0.32);
+    background-color: rgba(18, 18, 22, 0.82);
+    background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.06) 0%, rgba(0, 0, 0, 0.15) 100%);
+    -gtk-background-blur: 24;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-top: 1px solid rgba(255, 255, 255, 0.28);
     border-radius: 24px;
     color: rgba(255, 255, 255, 0.95);
     padding: 20px;
+<<<<<<< HEAD:libs/archvnde-common/src/styles/calendar.css
 <<<<<<< HEAD:libs/archvnde-common/src/styles/calendar.css
 <<<<<<< HEAD:libs/archvnde-common/src/styles/calendar.css
     box-shadow: none;
@@ -26,6 +28,10 @@
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35),
                 inset 0 1px 0 rgba(255, 255, 255, 0.18);
 >>>>>>> bf20621 (style: increase glass opacity, add panel margin-top, reduce side padding):libs/archvnde-common/src/theme/styles/calendar.css
+=======
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.55),
+                inset 0 1px 0 rgba(255, 255, 255, 0.14);
+>>>>>>> f38d8a8 (style: switch all panels to dark glass with blur):libs/archvnde-common/src/theme/styles/calendar.css
     min-width: 330px;
 >>>>>>> f69a967 (style: refine CSS to Fluent Design + Glassmorphism):libs/archvnde-common/src/theme/styles/calendar.css
 }
