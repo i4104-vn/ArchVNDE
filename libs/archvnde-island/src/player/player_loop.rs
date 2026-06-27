@@ -200,8 +200,8 @@ pub fn start_player_polling_loop(
                     widgets.notch_capsule.add_css_class("active-music");
                     archvnde_common::animation::island_zoom_in(
                         widgets.notch_capsule.clone().upcast_ref(),
-                        360,
-                        10,
+                        300,
+                        55,
                         500,
                     );
                 }
@@ -209,10 +209,12 @@ pub fn start_player_polling_loop(
                     island_state.set(IslandState::NotificationActive { timestamp: notif.timestamp });
                     should_show_notif = true;
                     widgets.visualizer_box.set_visible(false);
-                    archvnde_common::animation::island_animate_width(
+                    archvnde_common::animation::island_animate_size(
                         widgets.notch_capsule.clone().upcast_ref(),
                         200,
-                        360,
+                        300,
+                        30,
+                        55,
                         400,
                         || {},
                     );
@@ -229,10 +231,12 @@ pub fn start_player_polling_loop(
                     widgets.visualizer_box.set_visible(false);
                     widgets.notch_capsule.set_visible(true);
                     widgets.notch_capsule.add_css_class("active-music");
-                    archvnde_common::animation::island_animate_width(
+                    archvnde_common::animation::island_animate_size(
                         widgets.notch_capsule.clone().upcast_ref(),
                         200,
-                        360,
+                        300,
+                        30,
+                        55,
                         400,
                         || {},
                     );
@@ -260,10 +264,12 @@ pub fn start_player_polling_loop(
                     let is_playing_clone = is_playing_state.clone();
                     let latest_metadata_clone = latest_metadata.clone();
                     
-                    archvnde_common::animation::island_animate_width(
+                    archvnde_common::animation::island_animate_size(
                         widgets.notch_capsule.clone().upcast_ref(),
-                        360,
+                        300,
                         200,
+                        55,
+                        30,
                         400,
                         move || {
                             let metadata_fresh = latest_metadata_clone.borrow().clone();
@@ -278,10 +284,13 @@ pub fn start_player_polling_loop(
                                 }
                             }
 
+                            widgets_clone.notification_view.set_visible(false);
+
                             if player_active_fresh {
                                 state_clone.set(IslandState::PlayerActive);
                                 last_title_clone.borrow_mut().clear();
                                 art_loaded_clone.set(false);
+                                widgets_clone.music_view.set_visible(true);
                                 widgets_clone.visualizer_box.set_visible(true);
                             } else {
                                 state_clone.set(IslandState::ZoomingOut);
@@ -358,12 +367,13 @@ pub fn start_player_polling_loop(
                 IslandState::Hidden => {
                     if player_active {
                         island_state.set(IslandState::PlayerActive);
+                        widgets.music_view.set_visible(true);
                         widgets.visualizer_box.set_visible(true);
                         widgets.notch_capsule.add_css_class("active-music");
                         archvnde_common::animation::island_zoom_in(
                             widgets.notch_capsule.clone().upcast_ref(),
                             200,
-                            10,
+                            30,
                             500,
                         );
                         
@@ -401,33 +411,24 @@ fn update_notification_view(
     last_art_url: &RefCell<String>,
     last_attempted_url: &RefCell<String>,
 ) {
-    let display_text = if notif.body.is_empty() {
-        notif.title.clone()
-    } else {
-        format!("{}: {}", notif.title, notif.body)
-    };
-    let display_text = if display_text.chars().count() > 36 {
-        let truncated: String = display_text.chars().take(33).collect();
-        format!("{}...", truncated)
-    } else {
-        display_text
-    };
-    widgets.track_label.set_text(&display_text);
+    widgets.notif_title_lbl.set_text(&notif.title);
+    widgets.notif_body_lbl.set_text(&notif.body);
 
-    if let Some(child) = widgets.art_container.first_child() {
-        widgets.art_container.remove(&child);
+    if let Some(child) = widgets.notif_art_container.first_child() {
+        widgets.notif_art_container.remove(&child);
     }
     let icon_symbol = if notif.icon.is_empty() { "preferences-system-notifications-symbolic" } else { &notif.icon };
     let notif_icon = archvnde_common::icon::get_system_or_file_icon(icon_symbol, "preferences-system-notifications-symbolic");
-    notif_icon.set_pixel_size(14);
+    notif_icon.set_pixel_size(24);
     notif_icon.add_css_class("notch-album-art");
-    widgets.art_container.append(&notif_icon);
+    widgets.notif_art_container.append(&notif_icon);
 
     *last_art_url.borrow_mut() = String::new();
     *last_attempted_url.borrow_mut() = String::new();
 
     widgets.default_view.set_visible(false);
-    widgets.music_view.set_visible(true);
+    widgets.music_view.set_visible(false);
+    widgets.notification_view.set_visible(true);
 }
 
 fn get_player_icon_name(player_name_raw: &str) -> String {

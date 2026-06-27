@@ -60,6 +60,39 @@ pub fn create_system_island() -> gtk4::Box {
     music_view.append(&visualizer_box);
     notch_content.append(&music_view);
 
+    // --- 2.5 Notification View (expanded Dynamic Island notification) ---
+    let notification_view = gtk4::Box::new(gtk4::Orientation::Horizontal, 10);
+    notification_view.set_valign(gtk4::Align::Center);
+    notification_view.set_halign(gtk4::Align::Fill);
+    notification_view.set_hexpand(true);
+    notification_view.set_visible(false); // Hidden by default
+
+    let notif_art_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+    notif_art_container.set_valign(gtk4::Align::Center);
+
+    let notif_text_box = gtk4::Box::new(gtk4::Orientation::Vertical, 2);
+    notif_text_box.set_valign(gtk4::Align::Center);
+    notif_text_box.set_hexpand(true);
+
+    let notif_title_lbl = gtk4::Label::new(None);
+    notif_title_lbl.add_css_class("badge-title");
+    notif_title_lbl.set_halign(gtk4::Align::Start);
+    notif_title_lbl.set_ellipsize(gtk4::pango::EllipsizeMode::End);
+
+    let notif_body_lbl = gtk4::Label::new(None);
+    notif_body_lbl.add_css_class("badge-desc");
+    notif_body_lbl.set_halign(gtk4::Align::Start);
+    notif_body_lbl.set_wrap(true);
+    notif_body_lbl.set_ellipsize(gtk4::pango::EllipsizeMode::End);
+    notif_body_lbl.set_lines(2);
+
+    notif_text_box.append(&notif_title_lbl);
+    notif_text_box.append(&notif_body_lbl);
+
+    notification_view.append(&notif_art_container);
+    notification_view.append(&notif_text_box);
+    notch_content.append(&notification_view);
+
     notch_capsule.append(&notch_content);
     container_vbox.append(&notch_capsule);
 
@@ -138,6 +171,10 @@ pub fn create_system_island() -> gtk4::Box {
         popover_art_container,
         popover_app_name,
         play_btn_icon,
+        notification_view,
+        notif_art_container,
+        notif_title_lbl,
+        notif_body_lbl,
     };
     start_player_polling_loop(
         is_playing_state.clone(),
