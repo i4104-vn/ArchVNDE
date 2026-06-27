@@ -39,7 +39,7 @@ pub fn build_launcher_ui(
     box_layout.set_halign(gtk4::Align::Start);
     box_layout.set_valign(gtk4::Align::Start);
     box_layout.set_size_request(780, 560);
-    box_layout.set_margin_top(50);
+    box_layout.set_margin_top(6);
     box_layout.set_margin_start(12);
 
     let search_entry = gtk4::Entry::new();

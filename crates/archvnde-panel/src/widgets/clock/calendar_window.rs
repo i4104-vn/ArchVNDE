@@ -13,22 +13,24 @@ pub fn show_calendar_window(
     c_win.set_layer(Layer::Overlay);
     c_win.set_keyboard_mode(KeyboardMode::OnDemand);
 
-    // Anchor to Top-Right to display calendar dropdown on the right side
+    // Anchor to all 4 edges to cover the entire screen transparently
     c_win.set_anchor(Edge::Top, true);
     c_win.set_anchor(Edge::Bottom, true);
+    c_win.set_anchor(Edge::Left, true);
     c_win.set_anchor(Edge::Right, true);
-    c_win.set_margin(Edge::Top, 10);
-    c_win.set_margin(Edge::Bottom, 10);
-    c_win.set_margin(Edge::Right, 12);
-    c_win.set_default_size(360, -1);
     c_win.add_css_class("calendar-window");
 
     let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 12);
     main_box.add_css_class("calendar-box");
     main_box.set_vexpand(true);
     main_box.set_valign(gtk4::Align::Fill);
+    main_box.set_halign(gtk4::Align::End);
+    main_box.set_width_request(360);
+    main_box.set_margin_top(6);
+    main_box.set_margin_bottom(10);
+    main_box.set_margin_end(12);
 
-    // 1. Header: Date on left, dropdown close button on right
+    // 1. Header: Date on left
     let top_row = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
     top_row.add_css_class("calendar-top-row");
 
@@ -37,20 +39,7 @@ pub fn show_calendar_window(
     date_label.set_halign(gtk4::Align::Start);
     date_label.set_hexpand(true);
 
-    let close_btn = gtk4::Button::new();
-    close_btn.add_css_class("calendar-close-btn");
-    let close_arrow = gtk4::Label::new(Some("⏷"));
-    close_btn.set_child(Some(&close_arrow));
-
-    let cw_inner_close = cw_clone.clone();
-    close_btn.connect_clicked(move |_| {
-        if let Some(win) = cw_inner_close.borrow().clone() {
-            win.close();
-        }
-    });
-
     top_row.append(&date_label);
-    top_row.append(&close_btn);
     main_box.append(&top_row);
 
     // Dummy time label to satisfy setup_notifications_list signature without displaying it
@@ -97,6 +86,21 @@ pub fn show_calendar_window(
     notifications::setup_notifications_list(&notif_stack, &clear_btn, &dummy_time, &date_label);
 
     c_win.set_child(Some(&main_box));
+
+    // Dismiss when clicking outside the calendar box area
+    let click_gesture = gtk4::GestureClick::new();
+    let main_box_c = main_box.clone();
+    let window_c = c_win.clone();
+    click_gesture.connect_pressed(move |_, _, x, y| {
+        let picked = window_c.pick(x, y, gtk4::PickFlags::DEFAULT);
+        let inside = picked
+            .map(|w| w.is_ancestor(&main_box_c) || w == main_box_c)
+            .unwrap_or(false);
+        if !inside {
+            window_c.close();
+        }
+    });
+    c_win.add_controller(click_gesture);
 
     // Handle closing when window loses focus
     let cw_inner = cw_clone.clone();

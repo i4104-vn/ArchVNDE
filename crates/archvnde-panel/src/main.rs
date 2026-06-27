@@ -24,7 +24,7 @@ fn main() {
         let window = gtk4::ApplicationWindow::new(app);
 
         // Define shared window states for mutual exclusivity
-        let quick_settings_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>> = Rc::new(RefCell::new(None));
+        let control_center_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>> = Rc::new(RefCell::new(None));
         let calendar_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>> = Rc::new(RefCell::new(None));
         let launcher_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>> = Rc::new(RefCell::new(None));
 
@@ -64,19 +64,22 @@ fn main() {
         logo_btn.set_child(Some(&logo_icon));
         
         let lw_clone = launcher_window.clone();
-        let qsw_clone = quick_settings_window.clone();
+        let ccw_clone = control_center_window.clone();
         let cw_clone = calendar_window.clone();
         let app_clone = app.clone();
         logo_btn.connect_clicked(move |_| {
-            // Close other windows
-            if let Some(win) = qsw_clone.borrow().clone() {
+            // Close other windows safely by releasing RefCell borrows first
+            let cc_win = { ccw_clone.borrow().clone() };
+            if let Some(win) = cc_win {
                 win.close();
             }
-            if let Some(win) = cw_clone.borrow().clone() {
+
+            let cal_win = { cw_clone.borrow().clone() };
+            if let Some(win) = cal_win {
                 win.close();
             }
             
-            let existing = lw_clone.borrow().clone();
+            let existing = { lw_clone.borrow().clone() };
             if let Some(win) = existing {
                 win.close();
             } else {
@@ -101,7 +104,7 @@ fn main() {
         // 3. Unified Status and Clock Capsule
         let status_indicators = create_status_indicators(
             app,
-            quick_settings_window.clone(),
+            control_center_window.clone(),
             calendar_window.clone(),
             launcher_window.clone(),
         );
