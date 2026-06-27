@@ -5,8 +5,8 @@ pub fn create_header_row() -> gtk4::Box {
     header_box.set_hexpand(true);
 
     // Left: Title
-    let title = gtk4::Label::new(Some("Quick Settings"));
-    title.add_css_class("quick-settings-title");
+    let title = gtk4::Label::new(Some("Control Center"));
+    title.add_css_class("control-center-title");
     title.set_xalign(0.0);
     title.set_hexpand(true);
 
@@ -17,7 +17,7 @@ pub fn create_header_row() -> gtk4::Box {
     // 1. Settings button
     let settings_btn = gtk4::Button::new();
     settings_btn.add_css_class("circle-btn");
-    let settings_icon = archvnde_icon::get_icon("settings", 16);
+    let settings_icon = archvnde_common::icon::get_icon("settings", 16);
     settings_btn.set_child(Some(&settings_icon));
     settings_btn.connect_clicked(|_| {
         println!("Settings window triggered...");
