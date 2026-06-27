@@ -1,5 +1,3 @@
-//! Dynamic Island capsule size / zoom transition animations.
-
 use gtk4::prelude::*;
 use super::easing;
 
@@ -126,46 +124,6 @@ pub fn island_animate_width<F>(
         let eased = easing::ease_out_cubic(t);
         let current_w = start_width + ((target_width - start_width) as f64 * eased) as i32;
         w.set_size_request(current_w, -1);
-
-        glib::ControlFlow::Continue
-    });
-}
-
-/// Animates both the width and height of the Dynamic Island capsule.
-pub fn island_animate_size<F>(
-    widget: &gtk4::Widget,
-    start_width: i32,
-    target_width: i32,
-    start_height: i32,
-    target_height: i32,
-    duration_ms: u64,
-    on_complete: F,
-) where
-    F: FnOnce() + 'static,
-{
-    let start_time = std::cell::Cell::new(0i64);
-    let dur_us = duration_ms as i64 * 1000;
-    let on_complete_opt = std::cell::RefCell::new(Some(on_complete));
-
-    widget.add_tick_callback(move |w, clock| {
-        let now = clock.frame_time();
-        if start_time.get() == 0 {
-            start_time.set(now);
-        }
-        let elapsed_us = now - start_time.get();
-        if elapsed_us >= dur_us {
-            w.set_size_request(target_width, target_height);
-            if let Some(cb) = on_complete_opt.borrow_mut().take() {
-                cb();
-            }
-            return glib::ControlFlow::Break;
-        }
-
-        let t = elapsed_us as f64 / dur_us as f64;
-        let eased = easing::ease_out_cubic(t);
-        let current_w = start_width + ((target_width - start_width) as f64 * eased) as i32;
-        let current_h = start_height + ((target_height - start_height) as f64 * eased) as i32;
-        w.set_size_request(current_w, current_h);
 
         glib::ControlFlow::Continue
     });
