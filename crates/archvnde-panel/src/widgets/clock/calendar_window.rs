@@ -113,7 +113,7 @@ pub fn show_calendar_window(
     let main_box_clone = main_box.clone();
     c_win.connect_close_request(move |_| {
         if is_animating_clone.get() {
-            return glib::Propagation::Proceed;
+            return glib::Propagation::Stop;
         }
         is_animating_clone.set(true);
         if let Ok(mut borrow) = cw_inner_cb_clone.try_borrow_mut() {
