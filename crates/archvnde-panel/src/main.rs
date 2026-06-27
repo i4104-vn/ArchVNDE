@@ -35,15 +35,20 @@ fn main() {
         window.set_layer(Layer::Top);
 
         // Set exclusive zone so other maximized windows don't overlap it
-        window.set_exclusive_zone(35);
+        window.set_exclusive_zone(44);
 
         // Anchor it to the top, left, and right edges of the screen
         window.set_anchor(Edge::Top, true);
         window.set_anchor(Edge::Left, true);
         window.set_anchor(Edge::Right, true);
 
+        // Float the bar 6px from the top edge
+        window.set_margin(Edge::Top, 6);
+        window.set_margin(Edge::Left, 8);
+        window.set_margin(Edge::Right, 8);
+
         // Set default height of the panel
-        window.set_default_size(0, 35);
+        window.set_default_size(0, 36);
 
         // Add styling class
         window.add_css_class("panel-window");

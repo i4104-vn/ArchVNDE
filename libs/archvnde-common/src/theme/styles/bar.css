@@ -3,10 +3,7 @@
     -gtk-icon-style: symbolic;
 }
 
-button,
-.workspace-dot,
-.panel-notch,
-popover>contents {
+button, .workspace-dot, .panel-notch, popover > contents {
     transition: all 200ms ease;
 }
 
@@ -61,7 +58,8 @@ button.panel-logo-btn:hover {
     border-radius: 9999px;
     padding: 3px 10px;
     min-height: 24px;
-    box-shadow: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.50),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 button.workspace-dot {
@@ -85,14 +83,14 @@ button.workspace-dot.active {
     background-image: linear-gradient(135deg, #93c5fd 0%, #3b82f6 100%);
     min-width: 14px;
     min-height: 6px;
-    box-shadow: none;
+    box-shadow: 0 0 8px rgba(96, 165, 250, 0.50);
 }
 
 .panel-clock {
     font-weight: 600;
     font-size: 11px;
     color: #ffffff;
-    text-shadow: none;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.40);
 }
 
 .status-indicators-box {
@@ -103,21 +101,22 @@ button.workspace-dot.active {
     border-radius: 9999px;
     padding: 3px 8px;
     min-height: 24px;
-    box-shadow: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.50),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .status-text {
     font-size: 11px;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.90);
-    text-shadow: none;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
     margin-left: 2px;
     margin-right: 2px;
 }
 
 .status-icon {
     color: rgba(255, 255, 255, 0.90);
-    text-shadow: none;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
     margin-left: 6px;
     margin-right: 6px;
 }
@@ -158,17 +157,17 @@ button.panel-clock-btn:hover {
 }
 
 .panel-notch.active-music {
-    background-color: rgba(14, 14, 18, 0.96);
-    background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.06) 0%, rgba(0, 0, 0, 0.15) 100%);
-    -gtk-background-blur: 24;
+    background-color: rgba(255, 255, 255, 0.07);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.03) 100%);
     border: 1px solid rgba(255, 255, 255, 0.14);
-    border-top: 1px solid rgba(255, 255, 255, 0.28);
+    border-top: 1px solid rgba(255, 255, 255, 0.22);
     border-radius: 9999px;
     min-width: 0;
     min-height: 0;
     padding: 3px 10px;
     margin-top: 4px;
-    box-shadow: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .notch-content {
@@ -201,15 +200,16 @@ button.panel-clock-btn:hover {
 }
 
 .island-badge {
-    background-color: rgb(14, 14, 18);
-    background-image: none;
+    background-color: rgba(255, 255, 255, 0.06);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.02) 100%);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-top: 1px solid rgba(255, 255, 255, 0.20);
     border-radius: 16px;
     padding: 8px 14px;
     min-width: 220px;
     max-width: 240px;
-    box-shadow: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.20),
+                inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
 .badge-title {
@@ -226,8 +226,9 @@ button.panel-clock-btn:hover {
 
 .panel-notch.active-music:not(.popover-open):hover {
     transform: scale(1.04);
-    background-color: rgba(24, 24, 30, 0.96);
-    box-shadow: none;
+    background-color: rgba(255, 255, 255, 0.10);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.30),
+                inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
 popover.media-popover {
@@ -238,7 +239,7 @@ popover.media-popover {
     border: none;
 }
 
-popover.media-popover>contents {
+popover.media-popover > contents {
     background-color: rgba(14, 14, 18, 0.96);
     background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.06) 0%, rgba(0, 0, 0, 0.15) 100%);
     -gtk-background-blur: 24;
@@ -246,7 +247,8 @@ popover.media-popover>contents {
     border-top: 1px solid rgba(255, 255, 255, 0.28);
     border-radius: 20px;
     padding: 16px;
-    box-shadow: none;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.55),
+                inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
 .media-popover-box {
@@ -269,7 +271,7 @@ popover.media-popover>contents {
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.10);
     margin-bottom: 14px;
-    box-shadow: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.30);
 }
 
 .media-popover-title {
@@ -306,7 +308,7 @@ popover.media-popover>contents {
 .media-control-btn:hover {
     background-color: rgba(255, 255, 255, 0.14);
     border-color: rgba(255, 255, 255, 0.18);
-    box-shadow: none;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .media-timeline-box {
@@ -334,7 +336,7 @@ scale.media-timeline-scale trough slider {
     margin: -3px;
     border-radius: 5px;
     background-color: #ffffff;
-    box-shadow: none;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.40);
     border: none;
     opacity: 0;
     transition: opacity 150ms ease;
@@ -359,7 +361,8 @@ scale.media-timeline-scale:hover trough slider {
     border-radius: 9999px;
     padding: 3px 12px;
     min-height: 24px;
-    box-shadow: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.50),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
     transition: all 200ms ease;
 }
 
@@ -376,7 +379,7 @@ popover.sys-monitor-popover {
     box-shadow: none;
 }
 
-popover.sys-monitor-popover>contents {
+popover.sys-monitor-popover > contents {
     background-color: rgba(14, 14, 18, 0.96);
     background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.06) 0%, rgba(0, 0, 0, 0.15) 100%);
     -gtk-background-blur: 24;
@@ -384,7 +387,8 @@ popover.sys-monitor-popover>contents {
     border-top: 1px solid rgba(255, 255, 255, 0.28);
     border-radius: 20px;
     padding: 14px;
-    box-shadow: none;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.55),
+                inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
 popover.sys-monitor-popover progressbar trough {
@@ -406,206 +410,4 @@ popover.sys-monitor-popover .sys-chart {
     border-radius: 10px;
     margin-top: 6px;
     margin-bottom: 10px;
-}
-
-.panel-tray-box {
-    margin-right: 4px;
-    background-color: rgb(20, 20, 26);
-    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(0, 0, 0, 0.08) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-top: 1px solid rgba(255, 255, 255, 0.20);
-    border-radius: 9999px;
-    padding: 3px 8px;
-    min-height: 24px;
-    box-shadow: none;
-}
-
-button.panel-tray-item-btn {
-    background-color: transparent;
-    background-image: none;
-    border: none;
-    padding: 2px 4px;
-    margin: 0;
-    border-radius: 6px;
-    box-shadow: none;
-    min-height: 20px;
-    min-width: 20px;
-    transition: all 150ms ease;
-}
-
-button.panel-tray-item-btn:hover {
-    background-color: rgba(255, 255, 255, 0.10);
-}
-
-/* Grouped Taskbar Styles */
-.taskbar-parent-box {
-    background-color: rgb(20, 20, 26);
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-top: 1px solid rgba(255, 255, 255, 0.20);
-    border-radius: 9999px;
-    padding: 3px 8px;
-    min-height: 24px;
-    box-shadow: none;
-}
-
-.taskbar-apps-box {
-    margin-left: 6px;
-    padding: 0;
-}
-
-button.taskbar-app-btn {
-    background-color: rgb(20, 20, 26);
-    background-image: none;
-    border: none;
-    border-radius: 6px;
-    padding: 2px;
-    margin: 0 1px;
-    min-width: 22px;
-    min-height: 22px;
-    transition: all 200ms ease;
-    box-shadow: none;
-}
-
-button.taskbar-app-btn:hover {
-    background-color: rgba(36, 35, 35, 0.85);
-    border-bottom: 2px solid #3b82f6;
-}
-
-popover.taskbar-popover {
-    background-color: rgb(20, 20, 26);
-    padding: 0;
-    margin: 0;
-    border: none;
-    box-shadow: none;
-}
-
-popover.taskbar-popover>contents {
-    background-color: #14141c !important;
-    background-image: none !important;
-    -gtk-background-blur: none !important;
-    border: 1px solid rgba(255, 255, 255, 0.16) !important;
-    border-radius: 12px !important;
-    padding: 8px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
-    min-width: 200px !important;
-    max-width: 200px !important;
-    opacity: 1.0 !important;
-}
-
-.taskbar-previews-header-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.95);
-    margin: 10px;
-
-}
-
-/* Previews popup container */
-.taskbar-previews-container {
-    padding: 2px;
-}
-
-.taskbar-preview-list-item-box {
-    margin: 2px 0;
-}
-
-button.taskbar-preview-list-btn {
-    background-image: none;
-    border: none;
-    border-radius: 6px;
-    padding: 6px 10px;
-    transition: all 150ms ease;
-    box-shadow: none;
-    text-align: left;
-}
-
-button.taskbar-preview-list-btn:hover {
-    background-color: rgba(36, 35, 35, 0.85);
-}
-
-.taskbar-preview-title {
-    font-size: 12px;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.95);
-    text-shadow: none;
-    margin: 0;
-}
-
-.taskbar-popover-header-title {
-    font-size: 10px;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.5);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-left: 4px;
-}
-
-button.taskbar-popover-close-btn {
-    background-color: transparent;
-    background-image: none;
-    border: none;
-    box-shadow: none;
-    border-radius: 4px;
-    padding: 2px;
-    color: rgba(255, 255, 255, 0.5);
-    transition: all 150ms ease;
-}
-
-button.taskbar-popover-close-btn:hover {
-    background-color: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
-}
-
-button.taskbar-preview-list-kill-btn {
-    background-color: transparent;
-    background-image: none;
-    border: none;
-    box-shadow: none;
-    border-radius: 6px;
-    padding: 4px 8px;
-    color: rgba(255, 255, 255, 0.4);
-    transition: all 150ms ease;
-}
-
-button.taskbar-preview-list-kill-btn:hover {
-    background-color: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
-}
-
-/* Taskbar Popover action elements (Close all, launch new) */
-.taskbar-preview-separator {
-    background-color: rgba(255, 255, 255, 0.12);
-    margin: 6px 4px;
-    min-height: 1px;
-}
-
-.taskbar-preview-action-icon {
-    color: red;
-}
-
-button.taskbar-preview-action-btn {
-    background-image: none;
-    background-color: transparent;
-    border: none;
-    border-radius: 6px;
-    padding: 6px 8px;
-    transition: all 150ms ease;
-    box-shadow: none;
-    text-align: left;
-    margin: 2px 0;
-}
-
-button.taskbar-preview-action-btn:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-}
-
-.taskbar-preview-action-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.85);
-    text-shadow: none;
-}
-
-button.taskbar-preview-action-btn:hover .taskbar-preview-action-label {
-    color: #ffffff;
 }
