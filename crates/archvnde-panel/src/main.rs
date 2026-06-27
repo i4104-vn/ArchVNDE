@@ -106,7 +106,8 @@ fn main() {
         let left_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
         left_box.set_hexpand(true);
         left_box.set_halign(gtk4::Align::Start);
-        left_box.set_valign(gtk4::Align::Center);
+        left_box.set_valign(gtk4::Align::Start);
+        left_box.set_margin_top(6);
         left_box.append(&workspace_box);
         // Center-aligned section: Clean placeholder center space with interactive notch
         let center_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
@@ -121,7 +122,8 @@ fn main() {
         let right_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 12);
         right_box.set_hexpand(true);
         right_box.set_halign(gtk4::Align::End);
-        right_box.set_valign(gtk4::Align::Center);
+        right_box.set_valign(gtk4::Align::Start);
+        right_box.set_margin_top(6);
         right_box.append(&sys_monitor);
         right_box.append(&status_indicators);
 

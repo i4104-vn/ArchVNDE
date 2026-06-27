@@ -201,7 +201,7 @@ pub fn start_player_polling_loop(
                     archvnde_common::animation::island_zoom_in(
                         widgets.notch_capsule.clone().upcast_ref(),
                         300,
-                        55,
+                        70,
                         500,
                     );
                 }
@@ -214,7 +214,7 @@ pub fn start_player_polling_loop(
                         200,
                         300,
                         30,
-                        55,
+                        70,
                         400,
                         || {},
                     );
@@ -236,7 +236,7 @@ pub fn start_player_polling_loop(
                         200,
                         300,
                         30,
-                        55,
+                        70,
                         400,
                         || {},
                     );
@@ -268,7 +268,7 @@ pub fn start_player_polling_loop(
                         widgets.notch_capsule.clone().upcast_ref(),
                         300,
                         200,
-                        55,
+                        70,
                         30,
                         400,
                         move || {
