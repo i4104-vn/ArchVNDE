@@ -18,7 +18,9 @@ const DEFAULT_CSS: &str = concat!(
     "\n",
     include_str!("styles/menu.css"),
     "\n",
-    include_str!("styles/switcher.css")
+    include_str!("styles/switcher.css"),
+    "\n",
+    include_str!("styles/screenshot.css")
 );
 
 /// Initializes the user configuration directory, writes the default
