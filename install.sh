@@ -9,7 +9,17 @@ echo "============================================="
 
 # 1. Install all dependencies and the Rust toolchain first via pacman
 echo "Installing Arch Linux packages, development tools, and Rust compiler..."
-sudo pacman -S --needed --noconfirm base-devel git pkgconf gtk4 gtk4-layer-shell rust labwc
+sudo pacman -S --needed --noconfirm base-devel git pkgconf gtk4 gtk4-layer-shell rust labwc meson scdoc ninja playerctl papirus-icon-theme grim
+
+# Install wlrctl from AUR if not present
+if ! command -v wlrctl &> /dev/null; then
+    echo "wlrctl not found, installing from AUR..."
+    rm -rf /tmp/wlrctl
+    git clone https://aur.archlinux.org/wlrctl.git /tmp/wlrctl
+    cd /tmp/wlrctl
+    makepkg -si --noconfirm
+    cd -
+fi
 
 # 2. Compile the workspace in release mode
 echo "Compiling ArchVNDE components in release mode..."
@@ -32,6 +42,7 @@ cp target/release/archvnde-panel "$LOCAL_BIN/archvnde-panel"
 cp target/release/archvnde-launcher "$LOCAL_BIN/archvnde-launcher"
 cp target/release/archvnde-menu "$LOCAL_BIN/archvnde-menu"
 cp target/release/archvnde-switcher "$LOCAL_BIN/archvnde-switcher"
+cp target/release/archvnde-screenshot "$LOCAL_BIN/archvnde-screenshot"
 
 echo "============================================="
 echo "Installation complete!"
