@@ -14,6 +14,7 @@
 <<<<<<< HEAD:libs/archvnde-common/src/styles/calendar.css
 <<<<<<< HEAD:libs/archvnde-common/src/styles/calendar.css
 <<<<<<< HEAD:libs/archvnde-common/src/styles/calendar.css
+<<<<<<< HEAD:libs/archvnde-common/src/styles/calendar.css
     box-shadow: none;
     min-width: 320px;
     transform: scale(0.0);
@@ -32,6 +33,9 @@
     box-shadow: 0 12px 48px rgba(0, 0, 0, 0.55),
                 inset 0 1px 0 rgba(255, 255, 255, 0.14);
 >>>>>>> f38d8a8 (style: switch all panels to dark glass with blur):libs/archvnde-common/src/theme/styles/calendar.css
+=======
+    box-shadow: none;
+>>>>>>> 6b27861 (style: remove all box-shadows and text-shadows for a flat UI):libs/archvnde-common/src/theme/styles/calendar.css
     min-width: 330px;
 >>>>>>> f69a967 (style: refine CSS to Fluent Design + Glassmorphism):libs/archvnde-common/src/theme/styles/calendar.css
 }
@@ -86,9 +90,25 @@ calendar.calendar-widget {
     background-color: transparent;
     background-image: none;
     border: none;
+<<<<<<< HEAD:libs/archvnde-common/src/styles/calendar.css
     color: rgba(255, 255, 255, 0.85);
     font-size: 12px;
     padding: 4px;
+=======
+    border-radius: 0;
+    color: #ffffff;
+    font-size: 13px;
+    padding: 0;
+    margin-bottom: 8px;
+}
+
+calendar.calendar-widget grid,
+calendar.calendar-widget grid cell,
+calendar.calendar-widget cell {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none;
+>>>>>>> 6b27861 (style: remove all box-shadows and text-shadows for a flat UI):libs/archvnde-common/src/theme/styles/calendar.css
 }
 
 calendar.calendar-widget header {
@@ -208,10 +228,14 @@ calendar.calendar-widget :selected {
     color: #121317 !important;
     border-radius: 9999px !important;
     font-weight: 700 !important;
-    box-shadow: 0 0 12px rgba(243, 128, 100, 0.40) !important;
+    box-shadow: none;
     border: none !important;
+<<<<<<< HEAD:libs/archvnde-common/src/styles/calendar.css
     text-shadow: none !important;
 >>>>>>> f69a967 (style: refine CSS to Fluent Design + Glassmorphism):libs/archvnde-common/src/theme/styles/calendar.css
+=======
+    text-shadow: none;
+>>>>>>> 6b27861 (style: remove all box-shadows and text-shadows for a flat UI):libs/archvnde-common/src/theme/styles/calendar.css
 }
 
 /* ================================================================
@@ -233,7 +257,7 @@ button.clear-all-btn {
     font-size: 11px;
     font-weight: 600;
     padding: 4px 12px;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    box-shadow: none;
     transition: all 150ms ease;
 }
 
@@ -241,7 +265,7 @@ button.clear-all-btn:hover {
     background-color: rgba(239, 68, 68, 0.14);
     border-color: rgba(239, 68, 68, 0.28);
     color: #fca5a5;
-    box-shadow: 0 0 10px rgba(239, 68, 68, 0.12);
+    box-shadow: none;
 }
 
 scrolledwindow.notif-scroll {
@@ -268,16 +292,19 @@ scrolledwindow.notif-scroll viewport {
 <<<<<<< HEAD:libs/archvnde-common/src/styles/calendar.css
 =======
     width: 310px;
+<<<<<<< HEAD:libs/archvnde-common/src/styles/calendar.css
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 >>>>>>> f69a967 (style: refine CSS to Fluent Design + Glassmorphism):libs/archvnde-common/src/theme/styles/calendar.css
+=======
+    box-shadow: none;
+>>>>>>> 6b27861 (style: remove all box-shadows and text-shadows for a flat UI):libs/archvnde-common/src/theme/styles/calendar.css
 }
 
 .notif-stack-item:hover {
     background-color: rgba(255, 255, 255, 0.09);
     border-color: rgba(255, 255, 255, 0.10);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18),
-                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    box-shadow: none;
 }
 
 .notif-item-icon {
@@ -352,7 +379,7 @@ scrolledwindow.notif-scroll viewport {
     margin-left: 6px;
     box-shadow: 0 2px 6px rgba(37, 99, 235, 0.30);
     align-self: center;
-    box-shadow: 0 0 8px rgba(239, 68, 68, 0.30);
+    box-shadow: none;
 }
 
 .notif-item-sub-time {
@@ -371,7 +398,7 @@ scrolledwindow.notif-scroll viewport {
     height: 4px;
     margin-left: 12px;
     margin-right: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: none;
 }
 
 .notif-stack-item-layered-2 {
@@ -382,5 +409,6 @@ scrolledwindow.notif-scroll viewport {
     height: 4px;
     margin-left: 6px;
     margin-right: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+    box-shadow: none;
 }
+

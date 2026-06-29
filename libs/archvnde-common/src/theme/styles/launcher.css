@@ -13,8 +13,7 @@
     color: #ffffff;
     padding: 0px;
     overflow: hidden;
-    box-shadow: 0 12px 56px rgba(0, 0, 0, 0.60),
-                inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    box-shadow: none;
 }
 
 entry.launcher-search,
@@ -29,7 +28,7 @@ entry.launcher-search > text {
     font-size: 13px;
     font-weight: 500;
     transition: all 200ms ease;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    box-shadow: none;
 }
 
 entry.launcher-search:focus,
@@ -37,8 +36,7 @@ entry.launcher-search:focus > text {
     background-color: rgba(255, 255, 255, 0.09);
     border-color: rgba(96, 165, 250, 0.40);
     border-top-color: rgba(147, 197, 253, 0.55);
-    box-shadow: 0 0 12px rgba(59, 130, 246, 0.12),
-                inset 0 1px 0 rgba(147, 197, 253, 0.10);
+    box-shadow: none;
     background-image: none;
 }
 
@@ -72,7 +70,7 @@ button.launcher-grid-item:hover {
     border: 1px solid rgba(255, 255, 255, 0.08);
     color: #ffffff;
     transform: scale(1.05) translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.20);
+    box-shadow: none;
 }
 
 button.launcher-grid-item:active {
@@ -123,7 +121,7 @@ button.launcher-power-btn {
 button.launcher-power-btn:hover {
     background-color: rgba(239, 68, 68, 0.12);
     border-color: rgba(239, 68, 68, 0.25);
-    box-shadow: 0 0 12px rgba(239, 68, 68, 0.15);
+    box-shadow: none;
 }
 
 .launcher-no-results {
@@ -148,8 +146,7 @@ popover > contents {
     border-top: 1px solid rgba(255, 255, 255, 0.20);
     border-radius: 14px;
     padding: 4px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28),
-                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    box-shadow: none;
 }
 
 .launcher-menu-box {
@@ -244,7 +241,7 @@ button.launcher-browser-search-row:hover {
     border-color: rgba(96, 165, 250, 0.40);
     color: #ffffff;
     transform: scale(1.01);
-    box-shadow: 0 0 16px rgba(59, 130, 246, 0.15);
+    box-shadow: none;
 }
 
 button.launcher-browser-search-row:active {
@@ -272,3 +269,4 @@ button.launcher-file-item:hover {
     font-size: 11px;
     font-weight: 500;
 }
+

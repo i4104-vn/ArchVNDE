@@ -7,8 +7,7 @@
     border-radius: 24px;
     color: rgba(255, 255, 255, 0.95);
     padding: 20px;
-    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.55),
-                inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    box-shadow: none;
 }
 
 .control-center-title {
@@ -25,7 +24,7 @@ button.quick-tile {
     border-radius: 14px;
     color: rgba(255, 255, 255, 0.85);
     padding: 8px 12px;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    box-shadow: none;
     min-width: 120px;
     min-height: 46px;
     transition: all 200ms ease;
@@ -36,8 +35,7 @@ button.quick-tile:hover {
     background-image: none;
     border-color: rgba(255, 255, 255, 0.14);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.20),
-                inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    box-shadow: none;
 }
 
 .tile-icon {
@@ -68,15 +66,13 @@ button.quick-tile.active {
     background-image: linear-gradient(135deg, rgba(147, 197, 253, 0.30) 0%, rgba(37, 99, 235, 0.60) 100%);
     border: 1px solid rgba(147, 197, 253, 0.25);
     border-top: 1px solid rgba(147, 197, 253, 0.45);
-    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25),
-                inset 0 1px 0 rgba(147, 197, 253, 0.20);
+    box-shadow: none;
 }
 
 button.quick-tile.active:hover {
     background-color: rgba(59, 130, 246, 0.80);
     background-image: linear-gradient(135deg, rgba(147, 197, 253, 0.35) 0%, rgba(37, 99, 235, 0.72) 100%);
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35),
-                inset 0 1px 0 rgba(147, 197, 253, 0.25);
+    box-shadow: none;
     transform: translateY(-1px);
 }
 
@@ -92,8 +88,7 @@ button.quick-tile.active-light {
     background-color: rgba(255, 255, 255, 0.88);
     background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 244, 255, 0.82) 100%);
     border: 1px solid rgba(255, 255, 255, 0.40);
-    box-shadow: 0 4px 16px rgba(255, 255, 255, 0.15),
-                inset 0 1px 0 rgba(255, 255, 255, 0.60);
+    box-shadow: none;
 }
 
 button.quick-tile.active-light:hover {
@@ -150,12 +145,12 @@ scale trough slider {
     margin: -4px;
     border-radius: 9999px;
     background-color: #ffffff;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+    box-shadow: none;
     border: 1px solid rgba(255, 255, 255, 0.20);
 }
 
 scale trough slider:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.30);
+    box-shadow: none;
     background-color: #f0f4ff;
 }
 
@@ -203,7 +198,7 @@ button.control-tile-row:hover {
     background-color: #3b82f6;
     background-image: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
     border-color: rgba(147, 197, 253, 0.30);
-    box-shadow: 0 0 10px rgba(59, 130, 246, 0.35);
+    box-shadow: none;
 }
 
 button.control-dnd-tile {
@@ -250,7 +245,7 @@ button.control-dnd-tile.active .control-icon-circle {
     background-color: #3b82f6;
     background-image: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
     border-color: rgba(147, 197, 253, 0.30);
-    box-shadow: 0 0 10px rgba(59, 130, 246, 0.35);
+    box-shadow: none;
 }
 
 button.control-square-tile {
@@ -390,3 +385,4 @@ button.control-music-btn:hover {
     background-image: none;
 >>>>>>> 64a9bfa (fix: resolve search bar and control center button styling, align launcher window margins):libs/archvnde-common/src/theme/styles/quick_settings.css
 }
+
