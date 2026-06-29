@@ -157,9 +157,11 @@ pub fn spawn_watcher_service() {
                 let mut active_items = Vec::new();
                 if let Ok(dbus_proxy) = zbus::fdo::DBusProxy::new(&conn).await {
                     for item in current_items {
-                        match dbus_proxy.name_has_owner(item.service.as_str().into()).await {
-                            Ok(true) => active_items.push(item),
-                            _ => println!("Pruning disconnected tray item: {}", item.service),
+                        if let Ok(name) = zbus::names::BusName::try_from(item.service.clone()) {
+                            match dbus_proxy.name_has_owner(name).await {
+                                Ok(true) => active_items.push(item),
+                                _ => println!("Pruning disconnected tray item: {}", item.service),
+                            }
                         }
                     }
                 }
@@ -198,7 +200,7 @@ pub fn activate_item(service: &str) {
 
                 if let Ok(p) = proxy {
                     // Call Activate(0, 0)
-                    let _ = p.call::<_, (i32, i32), _>("Activate", &(0, 0)).await;
+                    let _ = p.call::<(), _>("Activate", &(0, 0)).await;
                 }
             }
         });
