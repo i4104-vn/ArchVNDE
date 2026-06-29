@@ -204,27 +204,24 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     grid.set_margin_bottom(4);
 
     let colors = vec![
-        ("Đỏ", (0.93, 0.15, 0.15), "#ef4444"),
-        ("Cam", (0.98, 0.45, 0.09), "#f97316"),
-        ("Vàng", (0.92, 0.70, 0.15), "#eab308"),
-        ("Lục", (0.13, 0.77, 0.36), "#22c55e"),
-        ("Lam", (0.23, 0.51, 0.96), "#3b82f6"),
-        ("Tím", (0.66, 0.33, 0.97), "#a855f7"),
-        ("Trắng", (1.0, 1.0, 1.0), "#ffffff"),
-        ("Đen", (0.0, 0.0, 0.0), "#000000"),
+        ("Đỏ", "red", (0.93, 0.15, 0.15)),
+        ("Cam", "orange", (0.98, 0.45, 0.09)),
+        ("Vàng", "yellow", (0.92, 0.70, 0.15)),
+        ("Lục", "green", (0.13, 0.77, 0.36)),
+        ("Lam", "blue", (0.23, 0.51, 0.96)),
+        ("Tím", "purple", (0.66, 0.33, 0.97)),
+        ("Trắng", "white", (1.0, 1.0, 1.0)),
+        ("Đen", "black", (0.0, 0.0, 0.0)),
     ];
 
     let mut col = 0;
     let mut row = 0;
-    for (name, rgb, hex) in colors {
+    for (name, name_en, rgb) in colors {
         let btn = gtk4::Button::new();
         btn.add_css_class("color-dot-btn");
+        btn.add_css_class(&format!("color-dot-{}", name_en));
         btn.set_tooltip_text(Some(name));
         btn.set_size_request(16, 16);
-        
-        let provider_btn = gtk4::CssProvider::new();
-        provider_btn.load_from_data(&format!("button {{ background: {} !important; }}", hex));
-        btn.style_context().add_provider(&provider_btn, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
         
         let state_c = state.clone();
         let popover_c = popover.clone();
