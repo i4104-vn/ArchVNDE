@@ -65,13 +65,10 @@ pub fn build_launcher_ui(
     let apps = find_desktop_apps();
     let apps_rc = Rc::new(apps);
 
-    let mut app_widgets = Vec::new();
     for app in apps_rc.iter() {
         let btn = create_list_app_widget(app, &window);
         left_list_box.append(&btn);
-        app_widgets.push((app.clone(), btn));
     }
-    let app_widgets_rc = Rc::new(app_widgets);
     left_scroll.set_child(Some(&left_list_box));
 
     // Right column: dynamic search results
@@ -84,17 +81,23 @@ pub fn build_launcher_ui(
 
     let populate_impl = {
         let current_query = current_query.clone();
-        let app_widgets = app_widgets_rc.clone();
+        let apps_rc = apps_rc.clone();
         let right_scroll = right_scroll.clone();
+        let left_list_box = left_list_box.clone();
         let window = window.clone();
 
         move || {
             let query = current_query.borrow().trim().to_lowercase();
 
-            // 1. Filter applications on the left column in real-time by toggling visibility
-            for (app, btn) in app_widgets.iter() {
-                let matches = query.is_empty() || app.name.to_lowercase().contains(&query);
-                btn.set_visible(matches);
+            // 1. Filter applications on the left column in real-time
+            while let Some(child) = left_list_box.first_child() {
+                left_list_box.remove(&child);
+            }
+            for app in apps_rc.iter() {
+                if query.is_empty() || app.name.to_lowercase().contains(&query) {
+                    let btn = create_list_app_widget(app, &window);
+                    left_list_box.append(&btn);
+                }
             }
 
             // 2. Populate file search and web search on the right column
@@ -111,28 +114,11 @@ pub fn build_launcher_ui(
     // Initial populate
     populate_impl_rc();
 
-    let debounce_source_id: Rc<RefCell<Option<gtk4::glib::SourceId>>> = Rc::new(RefCell::new(None));
     let current_query_search = current_query.clone();
     let populate_grid_search = populate_impl_rc.clone();
-    let d_source_id = debounce_source_id.clone();
     search_entry.connect_changed(move |entry| {
         *current_query_search.borrow_mut() = entry.text().to_string();
-        
-        // Debounce input to reduce main thread lag from directory searches
-        if let Some(source_id) = d_source_id.borrow_mut().take() {
-            source_id.remove();
-        }
-        
-        let populate_clone = populate_grid_search.clone();
-        let d_source_id_clone = d_source_id.clone();
-        let new_source_id = gtk4::glib::timeout_add_local_once(
-            std::time::Duration::from_millis(150),
-            move || {
-                populate_clone();
-                *d_source_id_clone.borrow_mut() = None;
-            }
-        );
-        *d_source_id.borrow_mut() = Some(new_source_id);
+        populate_grid_search();
     });
 
     let is_animating = Rc::new(std::cell::Cell::new(false));

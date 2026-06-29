@@ -37,9 +37,13 @@ pub fn find_desktop_apps() -> Vec<DesktopApp> {
         }
     }
 
+<<<<<<< HEAD:crates/archvnde-launcher/src/app_finder.rs
     // Sort alphabetically by name
     apps.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
     // Deduplicate by name
+=======
+    apps.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+>>>>>>> 45d2758 (feat: implement real-time left-column app filtering in launcher and disable static desktop app caching to allow dynamic package updates):libs/archvnde-common/src/core/desktop.rs
     apps.dedup_by(|a, b| a.name.to_lowercase() == b.name.to_lowercase());
 
     apps
