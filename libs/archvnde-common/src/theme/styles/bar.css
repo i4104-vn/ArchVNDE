@@ -417,7 +417,7 @@ popover.sys-monitor-popover .sys-chart {
     box-shadow: none;
 }
 
-.panel-tray-item-btn {
+button.panel-tray-item-btn {
     background-color: transparent;
     background-image: none;
     border: none;
@@ -430,7 +430,7 @@ popover.sys-monitor-popover .sys-chart {
     transition: all 150ms ease;
 }
 
-.panel-tray-item-btn:hover {
+button.panel-tray-item-btn:hover {
     background-color: rgba(255, 255, 255, 0.10);
 }
 

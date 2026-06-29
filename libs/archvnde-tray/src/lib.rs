@@ -144,10 +144,11 @@ pub fn spawn_watcher_service() {
                 }
             };
 
-            // Garbage Collection Loop: Check connection owners every 5 seconds.
-            // If an app crashed or quit, its unique bus name owner disappears.
+            // Maintenance Loop: every 3 seconds:
+            //  1. Prune dead services (name_has_owner = false)
+            //  2. Re-query IconName + Title for alive items so icon changes are reflected
             loop {
-                tokio::time::sleep(Duration::from_secs(5)).await;
+                tokio::time::sleep(Duration::from_secs(3)).await;
                 let registry = TRAY_ITEMS.get_or_init(|| Arc::new(Mutex::new(Vec::new())));
                 let current_items = {
                     let lock = registry.lock().unwrap();
@@ -157,9 +158,30 @@ pub fn spawn_watcher_service() {
                 let mut active_items = Vec::new();
                 if let Ok(dbus_proxy) = zbus::fdo::DBusProxy::new(&conn).await {
                     for item in current_items {
-                        if let Ok(name) = zbus::names::BusName::try_from(item.service.clone()) {
-                            match dbus_proxy.name_has_owner(name).await {
-                                Ok(true) => active_items.push(item),
+                        if let Ok(bus_name) = zbus::names::BusName::try_from(item.service.clone()) {
+                            match dbus_proxy.name_has_owner(bus_name.clone()).await {
+                                Ok(true) => {
+                                    // Re-query the icon name so dynamic changes (e.g. fcitx5 mode) update
+                                    let updated = if let Ok(proxy) = StatusNotifierItemProxy::builder(&conn)
+                                        .destination(bus_name)
+                                        .unwrap()
+                                        .path("/StatusNotifierItem")
+                                        .unwrap()
+                                        .build()
+                                        .await
+                                    {
+                                        let new_icon = proxy.icon_name().await.unwrap_or_else(|_| item.icon_name.clone());
+                                        let new_title = proxy.title().await.unwrap_or_else(|_| item.title.clone());
+                                        TrayItem {
+                                            service: item.service.clone(),
+                                            icon_name: if new_icon.is_empty() { item.icon_name.clone() } else { new_icon },
+                                            title: new_title,
+                                        }
+                                    } else {
+                                        item
+                                    };
+                                    active_items.push(updated);
+                                }
                                 _ => println!("Pruning disconnected tray item: {}", item.service),
                             }
                         }
