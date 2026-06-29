@@ -1,5 +1,3 @@
-use gtk4::prelude::*;
-use gtk4_layer_shell::{Edge, Layer, LayerShell};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::thread;
@@ -27,8 +25,6 @@ pub enum NotificationMsg {
 thread_local! {
     pub static SHARED_NOTIFICATION: RefCell<Option<ActiveNotification>> = RefCell::new(None);
     pub static HISTORICAL_NOTIFICATIONS: RefCell<Vec<ActiveNotification>> = RefCell::new(Vec::new());
-    static ACTIVE_POPUP: RefCell<Option<gtk4::Window>> = RefCell::new(None);
-    static ACTIVE_TIMER: RefCell<Option<glib::SourceId>> = RefCell::new(None);
 }
 
 pub struct NotificationService {
@@ -120,6 +116,7 @@ pub fn spawn_dbus_listener(tx: tokio::sync::mpsc::UnboundedSender<NotificationMs
 }
 
 pub fn close_notification_popup() {
+<<<<<<< HEAD:crates/archvnde-island/src/widgets/notification.rs
     ACTIVE_TIMER.with(|t| {
         if let Some(src_id) = t.borrow_mut().take() {
             src_id.remove();
@@ -147,6 +144,9 @@ fn close_and_fade(window: &gtk4::Window, container_box: &gtk4::Box) {
             win.close();
         }
     );
+=======
+    // No-op: Notifications are managed directly inside the Dynamic Island notch
+>>>>>>> 2050b8a (chore: clean up dead code and unused imports in notification.rs):libs/archvnde-island/src/widgets/notification.rs
 }
 
 pub fn show_notification_popup(summary: &str, body: &str, icon_name: &str, _timeout_ms: i32) {
