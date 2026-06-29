@@ -109,7 +109,7 @@ fn draw_pixelated_rect(cr: &cairo::Context, bg_pixbuf: &gdk_pixbuf::Pixbuf, x: f
         if let Ok(scaled_pb) = sub_pb.scale_simple(sw, sh, gdk_pixbuf::InterpType::Hyper) {
             cr.scale(1.0 / scale, 1.0 / scale);
             cr.set_source_pixbuf(&scaled_pb, x * scale, y * scale);
-            cr.get_source().unwrap().set_filter(cairo::Filter::Nearest);
+            cr.source().set_filter(cairo::Filter::Nearest);
             cr.paint().unwrap();
         }
     }
@@ -124,11 +124,6 @@ fn get_screenshot_save_path() -> PathBuf {
     });
     let screenshots_dir = pictures_dir.join("Screenshots");
     let _ = std::fs::create_dir_all(&screenshots_dir);
-
-    let now = SystemTime::now()
-        .duration_since(SystemTime::UNIX_EPOCH)
-        .map(|d| d.as_secs())
-        .unwrap_or(0);
     
     // Generate YYYY-MM-DD_HH-MM-SS format
     let datetime = chrono::Local::now().format("%Y-%m-%d_%H-%M-%S").to_string();
@@ -233,7 +228,7 @@ fn trigger_copy(state: &EditorState, window: &gtk4::ApplicationWindow) -> bool {
         );
 
         let texture = gdk4::Texture::for_pixbuf(&pixbuf);
-        let clipboard = window.display().clipboard();
+        let clipboard = window.upcast_ref::<gtk4::Widget>().display().clipboard();
         clipboard.set_texture(&texture);
 
         println!("Screenshot copied to clipboard.");
@@ -446,21 +441,6 @@ fn main() {
             let color_btn = gtk4::Button::new();
             color_btn.add_css_class("color-dot-btn");
             color_btn.add_css_class(&format!("color-dot-{}", name));
-            
-            // Set custom background color in inline style
-            let css_provider = gtk4::CssProvider::new();
-            let hex = match name {
-                "red" => "#ef4444",
-                "green" => "#10b981",
-                "blue" => "#3b82f6",
-                "yellow" => "#f59e0b",
-                _ => "#ffffff",
-            };
-            css_provider.load_from_data(&format!(
-                ".color-dot-{} {{ background-color: {}; border-radius: 50%; min-width: 14px; min-height: 14px; margin: 4px; border: 1px solid rgba(255,255,255,0.3); }} .color-dot-{}:hover {{ transform: scale(1.2); }}",
-                name, hex, name
-            ));
-            color_btn.style_context().add_provider(&css_provider, gtk4::STYLE_PROVIDER_PRIORITY_USER);
 
             let state_color = state.clone();
             let color_btn_clone = color_btn.clone();
