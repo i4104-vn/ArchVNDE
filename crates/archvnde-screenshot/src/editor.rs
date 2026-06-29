@@ -200,6 +200,7 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     let popover = gtk4::Popover::new();
     popover.set_parent(&color_btn);
     popover.set_position(gtk4::PositionType::Top);
+    popover.add_css_class("screenshot-color-popover");
 
     let grid = gtk4::Grid::new();
     grid.set_column_spacing(6);
