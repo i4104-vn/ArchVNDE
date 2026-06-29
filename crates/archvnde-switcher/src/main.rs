@@ -130,15 +130,17 @@ fn main() {
         window.set_layer(Layer::Overlay);
         window.set_keyboard_mode(KeyboardMode::Exclusive);
 
-        // Center on screen
+        // Center vertically, stretch horizontally across the screen
         window.set_anchor(Edge::Top, false);
         window.set_anchor(Edge::Bottom, false);
-        window.set_anchor(Edge::Left, false);
-        window.set_anchor(Edge::Right, false);
+        window.set_anchor(Edge::Left, true);
+        window.set_anchor(Edge::Right, true);
         window.add_css_class("switcher-window");
 
         let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
         main_box.add_css_class("switcher-box");
+        main_box.set_valign(gtk4::Align::Center);
+        main_box.set_halign(gtk4::Align::Fill);
 
         let apps = get_running_apps();
 
@@ -181,10 +183,11 @@ fn main() {
             return;
         }
 
-        // 1. Horizontal Icons Row (on top)
-        let icons_row = gtk4::Box::new(gtk4::Orientation::Horizontal, 12);
+        // 1. Horizontal Icons Row
+        let icons_row = gtk4::Box::new(gtk4::Orientation::Horizontal, 16);
         icons_row.add_css_class("switcher-list-row");
         icons_row.set_halign(gtk4::Align::Center);
+        icons_row.set_valign(gtk4::Align::Center);
 
         let mut item_buttons = Vec::new();
 
@@ -192,11 +195,16 @@ fn main() {
             let btn = gtk4::Button::new();
             btn.add_css_class("switcher-item-btn");
             
-            let btn_box = gtk4::Box::new(gtk4::Orientation::Vertical, 6);
+            let btn_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
+            btn_box.set_valign(gtk4::Align::Center);
+            btn_box.set_halign(gtk4::Align::Center);
+
             let app_icon_str = app_item.icon.as_deref().unwrap_or("application-x-executable");
             let icon_widget = archvnde_common::icon::get_system_or_file_icon(app_icon_str, "application-x-executable");
-            icon_widget.set_pixel_size(32);
+            icon_widget.set_pixel_size(36);
             icon_widget.add_css_class("switcher-item-icon");
+            icon_widget.set_valign(gtk4::Align::Center);
+            icon_widget.set_halign(gtk4::Align::Center);
 
             btn_box.append(&icon_widget);
             btn.set_child(Some(&btn_box));
@@ -206,20 +214,6 @@ fn main() {
         }
         main_box.append(&icons_row);
 
-        // 2. Selected App Details (below it, styled as a box/capsule)
-        let details_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-        details_box.add_css_class("switcher-details-box");
-        details_box.set_halign(gtk4::Align::Fill);
-        details_box.set_hexpand(true);
-
-        let app_title_lbl = gtk4::Label::new(None);
-        app_title_lbl.add_css_class("switcher-app-title");
-        app_title_lbl.set_halign(gtk4::Align::Center);
-        app_title_lbl.set_hexpand(true);
-
-        details_box.append(&app_title_lbl);
-        main_box.append(&details_box);
-
         window.set_child(Some(&main_box));
 
         // State tracking
@@ -227,19 +221,14 @@ fn main() {
 
         let update_selection = {
             let current_index = current_index.clone();
-            let apps = apps.clone();
-            let app_title_lbl = app_title_lbl.clone();
             let item_buttons = item_buttons.clone();
 
             move |new_idx: usize| {
                 let mut idx = new_idx;
-                if idx >= apps.len() {
+                if idx >= item_buttons.len() {
                     idx = 0;
                 }
                 *current_index.borrow_mut() = idx;
-
-                let app_item = &apps[idx];
-                app_title_lbl.set_text(&app_item.name);
 
                 for (i, btn) in item_buttons.iter().enumerate() {
                     if i == idx {
