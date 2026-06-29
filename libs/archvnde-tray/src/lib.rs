@@ -173,8 +173,8 @@ pub fn spawn_watcher_service() {
     });
 }
 
-/// Sends an Activate signal to the item's D-Bus service, letting the application open its menu or window.
-pub fn activate_item(service: &str) {
+/// Sends an Activate or ContextMenu signal to the item's D-Bus service, letting the application open its menu or window.
+pub fn activate_item(service: &str, x: i32, y: i32, is_right_click: bool) {
     let service_str = service.to_string();
     std::thread::spawn(move || {
         let rt = tokio::runtime::Runtime::new().unwrap();
@@ -199,8 +199,25 @@ pub fn activate_item(service: &str) {
                 .await;
 
                 if let Ok(p) = proxy {
-                    // Call Activate(0, 0)
-                    let _ = p.call::<_, _, ()>("Activate", &(0, 0)).await;
+                    if is_right_click {
+                        println!("Sending D-Bus ContextMenu({}, {}) to {}", x, y, service_str);
+                        if let Err(e) = p.call::<_, _, ()>("ContextMenu", &(x, y)).await {
+                            eprintln!("D-Bus ContextMenu call failed for {}: {}", service_str, e);
+                            // Fallback 1: Some apps use SecondaryActivate for menus
+                            println!("Attempting fallback SecondaryActivate({}, {}) for {}", x, y, service_str);
+                            if let Err(e2) = p.call::<_, _, ()>("SecondaryActivate", &(x, y)).await {
+                                eprintln!("D-Bus SecondaryActivate call failed for {}: {}", service_str, e2);
+                                // Fallback 2: Some apps use Activate as a catch-all
+                                println!("Attempting fallback Activate({}, {}) for {}", x, y, service_str);
+                                let _ = p.call::<_, _, ()>("Activate", &(x, y)).await;
+                            }
+                        }
+                    } else {
+                        println!("Sending D-Bus Activate({}, {}) to {}", x, y, service_str);
+                        if let Err(e) = p.call::<_, _, ()>("Activate", &(x, y)).await {
+                            eprintln!("D-Bus Activate call failed for {}: {}", service_str, e);
+                        }
+                    }
                 }
             }
         });
