@@ -152,11 +152,11 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     btn_pen.set_tooltip_text(Some("Bút vẽ"));
     btn_pen.add_css_class("screenshot-toolbar-btn");
 
-    let btn_rect = gtk4::Button::from_icon_name("media-record-symbolic");
+    let btn_rect = gtk4::Button::from_icon_name("draw-rectangle-symbolic");
     btn_rect.set_tooltip_text(Some("Vẽ hình chữ nhật"));
     btn_rect.add_css_class("screenshot-toolbar-btn");
 
-    let btn_blur = gtk4::Button::from_icon_name("view-grid-symbolic");
+    let btn_blur = gtk4::Button::from_icon_name("view-conceal-symbolic");
     btn_blur.set_tooltip_text(Some("Làm mờ thông tin"));
     btn_blur.add_css_class("screenshot-toolbar-btn");
 
