@@ -269,6 +269,9 @@ fn main() {
         None => return,
     };
 
+    let temp_path_for_activate = temp_path.clone();
+    let temp_path_for_cleanup = temp_path.clone();
+
     let application = gtk4::Application::new(
         Some("org.archvnde.screenshot"),
         Default::default(),
@@ -277,7 +280,7 @@ fn main() {
     application.connect_activate(move |app| {
         archvnde_common::init_theme();
 
-        let pixbuf = match gdk_pixbuf::Pixbuf::from_file(&temp_path) {
+        let pixbuf = match gdk_pixbuf::Pixbuf::from_file(&temp_path_for_activate) {
             Ok(pb) => pb,
             Err(e) => {
                 eprintln!("Failed to load temporary screenshot file: {}", e);
@@ -620,9 +623,11 @@ fn main() {
                     }
                 }
                 Tool::Pen => {
+                    let start_x = s.start_x;
+                    let start_y = s.start_y;
                     if let Some(points) = &mut s.active_stroke {
                         let last = points.last().copied().unwrap_or((0.0, 0.0));
-                        let next = (s.start_x + offset_x, s.start_y + offset_y);
+                        let next = (start_x + offset_x, start_y + offset_y);
                         // Only add point if moved enough to avoid overhead
                         if ((last.0 - next.0).powi(2) + (last.1 - next.1).powi(2)).sqrt() > 2.0 {
                             points.push(next);
@@ -650,17 +655,19 @@ fn main() {
                     s.is_selecting = false;
                 }
                 Tool::Pen => {
+                    let color = s.current_color;
                     if let Some(points) = s.active_stroke.take() {
                         if points.len() >= 2 {
                             s.drawings.push(Drawing::Stroke {
                                 points,
-                                color: s.current_color,
+                                color,
                                 width: 3.5,
                             });
                         }
                     }
                 }
                 Tool::Rect => {
+                    let color = s.current_color;
                     if let Some((x, y, w, h)) = s.active_rect.take() {
                         if w > 5.0 && h > 5.0 {
                             s.drawings.push(Drawing::Rect {
@@ -668,7 +675,7 @@ fn main() {
                                 y,
                                 w,
                                 h,
-                                color: s.current_color,
+                                color,
                                 width: 3.0,
                             });
                         }
@@ -728,5 +735,5 @@ fn main() {
     application.run();
 
     // Clean up temporary screenshot file on exit
-    std::fs::remove_file(&temp_path).ok();
+    std::fs::remove_file(&temp_path_for_cleanup).ok();
 }
