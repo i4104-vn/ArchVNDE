@@ -95,108 +95,60 @@
     transform: scale(1.1);
 }
 
-/* Screenshot Toolbar (Compact & Sleek Capsule) */
+/* Screenshot Toolbar (Compact & Sleek) */
 .screenshot-toolbar {
-    background-color: rgba(14, 14, 18, 0.94) !important;
-    background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.06) 0%, rgba(0, 0, 0, 0.15) 100%) !important;
-    -gtk-background-blur: 24 !important;
-    border: 1px solid rgba(255, 255, 255, 0.14) !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.28) !important;
-    border-radius: 9999px !important;
-    padding: 4px 12px !important;
-    box-shadow: none !important;
+    background-color: rgba(18, 18, 22, 0.94);
+    -gtk-background-blur: 20;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 2px 4px;
 }
 
 .screenshot-toolbar-btn {
-    background-color: rgba(255, 255, 255, 0.06) !important;
-    background-image: none !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.14) !important;
-    border-radius: 9999px !important;
-    padding: 5px 10px !important;
-    margin: 2px !important;
-    color: rgba(255, 255, 255, 0.85) !important;
-    transition: all 200ms ease !important;
-    min-height: 24px !important;
-    box-shadow: none !important;
-}
-
-.screenshot-toolbar-btn:hover {
-    background-color: rgba(255, 255, 255, 0.12) !important;
-    border-color: rgba(255, 255, 255, 0.14) !important;
-    border-top-color: rgba(255, 255, 255, 0.20) !important;
-    color: #ffffff !important;
-}
-
-.screenshot-toolbar-btn.selected {
-    background-color: rgba(59, 130, 246, 0.70) !important;
-    background-image: linear-gradient(135deg, rgba(147, 197, 253, 0.30) 0%, rgba(37, 99, 235, 0.60) 100%) !important;
-    border: 1px solid rgba(147, 197, 253, 0.25) !important;
-    border-top: 1px solid rgba(147, 197, 253, 0.45) !important;
-    color: #ffffff !important;
-}
-
-/* Color Picker Popover Styling */
-button.screenshot-toolbar-btn colorwatch {
-    border-radius: 50% !important;
-    box-shadow: none !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    min-width: 14px !important;
-    min-height: 14px !important;
-    max-width: 14px !important;
-    max-height: 14px !important;
-}
-
-.color-dot-indicator {
-    border-radius: 50% !important;
-    width: 14px !important;
-    height: 14px !important;
-    min-width: 14px !important;
-    min-height: 14px !important;
-    max-width: 14px !important;
-    max-height: 14px !important;
-    border: 1px solid rgba(255, 255, 255, 0.4) !important;
-    box-shadow: none !important;
-}
-
-popover > contents {
-    background-color: rgba(14, 14, 18, 0.96) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    border-top-color: rgba(255, 255, 255, 0.22) !important;
-    border-radius: 12px !important;
-    padding: 8px !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
-}
-
-.color-dot-btn {
-    border-radius: 50% !important;
-    width: 16px !important;
-    height: 16px !important;
-    min-width: 16px !important;
-    min-height: 16px !important;
-    max-width: 16px !important;
-    max-height: 16px !important;
-    margin: 3px !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    padding: 0 !important;
-    background-image: none !important;
-    box-shadow: none !important;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 8px;
+    margin: 2px;
+    color: rgba(255, 255, 255, 0.75);
     transition: all 150ms ease;
 }
 
-.color-dot-btn:hover {
-    transform: scale(1.2) !important;
-    border-color: rgba(255, 255, 255, 0.6) !important;
+.screenshot-toolbar-btn:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
 }
 
-/* Color Palette Classes */
+.screenshot-toolbar-btn.selected {
+    background-color: rgba(59, 130, 246, 0.20);
+    color: #3b82f6;
+}
+
+/* Screenshot Toolbar Color Dots */
+.color-dot-btn {
+    border-radius: 50% !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+    margin: 4px !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    padding: 0 !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    transition: all 200ms ease;
+}
+
+.color-dot-btn:hover {
+    transform: scale(1.2);
+}
+
 .color-dot-red { background: #ef4444 !important; }
-.color-dot-orange { background: #f97316 !important; }
-.color-dot-yellow { background: #eab308 !important; }
-.color-dot-green { background: #22c55e !important; }
+.color-dot-green { background: #10b981 !important; }
 .color-dot-blue { background: #3b82f6 !important; }
-.color-dot-purple { background: #a855f7 !important; }
-.color-dot-white { background: #ffffff !important; }
-.color-dot-black { background: #000000 !important; }
+.color-dot-yellow { background: #f59e0b !important; }
+
+.color-dot-btn.color-active {
+    border: 2px solid #ffffff !important;
+    transform: scale(1.1);
+}
 
 
