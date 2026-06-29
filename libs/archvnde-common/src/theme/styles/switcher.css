@@ -95,60 +95,58 @@
     transform: scale(1.1);
 }
 
-/* Screenshot Toolbar (Compact & Sleek) */
+/* Screenshot Toolbar (Compact & Sleek Capsule) */
 .screenshot-toolbar {
-    background-color: rgba(18, 18, 22, 0.94);
-    -gtk-background-blur: 20;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
-    padding: 2px 4px;
+    background-color: rgba(14, 14, 18, 0.94);
+    background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.06) 0%, rgba(0, 0, 0, 0.15) 100%);
+    -gtk-background-blur: 24;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-top: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 9999px;
+    padding: 4px 12px;
 }
 
 .screenshot-toolbar-btn {
-    background: none;
-    border: none;
-    border-radius: 6px;
-    padding: 5px 8px;
+    background-color: rgba(255, 255, 255, 0.06);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 9999px;
+    padding: 5px 10px;
     margin: 2px;
-    color: rgba(255, 255, 255, 0.75);
-    transition: all 150ms ease;
+    color: rgba(255, 255, 255, 0.85);
+    transition: all 200ms ease;
+    min-height: 24px;
 }
 
 .screenshot-toolbar-btn:hover {
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.14);
+    border-top-color: rgba(255, 255, 255, 0.20);
     color: #ffffff;
 }
 
 .screenshot-toolbar-btn.selected {
-    background-color: rgba(59, 130, 246, 0.20);
-    color: #3b82f6;
+    background-color: rgba(59, 130, 246, 0.70) !important;
+    background-image: linear-gradient(135deg, rgba(147, 197, 253, 0.30) 0%, rgba(37, 99, 235, 0.60) 100%) !important;
+    border: 1px solid rgba(147, 197, 253, 0.25) !important;
+    border-top: 1px solid rgba(147, 197, 253, 0.45) !important;
+    color: #ffffff !important;
 }
 
-/* Screenshot Toolbar Color Dots */
-.color-dot-btn {
+/* Color Picker Button Styling */
+button.screenshot-toolbar-btn colorwatch {
     border-radius: 50% !important;
-    min-width: 16px !important;
-    min-height: 16px !important;
-    margin: 4px !important;
-    border: 1px solid rgba(255, 255, 255, 0.4) !important;
-    padding: 0 !important;
-    background-image: none !important;
     box-shadow: none !important;
-    transition: all 200ms ease;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    min-width: 14px !important;
+    min-height: 14px !important;
+    max-width: 14px !important;
+    max-height: 14px !important;
 }
 
-.color-dot-btn:hover {
-    transform: scale(1.2);
-}
-
-.color-dot-red { background: #ef4444 !important; }
-.color-dot-green { background: #10b981 !important; }
-.color-dot-blue { background: #3b82f6 !important; }
-.color-dot-yellow { background: #f59e0b !important; }
-
-.color-dot-btn.color-active {
-    border: 2px solid #ffffff !important;
-    transform: scale(1.1);
+button.screenshot-toolbar-btn colorwatch:hover {
+    transform: scale(1.15);
 }
 
 

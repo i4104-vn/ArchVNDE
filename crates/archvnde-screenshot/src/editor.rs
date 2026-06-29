@@ -74,6 +74,14 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
             cr.paint().unwrap();
         }
 
+        // Clip drawings to the crop selection so they don't draw over the dark overlay
+        let has_clip = s.has_selection && s.crop_w > 5.0 && s.crop_h > 5.0;
+        if has_clip {
+            cr.save().unwrap();
+            cr.rectangle(s.crop_x, s.crop_y, s.crop_w, s.crop_h);
+            cr.clip();
+        }
+
         // 3. Draw All Completed Annotations
         for drawing in &s.drawings {
             match drawing {
@@ -126,6 +134,10 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
                 draw_pixelated_rect(cr, &s.bg_pixbuf, x, y, w, h);
             }
         }
+
+        if has_clip {
+            cr.restore().unwrap();
+        }
     });
 
     // Floating macOS-style Glassmorphic Toolbar at the bottom-center
@@ -135,7 +147,7 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     toolbar_wrapper.set_margin_bottom(30);
     toolbar_wrapper.set_visible(false); // Hidden initially
 
-    let toolbar = gtk4::Box::new(gtk4::Orientation::Horizontal, 12);
+    let toolbar = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
     toolbar.add_css_class("screenshot-toolbar"); // Compact glassmorphic styling
     toolbar.set_margin_start(16);
     toolbar.set_margin_end(16);
@@ -147,61 +159,44 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     btn_reset.set_tooltip_text(Some("Bỏ chụp và làm lại (Xóa hết nét vẽ)"));
     btn_reset.add_css_class("screenshot-toolbar-btn");
 
-    let btn_pen = gtk4::Button::from_icon_name("draw-freehand-symbolic");
+    let btn_pen = gtk4::Button::from_icon_name("document-edit-symbolic");
     btn_pen.set_tooltip_text(Some("Bút vẽ"));
     btn_pen.add_css_class("screenshot-toolbar-btn");
 
-    let btn_rect = gtk4::Button::from_icon_name("draw-rectangle-symbolic");
+    let btn_rect = gtk4::Button::from_icon_name("media-record-symbolic");
     btn_rect.set_tooltip_text(Some("Vẽ hình chữ nhật"));
     btn_rect.add_css_class("screenshot-toolbar-btn");
 
-    let btn_blur = gtk4::Button::from_icon_name("view-conceal-symbolic");
+    let btn_blur = gtk4::Button::from_icon_name("view-grid-symbolic");
     btn_blur.set_tooltip_text(Some("Làm mờ thông tin"));
     btn_blur.add_css_class("screenshot-toolbar-btn");
 
-    let btn_eraser = gtk4::Button::from_icon_name("draw-eraser-symbolic");
+    let btn_eraser = gtk4::Button::from_icon_name("edit-clear-all-symbolic");
     btn_eraser.set_tooltip_text(Some("Xóa hình vẽ"));
     btn_eraser.add_css_class("screenshot-toolbar-btn");
 
-    // Color selection buttons
-    let color_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
-    color_box.set_valign(gtk4::Align::Center);
+    // Color picker button
+    let color_btn = gtk4::ColorButton::new();
+    color_btn.set_tooltip_text(Some("Chọn màu vẽ"));
+    color_btn.add_css_class("screenshot-toolbar-btn");
     
-    let colors = vec![
-        ("red", (0.93, 0.15, 0.15)),
-        ("green", (0.06, 0.63, 0.31)),
-        ("blue", (0.15, 0.45, 0.93)),
-        ("yellow", (0.93, 0.70, 0.15)),
-    ];
+    let rgba = gtk4::gdk::RGBA::builder()
+        .red(0.93)
+        .green(0.15)
+        .blue(0.15)
+        .alpha(1.0)
+        .build();
+    color_btn.set_rgba(&rgba);
 
-    let active_color_btn: Rc<RefCell<Option<gtk4::Button>>> = Rc::new(RefCell::new(None));
-
-    for (name, rgb) in colors {
-        let color_btn = gtk4::Button::new();
-        color_btn.add_css_class("color-dot-btn");
-        color_btn.add_css_class(&format!("color-dot-{}", name));
-
-        let state_color = state.clone();
-        let color_btn_clone = color_btn.clone();
-        let active_color_clone = active_color_btn.clone();
-        color_btn.connect_clicked(move |_| {
-            state_color.borrow_mut().current_color = rgb;
-            
-            // Visual indicator for active color
-            if let Some(prev) = active_color_clone.borrow_mut().take() {
-                prev.remove_css_class("color-active");
-            }
-            color_btn_clone.add_css_class("color-active");
-            *active_color_clone.borrow_mut() = Some(color_btn_clone.clone());
-        });
-        
-        if name == "red" {
-            color_btn.add_css_class("color-active");
-            *active_color_btn.borrow_mut() = Some(color_btn.clone());
-        }
-
-        color_box.append(&color_btn);
-    }
+    let state_color = state.clone();
+    color_btn.connect_color_set(move |btn| {
+        let rgba = btn.rgba();
+        state_color.borrow_mut().current_color = (
+            rgba.red() as f64,
+            rgba.green() as f64,
+            rgba.blue() as f64,
+        );
+    });
 
     // Reset button click event
     let state_reset = state.clone();
@@ -296,7 +291,7 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     let sep1 = gtk4::Label::new(Some("│"));
     sep1.add_css_class("capsule-separator");
     toolbar.append(&sep1);
-    toolbar.append(&color_box);
+    toolbar.append(&color_btn);
 
     let sep2 = gtk4::Label::new(Some("│"));
     sep2.add_css_class("capsule-separator");
@@ -319,14 +314,25 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
         let mut s_mut = state_mouse.borrow_mut();
         let s = &mut *s_mut;
         
-        // Set the start coordinates for the active drag gesture
-        s.drag_start_x = start_x;
-        s.drag_start_y = start_y;
-        
         // If there's no selection yet, force the tool to be Select
         if !s.has_selection {
             s.current_tool = Tool::Select;
         }
+        
+        // Prevent drawing from starting outside the crop box
+        if s.has_selection && s.current_tool != Tool::Select {
+            let inside_crop = start_x >= s.crop_x 
+                && start_x <= s.crop_x + s.crop_w 
+                && start_y >= s.crop_y 
+                && start_y <= s.crop_y + s.crop_h;
+            if !inside_crop {
+                return; // Ignore drawing start outside crop box
+            }
+        }
+
+        // Set the start coordinates for the active drag gesture
+        s.drag_start_x = start_x;
+        s.drag_start_y = start_y;
         
         match s.current_tool {
             Tool::Select => {
