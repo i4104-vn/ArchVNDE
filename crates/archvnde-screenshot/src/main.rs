@@ -105,13 +105,12 @@ fn draw_pixelated_rect(cr: &cairo::Context, bg_pixbuf: &gdk_pixbuf::Pixbuf, x: f
     let sw = (w * scale).max(2.0) as i32;
     let sh = (h * scale).max(2.0) as i32;
     
-    if let Ok(sub_pb) = bg_pixbuf.new_subpixbuf(x as i32, y as i32, w as i32, h as i32) {
-        if let Ok(scaled_pb) = sub_pb.scale_simple(sw, sh, gdk_pixbuf::InterpType::Hyper) {
-            cr.scale(1.0 / scale, 1.0 / scale);
-            cr.set_source_pixbuf(&scaled_pb, x * scale, y * scale);
-            cr.source().set_filter(cairo::Filter::Nearest);
-            cr.paint().unwrap();
-        }
+    let sub_pb = bg_pixbuf.new_subpixbuf(x as i32, y as i32, w as i32, h as i32);
+    if let Some(scaled_pb) = sub_pb.scale_simple(sw, sh, gdk_pixbuf::InterpType::Hyper) {
+        cr.scale(1.0 / scale, 1.0 / scale);
+        cr.set_source_pixbuf(&scaled_pb, x * scale, y * scale);
+        cr.source().set_filter(cairo::Filter::Nearest);
+        cr.paint().unwrap();
     }
     
     cr.restore().unwrap();
