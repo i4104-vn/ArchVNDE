@@ -210,7 +210,7 @@ fn main() {
                 if let Some(seat) = display.default_seat() {
                     if let Some(keyboard) = seat.keyboard() {
                         let mods = keyboard.modifier_state();
-                        mods.contains(gtk4::gdk::ModifierType::ALT_MASK) || mods.contains(gtk4::gdk::ModifierType::MOD1_MASK)
+                        mods.contains(gtk4::gdk::ModifierType::ALT_MASK)
                     } else {
                         true
                     }
