@@ -281,7 +281,7 @@ fn main() {
         }
 
         // Unix Socket Listener to handle subsequent Alt-Tab signals
-        let (sender, receiver) = gtk4::glib::MainContext::channel::<()>(gtk4::glib::Priority::DEFAULT);
+        let (sender, receiver) = std::sync::mpsc::channel::<()>();
         std::thread::spawn(move || {
             let socket_path = "/tmp/archvnde-switcher.socket";
             if let Ok(listener) = UnixListener::bind(socket_path) {
@@ -301,10 +301,12 @@ fn main() {
         let update_sel_socket = update_selection_rc.clone();
         let current_idx_socket = current_index.clone();
         let apps_len = apps.len();
-        receiver.attach(None, move |_| {
-            let idx = *current_idx_socket.borrow();
-            let next = (idx + 1) % apps_len;
-            update_sel_socket(next);
+        gtk4::glib::timeout_add_local(std::time::Duration::from_millis(10), move || {
+            while let Ok(_) = receiver.try_recv() {
+                let idx = *current_idx_socket.borrow();
+                let next = (idx + 1) % apps_len;
+                update_sel_socket(next);
+            }
             gtk4::glib::ControlFlow::Continue
         });
 
