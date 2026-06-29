@@ -76,6 +76,10 @@ if [ ! -f "$HOME/.config/labwc/rc.xml" ]; then
     <keybind key="A-Tab">
       <action name="Execute" command="~/.local/bin/archvnde-switcher" />
     </keybind>
+    <!-- Take screenshot with Win+Shift+S -->
+    <keybind key="W-S-s">
+      <action name="Execute" command="~/.local/bin/archvnde-screenshot" />
+    </keybind>
   </keyboard>
   <mouse>
     <default />
