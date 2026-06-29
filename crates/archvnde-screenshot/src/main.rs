@@ -573,7 +573,8 @@ fn main() {
         let canvas_mouse = drawing_area.clone();
         
         drag_gesture.connect_drag_begin(move |_, start_x, start_y| {
-            let mut s = state_mouse.borrow_mut();
+            let mut s_mut = state_mouse.borrow_mut();
+            let s = &mut *s_mut;
             match s.current_tool {
                 Tool::Select => {
                     s.start_x = start_x;
@@ -614,7 +615,8 @@ fn main() {
         let state_mouse_update = state.clone();
         let canvas_mouse_update = drawing_area.clone();
         drag_gesture.connect_drag_update(move |_, offset_x, offset_y| {
-            let mut s = state_mouse_update.borrow_mut();
+            let mut s_mut = state_mouse_update.borrow_mut();
+            let s = &mut *s_mut;
             match s.current_tool {
                 Tool::Select => {
                     if s.is_selecting {
@@ -649,7 +651,8 @@ fn main() {
         let state_mouse_end = state.clone();
         let canvas_mouse_end = drawing_area.clone();
         drag_gesture.connect_drag_end(move |_, _, _| {
-            let mut s = state_mouse_end.borrow_mut();
+            let mut s_mut = state_mouse_end.borrow_mut();
+            let s = &mut *s_mut;
             match s.current_tool {
                 Tool::Select => {
                     s.is_selecting = false;
