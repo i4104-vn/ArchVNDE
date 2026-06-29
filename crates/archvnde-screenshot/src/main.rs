@@ -2,10 +2,10 @@ use gtk4::prelude::*;
 use std::env;
 
 mod capture;
-mod editor;
+mod widgets;
 
 use capture::{capture_screen_to_temp, get_screenshot_save_path};
-use editor::build_editor_ui;
+use widgets::editor::build_editor_ui;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
