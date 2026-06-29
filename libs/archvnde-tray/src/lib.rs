@@ -16,6 +16,22 @@ pub fn get_tray_items() -> Vec<TrayItem> {
     registry.lock().unwrap().clone()
 }
 
+#[zbus::proxy(
+    interface = "org.kde.StatusNotifierItem",
+    default_path = "/StatusNotifierItem"
+)]
+trait StatusNotifierItem {
+    fn activate(&self, x: i32, y: i32) -> zbus::Result<()>;
+    fn secondary_activate(&self, x: i32, y: i32) -> zbus::Result<()>;
+    fn context_menu(&self, x: i32, y: i32) -> zbus::Result<()>;
+
+    #[zbus(property)]
+    fn icon_name(&self) -> zbus::Result<String>;
+
+    #[zbus(property)]
+    fn title(&self) -> zbus::Result<String>;
+}
+
 pub struct StatusNotifierWatcher;
 
 #[interface(name = "org.kde.StatusNotifierWatcher")]
@@ -48,7 +64,6 @@ impl StatusNotifierWatcher {
             }
         };
 
-        // Create proxy to query StatusNotifierItem properties
         let bus_name = match zbus::names::BusName::try_from(target_service.clone()) {
             Ok(name) => name,
             Err(e) => {
@@ -56,32 +71,24 @@ impl StatusNotifierWatcher {
                 return;
             }
         };
-        let object_path = zbus::zvariant::ObjectPath::from_static_str_unchecked("/StatusNotifierItem");
-        let interface_name = zbus::names::InterfaceName::from_static_str_unchecked("org.kde.StatusNotifierItem");
 
-        let proxy = zbus::Proxy::new(
-            &connection,
-            bus_name,
-            object_path,
-            interface_name,
-        )
-        .await;
-
-        let mut icon_name = String::new();
-        let mut title = String::new();
-
-        if let Ok(p) = proxy {
-            if let Ok(icon) = p.get_property::<String>("IconName").await {
-                icon_name = icon;
+        let proxy = match StatusNotifierItemProxy::builder(&connection)
+            .destination(bus_name)
+            .unwrap()
+            .path("/StatusNotifierItem")
+            .unwrap()
+            .build()
+            .await
+        {
+            Ok(p) => p,
+            Err(e) => {
+                eprintln!("Failed to build proxy: {}", e);
+                return;
             }
-            if let Ok(t) = p.get_property::<String>("Title").await {
-                title = t;
-            }
-        }
+        };
 
-        if icon_name.is_empty() {
-            icon_name = "image-missing".to_string();
-        }
+        let icon_name = proxy.icon_name().await.unwrap_or_else(|_| "image-missing".to_string());
+        let title = proxy.title().await.unwrap_or_else(|_| String::new());
 
         let item = TrayItem {
             service: target_service,
@@ -187,22 +194,39 @@ pub fn activate_item(service: &str, x: i32, y: i32, is_right_click: bool) {
                         return;
                     }
                 };
-                let object_path = zbus::zvariant::ObjectPath::from_static_str_unchecked("/StatusNotifierItem");
-                let interface_name = zbus::names::InterfaceName::from_static_str_unchecked("org.kde.StatusNotifierItem");
 
-                let proxy = zbus::Proxy::new(
-                    &conn,
-                    bus_name,
-                    object_path,
-                    interface_name,
-                )
-                .await;
+                let proxy = match StatusNotifierItemProxy::builder(&conn)
+                    .destination(bus_name)
+                    .unwrap()
+                    .path("/StatusNotifierItem")
+                    .unwrap()
+                    .build()
+                    .await
+                {
+                    Ok(p) => p,
+                    Err(e) => {
+                        eprintln!("Failed to build proxy for activation: {}", e);
+                        return;
+                    }
+                };
 
-                if let Ok(p) = proxy {
-                    if is_right_click {
-                        let _ = p.call::<_, _, ()>("ContextMenu", &(x, y)).await;
-                    } else {
-                        let _ = p.call::<_, _, ()>("Activate", &(x, y)).await;
+                if is_right_click {
+                    println!("Sending D-Bus context_menu({}, {}) to {}", x, y, service_str);
+                    if let Err(e) = proxy.context_menu(x, y).await {
+                        eprintln!("D-Bus context_menu call failed for {}: {}", service_str, e);
+                        // Fallback 1: Some apps use SecondaryActivate for menus
+                        println!("Attempting fallback secondary_activate({}, {}) for {}", x, y, service_str);
+                        if let Err(e2) = proxy.secondary_activate(x, y).await {
+                            eprintln!("D-Bus secondary_activate call failed for {}: {}", service_str, e2);
+                            // Fallback 2: Some apps use Activate as a catch-all
+                            println!("Attempting fallback activate({}, {}) for {}", x, y, service_str);
+                            let _ = proxy.activate(x, y).await;
+                        }
+                    }
+                } else {
+                    println!("Sending D-Bus activate({}, {}) to {}", x, y, service_str);
+                    if let Err(e) = proxy.activate(x, y).await {
+                        eprintln!("D-Bus activate call failed for {}: {}", service_str, e);
                     }
                 }
             }
