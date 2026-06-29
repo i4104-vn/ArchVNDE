@@ -180,35 +180,31 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     btn_eraser.add_css_class("flat");
     btn_eraser.add_css_class("screenshot-toolbar-btn");
 
-    // Color picker button with a color dot indicator inside.
-    // Use DrawingArea + Cairo to reliably render the color circle,
     // since GTK Box widgets do not render background-color consistently.
     let color_btn = gtk4::Button::new();
     color_btn.set_tooltip_text(Some("Chọn màu vẽ"));
     color_btn.add_css_class("flat");
     color_btn.add_css_class("screenshot-toolbar-btn");
 
-    // Shared indicator color: default red
-    let indicator_color: Rc<RefCell<(f64, f64, f64)>> = Rc::new(RefCell::new((0.93, 0.15, 0.15)));
-
+    // Color indicator: DrawingArea drawn by Cairo.
+    // Reads current_color directly from shared EditorState — same pattern as the main canvas.
     let color_dot = gtk4::DrawingArea::new();
-    color_dot.set_size_request(14, 14);
+    color_dot.set_size_request(16, 16);
     color_btn.set_child(Some(&color_dot));
 
-    let indicator_color_draw = indicator_color.clone();
+    let state_indicator = state.clone();
     color_dot.set_draw_func(move |_, cr, w, h| {
-        let (r, g, b) = *indicator_color_draw.borrow();
+        let (r, g, b) = state_indicator.borrow().current_color;
         let cx = w as f64 / 2.0;
         let cy = h as f64 / 2.0;
-        let radius = (w.min(h) as f64 / 2.0) - 1.0;
-        // Fill circle with selected color
+        let radius = (w.min(h) as f64 / 2.0) - 1.5;
+        if radius <= 0.0 { return; }
+        // Filled circle with current color + white border in one path
         cr.arc(cx, cy, radius, 0.0, 2.0 * std::f64::consts::PI);
         cr.set_source_rgb(r, g, b);
-        cr.fill().unwrap();
-        // White border ring
-        cr.arc(cx, cy, radius, 0.0, 2.0 * std::f64::consts::PI);
-        cr.set_source_rgba(1.0, 1.0, 1.0, 0.5);
-        cr.set_line_width(1.0);
+        cr.fill_preserve().unwrap();
+        cr.set_source_rgba(1.0, 1.0, 1.0, 0.6);
+        cr.set_line_width(1.5);
         cr.stroke().unwrap();
     });
 
@@ -246,22 +242,18 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
         btn.add_css_class(&format!("color-dot-{}", name_en));
         btn.set_tooltip_text(Some(name));
         btn.set_size_request(16, 16);
-        
+
         let state_c = state.clone();
         let popover_c = popover.clone();
-        let indicator_color_c = indicator_color.clone();
         let color_dot_c = color_dot.clone();
         let rgb_val = rgb;
         btn.connect_clicked(move |_| {
             state_c.borrow_mut().current_color = rgb_val;
-            
-            // Update indicator color and trigger redraw
-            *indicator_color_c.borrow_mut() = rgb_val;
+            // Trigger redraw of the indicator — state is shared so draw func sees new color
             color_dot_c.queue_draw();
-            
             popover_c.popdown();
         });
-        
+
         grid.attach(&btn, col, row, 1, 1);
         col += 1;
         if col >= 4 {
