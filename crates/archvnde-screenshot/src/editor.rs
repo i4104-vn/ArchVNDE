@@ -24,11 +24,13 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     window.set_layer(Layer::Overlay);
     window.set_keyboard_mode(KeyboardMode::Exclusive);
 
-    // Stretch across the entire screen
+    // Stretch across the entire screen, ignoring panel exclusive zones
     window.set_anchor(Edge::Top, true);
     window.set_anchor(Edge::Bottom, true);
     window.set_anchor(Edge::Left, true);
     window.set_anchor(Edge::Right, true);
+    // -1 = ignore all exclusive zones (panel, dock, etc.) → true fullscreen overlay
+    window.set_exclusive_zone(-1);
     window.add_css_class("screenshot-window");
 
     let overlay = gtk4::Overlay::new();
