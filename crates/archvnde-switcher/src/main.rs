@@ -2,112 +2,28 @@ use gtk4::prelude::*;
 use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
 use std::cell::RefCell;
 use std::rc::Rc;
-use archvnde_common::desktop::DesktopApp;
 use std::os::unix::net::{UnixListener, UnixStream};
 use std::io::{Write, Read};
+
+mod history;
+mod apps;
+mod widgets;
+
+use apps::{get_running_apps, activate_app};
+use history::save_history;
+use widgets::empty::build_empty_state;
+use widgets::list::build_apps_list;
 
 fn handle_single_instance() -> bool {
     let socket_path = "/tmp/archvnde-switcher.socket";
     
-    // Try to connect to the existing running instance
     if let Ok(mut stream) = UnixStream::connect(socket_path) {
         let _ = stream.write_all(b"next");
-        return false; // Exit this new instance
+        return false;
     }
     
-    // Connection failed, remove stale socket file if it exists
     let _ = std::fs::remove_file(socket_path);
-    true // Continue running as the main instance
-}
-
-fn get_running_apps() -> Vec<DesktopApp> {
-    let desktop_apps = archvnde_common::desktop::find_desktop_apps();
-    let mut running = Vec::new();
-    let mut detected_names = std::collections::HashSet::new();
-
-    // 1. Get all running process names from /proc
-    let mut running_processes = std::collections::HashSet::new();
-    if let Ok(entries) = std::fs::read_dir("/proc") {
-        for entry in entries.flatten() {
-            if let Ok(metadata) = entry.metadata() {
-                if metadata.is_dir() {
-                    let name = entry.file_name();
-                    let name_str = name.to_string_lossy();
-                    if name_str.chars().all(|c| c.is_ascii_digit()) {
-                        let comm_path = entry.path().join("comm");
-                        if let Ok(comm) = std::fs::read_to_string(comm_path) {
-                            let process_name = comm.trim().to_lowercase();
-                            if !process_name.is_empty() {
-                                running_processes.insert(process_name);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // 2. Match running processes with desktop entries
-    for app in desktop_apps {
-        let exec_parts: Vec<&str> = app.exec.split_whitespace().collect();
-        if exec_parts.is_empty() {
-            continue;
-        }
-        let exec_path = std::path::Path::new(exec_parts[0]);
-        let exec_name = exec_path.file_name()
-            .map(|f| f.to_string_lossy().to_lowercase())
-            .unwrap_or_default();
-
-        if exec_name.is_empty() {
-            continue;
-        }
-
-        if running_processes.contains(&exec_name) {
-            let app_key = exec_name.clone();
-            if !detected_names.contains(&app_key) {
-                detected_names.insert(app_key);
-                running.push(app);
-            }
-        }
-    }
-
-    running
-}
-
-fn activate_app(app: &DesktopApp) {
-    let name = &app.name;
-    let exec_parts: Vec<&str> = app.exec.split_whitespace().collect();
-    let exec_name = if !exec_parts.is_empty() {
-        std::path::Path::new(exec_parts[0])
-            .file_name()
-            .map(|f| f.to_string_lossy().to_string())
-            .unwrap_or_default()
-    } else {
-        String::new()
-    };
-
-    // Try wlrctl (Wayland wlroots)
-    if !exec_name.is_empty() {
-        let _ = std::process::Command::new("wlrctl")
-            .args(&["toplevel", "focus", &exec_name])
-            .spawn();
-        let _ = std::process::Command::new("wlrctl")
-            .args(&["toplevel", "focus", &exec_name.to_lowercase()])
-            .spawn();
-    }
-    let _ = std::process::Command::new("wlrctl")
-        .args(&["toplevel", "focus", name])
-        .spawn();
-
-    // Try wmctrl (X11 / XWayland)
-    let _ = std::process::Command::new("wmctrl")
-        .args(&["-a", name])
-        .spawn();
-    if !exec_name.is_empty() {
-        let _ = std::process::Command::new("wmctrl")
-            .args(&["-a", &exec_name])
-            .spawn();
-    }
+    true
 }
 
 fn main() {
@@ -145,78 +61,14 @@ fn main() {
         let apps = get_running_apps();
 
         if apps.is_empty() {
-            // Display "No apps running" state
-            main_box.set_spacing(16);
-            main_box.set_margin_top(30);
-            main_box.set_margin_bottom(30);
-            main_box.set_margin_start(50);
-            main_box.set_margin_end(50);
-            main_box.set_halign(gtk4::Align::Center);
-            main_box.set_valign(gtk4::Align::Center);
-
-            let no_apps_icon = archvnde_common::icon::get_system_or_file_icon("application-x-executable", "application-x-executable");
-            no_apps_icon.set_pixel_size(48);
-            no_apps_icon.set_halign(gtk4::Align::Center);
-
-            let no_apps_lbl = gtk4::Label::new(Some("Không có ứng dụng nào đang chạy"));
-            no_apps_lbl.add_css_class("switcher-app-title");
-            no_apps_lbl.set_halign(gtk4::Align::Center);
-
-            main_box.append(&no_apps_icon);
-            main_box.append(&no_apps_lbl);
-
-            window.set_child(Some(&main_box));
-
-            let key_controller = gtk4::EventControllerKey::new();
-            let window_close = window.clone();
-            key_controller.connect_key_pressed(move |_, key, _, _| {
-                match key {
-                    gtk4::gdk::Key::Escape | gtk4::gdk::Key::Return => {
-                        window_close.close();
-                        gtk4::glib::Propagation::Stop
-                    }
-                    _ => gtk4::glib::Propagation::Proceed,
-                }
-            });
-            window.add_controller(key_controller);
-            window.present();
+            build_empty_state(&main_box, &window);
             return;
         }
 
-        // 1. Horizontal Icons Row
-        let icons_row = gtk4::Box::new(gtk4::Orientation::Horizontal, 16);
-        icons_row.add_css_class("switcher-list-row");
-        icons_row.set_halign(gtk4::Align::Center);
-        icons_row.set_valign(gtk4::Align::Center);
-
-        let mut item_buttons = Vec::new();
-
-        for (idx, app_item) in apps.iter().enumerate() {
-            let btn = gtk4::Button::new();
-            btn.add_css_class("switcher-item-btn");
-            
-            let btn_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
-            btn_box.set_valign(gtk4::Align::Center);
-            btn_box.set_halign(gtk4::Align::Center);
-
-            let app_icon_str = app_item.icon.as_deref().unwrap_or("application-x-executable");
-            let icon_widget = archvnde_common::icon::get_system_or_file_icon(app_icon_str, "application-x-executable");
-            icon_widget.set_pixel_size(36);
-            icon_widget.add_css_class("switcher-item-icon");
-            icon_widget.set_valign(gtk4::Align::Center);
-            icon_widget.set_halign(gtk4::Align::Center);
-
-            btn_box.append(&icon_widget);
-            btn.set_child(Some(&btn_box));
-            
-            icons_row.append(&btn);
-            item_buttons.push(btn);
-        }
+        let (icons_row, item_buttons) = build_apps_list(&apps);
         main_box.append(&icons_row);
-
         window.set_child(Some(&main_box));
 
-        // State tracking
         let current_index = Rc::new(RefCell::new(0));
 
         let update_selection = {
@@ -240,24 +92,25 @@ fn main() {
             }
         };
 
-        // Initial selection setup
         let update_selection_rc = Rc::new(update_selection);
-        update_selection_rc(0);
+        let initial_idx = if apps.len() > 1 { 1 } else { 0 };
+        update_selection_rc(initial_idx);
 
-        // Click handlers on buttons
         for (i, btn) in item_buttons.iter().enumerate() {
             let update_sel = update_selection_rc.clone();
             let window_close = window.clone();
             let apps_click = apps.clone();
             btn.connect_clicked(move |_| {
                 update_sel(i);
-                activate_app(&apps_click[i]);
+                let app_item = &apps_click[i];
+                save_history(&app_item.name);
+                activate_app(app_item);
                 window_close.close();
             });
         }
 
         // Unix Socket Listener to handle subsequent Alt-Tab signals
-        let (sender, receiver) = gtk4::glib::MainContext::channel::<()>(gtk4::glib::Priority::default());
+        let (sender, receiver) = std::sync::mpsc::channel::<()>();
         std::thread::spawn(move || {
             let socket_path = "/tmp/archvnde-switcher.socket";
             if let Ok(listener) = UnixListener::bind(socket_path) {
@@ -277,10 +130,12 @@ fn main() {
         let update_sel_socket = update_selection_rc.clone();
         let current_idx_socket = current_index.clone();
         let apps_len = apps.len();
-        receiver.attach(None, move |_| {
-            let idx = *current_idx_socket.borrow();
-            let next = (idx + 1) % apps_len;
-            update_sel_socket(next);
+        gtk4::glib::timeout_add_local(std::time::Duration::from_millis(10), move || {
+            while let Ok(_) = receiver.try_recv() {
+                let idx = *current_idx_socket.borrow();
+                let next = (idx + 1) % apps_len;
+                update_sel_socket(next);
+            }
             gtk4::glib::ControlFlow::Continue
         });
 
@@ -308,6 +163,7 @@ fn main() {
                 gtk4::gdk::Key::Return | gtk4::gdk::Key::space => {
                     let app_item = &apps_key[idx];
                     println!("Selected App: {}", app_item.name);
+                    save_history(&app_item.name);
                     activate_app(app_item);
                     window_close.close();
                     gtk4::glib::Propagation::Stop
@@ -331,6 +187,7 @@ fn main() {
                     if idx < apps_release.len() {
                         let app_item = &apps_release[idx];
                         println!("Alt released. Activating: {}", app_item.name);
+                        save_history(&app_item.name);
                         activate_app(app_item);
                     }
                     window_release.close();
@@ -342,7 +199,6 @@ fn main() {
         window.add_controller(key_controller);
         window.present();
 
-        // Grab focus on the first button to guarantee the window captures keyboard input immediately
         if !item_buttons.is_empty() {
             item_buttons[0].grab_focus();
         }
