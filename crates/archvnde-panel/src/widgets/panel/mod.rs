@@ -246,7 +246,7 @@ fn create_disk_list_box() -> gtk4::Box {
 
     let title_row = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
     let disk_icon = archvnde_common::icon::get_icon_colored("server", 12, "#10b981");
-    let title_label = gtk4::Label::new(Some("Storage Usage"));
+    let title_label = gtk4::Label::new(Some(&archvnde_common::i18n::t("panel.storage_usage")));
     title_label.add_css_class("control-slider-title");
     
     title_row.append(&disk_icon);
@@ -257,7 +257,7 @@ fn create_disk_list_box() -> gtk4::Box {
     
     let disks = get_disk_list();
     if disks.is_empty() {
-        let no_disks = gtk4::Label::new(Some("No physical storage found"));
+        let no_disks = gtk4::Label::new(Some(&archvnde_common::i18n::t("panel.no_storage")));
         no_disks.add_css_class("tile-subtitle");
         list_container.append(&no_disks);
     } else {

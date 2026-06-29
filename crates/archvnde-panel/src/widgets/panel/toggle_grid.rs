@@ -104,7 +104,7 @@ pub fn create_small_theme_toggle_tile() -> gtk4::Button {
     let icon_widget = archvnde_common::icon::get_icon_colored(icon_name, 16, initial_color);
     icon_widget.set_halign(gtk4::Align::Center);
 
-    let label = gtk4::Label::new(Some("Dark\nMode"));
+    let label = gtk4::Label::new(Some(&archvnde_common::i18n::t("control.dark_mode")));
     label.add_css_class("control-square-label");
     label.set_halign(gtk4::Align::Center);
 
@@ -154,8 +154,22 @@ pub fn create_left_box_toggles() -> gtk4::Box {
     container.set_valign(gtk4::Align::Fill);
     container.set_vexpand(true);
 
-    let wifi_btn = create_tile_row("wifi", "Network", "Connected", true, "active", None::<fn()>);
-    let bt_btn = create_tile_row("bluetooth", "Bluetooth", "Not Connected", false, "active", None::<fn()>);
+    let wifi_btn = create_tile_row(
+        "wifi",
+        &archvnde_common::i18n::t("control.network"),
+        &archvnde_common::i18n::t("control.connected"),
+        true,
+        "active",
+        None::<fn()>,
+    );
+    let bt_btn = create_tile_row(
+        "bluetooth",
+        &archvnde_common::i18n::t("control.bluetooth"),
+        &archvnde_common::i18n::t("control.not_connected"),
+        false,
+        "active",
+        None::<fn()>,
+    );
 
     container.append(&wifi_btn);
     container.append(&bt_btn);
@@ -180,11 +194,11 @@ pub fn create_dnd_tile() -> gtk4::Button {
     main_box.append(&circle);
 
     let text_box = gtk4::Box::new(gtk4::Orientation::Vertical, 1);
-    let title_label = gtk4::Label::new(Some("Do Not Disturb"));
+    let title_label = gtk4::Label::new(Some(&archvnde_common::i18n::t("control.dnd")));
     title_label.set_xalign(0.0);
     title_label.add_css_class("tile-title");
 
-    let sub_label = gtk4::Label::new(Some("Off"));
+    let sub_label = gtk4::Label::new(Some(&archvnde_common::i18n::t("control.off")));
     sub_label.set_xalign(0.0);
     sub_label.add_css_class("tile-subtitle");
 
@@ -202,7 +216,7 @@ pub fn create_dnd_tile() -> gtk4::Button {
         if b.has_css_class("active") {
             b.remove_css_class("active");
             circle_clone.remove_css_class("active");
-            sub_label_clone.set_text("Off");
+            sub_label_clone.set_text(&archvnde_common::i18n::t("control.off"));
             let new_img = archvnde_common::icon::get_icon_colored("bell", 14, "rgba(255, 255, 255, 0.7)");
             if let Some(paintable) = new_img.paintable() {
                 icon_widget_clone.set_paintable(Some(&paintable));
@@ -210,7 +224,7 @@ pub fn create_dnd_tile() -> gtk4::Button {
         } else {
             b.add_css_class("active");
             circle_clone.add_css_class("active");
-            sub_label_clone.set_text("On");
+            sub_label_clone.set_text(&archvnde_common::i18n::t("control.on"));
             let new_img = archvnde_common::icon::get_icon_colored("bell-off", 14, "#ffffff");
             if let Some(paintable) = new_img.paintable() {
                 icon_widget_clone.set_paintable(Some(&paintable));
@@ -285,7 +299,7 @@ pub fn create_control_center_grid() -> gtk4::Grid {
     small_box.set_vexpand(true);
 
     let theme_btn = create_small_theme_toggle_tile();
-    let night_btn = create_small_square_tile("night-light", "Night\nColor");
+    let night_btn = create_small_square_tile("night-light", &archvnde_common::i18n::t("control.night_light"));
 
     small_box.append(&theme_btn);
     small_box.append(&night_btn);

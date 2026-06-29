@@ -43,7 +43,7 @@ pub fn build_launcher_ui(
     box_layout.set_margin_start(12);
 
     let search_entry = gtk4::Entry::new();
-    search_entry.set_placeholder_text(Some("Tìm ứng dụng hoặc tệp tin..."));
+    search_entry.set_placeholder_text(Some(&archvnde_common::i18n::t("launcher.search_placeholder")));
     search_entry.add_css_class("launcher-search");
     search_entry.set_margin_top(16);
     search_entry.set_margin_start(16);

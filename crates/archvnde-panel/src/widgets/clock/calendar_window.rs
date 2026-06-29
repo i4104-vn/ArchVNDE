@@ -54,12 +54,12 @@ pub fn show_calendar_window(
     let notif_header = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
     notif_header.set_hexpand(true);
 
-    let notif_title = gtk4::Label::new(Some("Thông báo"));
+    let notif_title = gtk4::Label::new(Some(&archvnde_common::i18n::t("panel.notifications")));
     notif_title.add_css_class("notif-panel-title");
     notif_title.set_halign(gtk4::Align::Start);
     notif_title.set_hexpand(true);
 
-    let clear_btn = gtk4::Button::with_label("Xóa tất cả");
+    let clear_btn = gtk4::Button::with_label(&archvnde_common::i18n::t("panel.clear_all"));
     clear_btn.add_css_class("clear-all-btn");
     clear_btn.set_halign(gtk4::Align::End);
 

@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     "libs/archvnde-common",
+    "libs/archvnde-i18n",
     "crates/archvnde-panel",
     "crates/archvnde-launcher",
     "libs/archvnde-island",

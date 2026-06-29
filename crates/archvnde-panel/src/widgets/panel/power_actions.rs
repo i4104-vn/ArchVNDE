@@ -1,24 +1,23 @@
-//! UI rendering components for power options and control center action headers.
-
 use gtk4::prelude::*;
 
-/// Creates the Control Center header row, including the language toggle,
-/// settings triggers, and the shutdown button.
 pub fn create_header_row() -> gtk4::Box {
     let header_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
     header_box.set_hexpand(true);
 
+    // Left: Title
     let title = gtk4::Label::new(Some(&archvnde_common::i18n::t("control.title")));
     title.add_css_class("control-center-title");
     title.set_xalign(0.0);
     title.set_hexpand(true);
 
+    // Right: Action buttons container
     let btn_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
     btn_box.set_halign(gtk4::Align::End);
 
+    // 1. Language Toggle Button
     let lang_btn = gtk4::Button::new();
     lang_btn.add_css_class("circle-btn");
-    lang_btn.set_tooltip_text(Some(&archvnde_common::i18n::t("control.switch_language")));
+    lang_btn.set_tooltip_text(Some("Switch Language / Đổi ngôn ngữ"));
     
     let current_lang = archvnde_common::i18n::get_locale().to_uppercase();
     let lang_lbl = gtk4::Label::new(Some(&current_lang));
@@ -31,14 +30,19 @@ pub fn create_header_row() -> gtk4::Box {
         archvnde_common::i18n::set_locale(new_locale);
         lang_lbl_clone.set_text(&new_locale.to_uppercase());
 
-        let notif_title = archvnde_common::i18n::t("control.lang_changed_title");
-        let notif_msg = archvnde_common::i18n::t("control.lang_changed_msg");
+        // Send a system notification alerting the user to restart widgets for full changes
+        let (notif_title, notif_msg) = if new_locale == "en" {
+            ("Language Changed", "Restart widgets to apply changes system-wide.")
+        } else {
+            ("Đã thay đổi ngôn ngữ", "Khởi động lại widgets để áp dụng toàn hệ thống.")
+        };
 
         let _ = std::process::Command::new("notify-send")
-            .args(&["-i", "preferences-desktop-locale", &notif_title, &notif_msg])
+            .args(&["-i", "preferences-desktop-locale", notif_title, notif_msg])
             .spawn();
     });
 
+    // 2. Settings button
     let settings_btn = gtk4::Button::new();
     settings_btn.add_css_class("circle-btn");
     let settings_icon = archvnde_common::icon::get_icon("settings", 16);
@@ -47,7 +51,8 @@ pub fn create_header_row() -> gtk4::Box {
         println!("Settings window triggered...");
     });
 
-    let power_off = create_shutdown_button();
+    // 3. Power off button
+    let power_off = crate::widgets::power::create_shutdown_button();
 
     btn_box.append(&lang_btn);
     btn_box.append(&settings_btn);
@@ -58,17 +63,3 @@ pub fn create_header_row() -> gtk4::Box {
 
     header_box
 }
-
-/// Creates the power off (shutdown) button.
-fn create_shutdown_button() -> gtk4::Button {
-    let power_off = gtk4::Button::new();
-    power_off.add_css_class("circle-btn");
-    power_off.add_css_class("power-btn");
-    let power_icon = archvnde_common::icon::get_icon("power", 16);
-    power_off.set_child(Some(&power_icon));
-    power_off.connect_clicked(|_| {
-        archvnde_common::poweroff();
-    });
-    power_off
-}
-
