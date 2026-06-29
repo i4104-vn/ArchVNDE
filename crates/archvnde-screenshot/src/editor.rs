@@ -159,19 +159,19 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     btn_reset.set_tooltip_text(Some("Bỏ chụp và làm lại (Xóa hết nét vẽ)"));
     btn_reset.add_css_class("screenshot-toolbar-btn");
 
-    let btn_pen = gtk4::Button::from_icon_name("draw-freehand-symbolic");
+    let btn_pen = gtk4::Button::from_icon_name("document-edit-symbolic");
     btn_pen.set_tooltip_text(Some("Bút vẽ"));
     btn_pen.add_css_class("screenshot-toolbar-btn");
 
-    let btn_rect = gtk4::Button::from_icon_name("draw-rectangle-symbolic");
+    let btn_rect = gtk4::Button::from_icon_name("media-record-symbolic");
     btn_rect.set_tooltip_text(Some("Vẽ hình chữ nhật"));
     btn_rect.add_css_class("screenshot-toolbar-btn");
 
-    let btn_blur = gtk4::Button::from_icon_name("view-conceal-symbolic");
+    let btn_blur = gtk4::Button::from_icon_name("view-grid-symbolic");
     btn_blur.set_tooltip_text(Some("Làm mờ thông tin"));
     btn_blur.add_css_class("screenshot-toolbar-btn");
 
-    let btn_eraser = gtk4::Button::from_icon_name("draw-eraser-symbolic");
+    let btn_eraser = gtk4::Button::from_icon_name("edit-clear-all-symbolic");
     btn_eraser.set_tooltip_text(Some("Xóa hình vẽ"));
     btn_eraser.add_css_class("screenshot-toolbar-btn");
 
@@ -192,6 +192,7 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
         let color_btn = gtk4::Button::new();
         color_btn.add_css_class("color-dot-btn");
         color_btn.add_css_class(&format!("color-dot-{}", name));
+        color_btn.set_size_request(16, 16);
 
         let state_color = state.clone();
         let color_btn_clone = color_btn.clone();
