@@ -135,7 +135,7 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     toolbar_wrapper.set_margin_bottom(30);
     toolbar_wrapper.set_visible(false); // Hidden initially
 
-    let toolbar = gtk4::Box::new(gtk4::Orientation::Horizontal, 12);
+    let toolbar = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
     toolbar.add_css_class("screenshot-toolbar"); // Compact glassmorphic styling
     toolbar.set_margin_start(16);
     toolbar.set_margin_end(16);
@@ -165,7 +165,7 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     btn_eraser.add_css_class("screenshot-toolbar-btn");
 
     // Color selection buttons
-    let color_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
+    let color_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
     color_box.set_valign(gtk4::Align::Center);
     
     let colors = vec![
@@ -181,6 +181,10 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
         let color_btn = gtk4::Button::new();
         color_btn.add_css_class("color-dot-btn");
         color_btn.add_css_class(&format!("color-dot-{}", name));
+<<<<<<< HEAD:crates/archvnde-screenshot/src/widgets/editor.rs
+=======
+        color_btn.set_size_request(14, 14);
+>>>>>>> 4ee03f6 (design: align screenshot toolbar CSS with the capsule glassmorphic design of other widgets):crates/archvnde-screenshot/src/editor.rs
 
         let state_color = state.clone();
         let color_btn_clone = color_btn.clone();
