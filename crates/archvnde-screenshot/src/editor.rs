@@ -191,10 +191,11 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     color_dot.set_size_request(14, 14);
     color_btn.set_child(Some(&color_dot));
 
-    // Dynamic CSS provider for updating the active color dot indicator
+    // Dynamic CSS provider for updating the active color dot indicator.
+    // Must use STYLE_PROVIDER_PRIORITY_USER (800) to override the display-level stylesheet.
     let color_provider = gtk4::CssProvider::new();
-    color_provider.load_from_data(".color-dot-indicator { background-color: rgb(237, 38, 38) !important; }");
-    color_dot.style_context().add_provider(&color_provider, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
+    color_provider.load_from_data("box.color-dot-indicator { background-color: rgb(237, 38, 38); }");
+    color_dot.style_context().add_provider(&color_provider, gtk4::STYLE_PROVIDER_PRIORITY_USER);
 
     // Create the Popover containing the 2x4 color grid
     let popover = gtk4::Popover::new();
@@ -243,7 +244,7 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
             let g = (rgb_val.1 * 255.0) as u8;
             let b = (rgb_val.2 * 255.0) as u8;
             color_provider_c.load_from_data(&format!(
-                ".color-dot-indicator {{ background-color: rgb({}, {}, {}) !important; }}",
+                "box.color-dot-indicator {{ background-color: rgb({}, {}, {}); }}",
                 r, g, b
             ));
             
