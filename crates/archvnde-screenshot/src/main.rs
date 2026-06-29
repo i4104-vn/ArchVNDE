@@ -41,13 +41,17 @@ enum Tool {
 struct EditorState {
     bg_pixbuf: gdk_pixbuf::Pixbuf,
     
-    // Selection coordinates
-    start_x: f64,
-    start_y: f64,
-    end_x: f64,
-    end_y: f64,
+    // Crop selection coordinates (remains fixed after crop is done)
+    crop_x: f64,
+    crop_y: f64,
+    crop_w: f64,
+    crop_h: f64,
     has_selection: bool,
-    is_selecting: bool,
+    
+    // Current drag coordinates (for the active gesture)
+    drag_start_x: f64,
+    drag_start_y: f64,
+    is_selecting: bool, // true when dragging to crop
     
     // Active drawing states
     current_tool: Tool,
@@ -61,32 +65,19 @@ impl EditorState {
     fn new(pixbuf: gdk_pixbuf::Pixbuf) -> Self {
         Self {
             bg_pixbuf: pixbuf,
-            start_x: 0.0,
-            start_y: 0.0,
-            end_x: 0.0,
-            end_y: 0.0,
+            crop_x: 0.0,
+            crop_y: 0.0,
+            crop_w: 0.0,
+            crop_h: 0.0,
             has_selection: false,
+            drag_start_x: 0.0,
+            drag_start_y: 0.0,
             is_selecting: false,
             current_tool: Tool::Select,
             current_color: (0.93, 0.15, 0.15), // Red by default
             drawings: Vec::new(),
             active_stroke: None,
             active_rect: None,
-        }
-    }
-
-    fn get_selection_rect(&self) -> Option<(f64, f64, f64, f64)> {
-        if !self.has_selection {
-            return None;
-        }
-        let x = self.start_x.min(self.end_x);
-        let y = self.start_y.min(self.end_y);
-        let w = (self.start_x - self.end_x).abs();
-        let h = (self.start_y - self.end_y).abs();
-        if w > 5.0 && h > 5.0 {
-            Some((x, y, w, h))
-        } else {
-            None
         }
     }
 }
@@ -148,7 +139,13 @@ fn capture_screen_to_temp() -> Option<String> {
 }
 
 fn save_cropped_surface(state: &EditorState) -> Option<cairo::ImageSurface> {
-    let (rx, ry, rw, rh) = state.get_selection_rect()?;
+    if !state.has_selection || state.crop_w <= 5.0 || state.crop_h <= 5.0 {
+        return None;
+    }
+    let rx = state.crop_x;
+    let ry = state.crop_y;
+    let rw = state.crop_w;
+    let rh = state.crop_h;
     
     let surface = cairo::ImageSurface::create(cairo::Format::ARgb32, rw as i32, rh as i32).ok()?;
     let cr = cairo::Context::new(&surface).ok()?;
@@ -316,7 +313,12 @@ fn main() {
             // 2. Draw Dark Overlay
             cr.set_source_rgba(0.0, 0.0, 0.0, 0.45);
             
-            if let Some((rx, ry, rw, rh)) = s.get_selection_rect() {
+            if s.has_selection && s.crop_w > 5.0 && s.crop_h > 5.0 {
+                let rx = s.crop_x;
+                let ry = s.crop_y;
+                let rw = s.crop_w;
+                let rh = s.crop_h;
+                
                 // Clip out the selection area so it remains bright
                 cr.save().unwrap();
                 cr.rectangle(0.0, 0.0, width as f64, height as f64);
@@ -557,9 +559,9 @@ fn main() {
             let mut s_mut = state_mouse.borrow_mut();
             let s = &mut *s_mut;
             
-            // Set the start coordinates for all tools immediately to fix the jumping pen offset!
-            s.start_x = start_x;
-            s.start_y = start_y;
+            // Set the start coordinates for the active drag gesture
+            s.drag_start_x = start_x;
+            s.drag_start_y = start_y;
             
             // If there's no selection yet, force the tool to be Select
             if !s.has_selection {
@@ -568,10 +570,12 @@ fn main() {
             
             match s.current_tool {
                 Tool::Select => {
-                    s.end_x = start_x;
-                    s.end_y = start_y;
                     s.is_selecting = true;
                     s.has_selection = true;
+                    s.crop_x = start_x;
+                    s.crop_y = start_y;
+                    s.crop_w = 0.0;
+                    s.crop_h = 0.0;
                     toolbar_wrapper_begin.set_visible(false); // Hide toolbar while selecting/re-selecting
                 }
                 Tool::Pen => {
@@ -610,13 +614,19 @@ fn main() {
             match s.current_tool {
                 Tool::Select => {
                     if s.is_selecting {
-                        s.end_x = s.start_x + offset_x;
-                        s.end_y = s.start_y + offset_y;
+                        let rx = s.drag_start_x.min(s.drag_start_x + offset_x);
+                        let ry = s.drag_start_y.min(s.drag_start_y + offset_y);
+                        let rw = offset_x.abs();
+                        let rh = offset_y.abs();
+                        s.crop_x = rx;
+                        s.crop_y = ry;
+                        s.crop_w = rw;
+                        s.crop_h = rh;
                     }
                 }
                 Tool::Pen => {
-                    let start_x = s.start_x;
-                    let start_y = s.start_y;
+                    let start_x = s.drag_start_x;
+                    let start_y = s.drag_start_y;
                     if let Some(points) = &mut s.active_stroke {
                         let last = points.last().copied().unwrap_or((0.0, 0.0));
                         let next = (start_x + offset_x, start_y + offset_y);
@@ -627,8 +637,8 @@ fn main() {
                     }
                 }
                 Tool::Rect | Tool::Blur => {
-                    let rx = s.start_x.min(s.start_x + offset_x);
-                    let ry = s.start_y.min(s.start_y + offset_y);
+                    let rx = s.drag_start_x.min(s.drag_start_x + offset_x);
+                    let ry = s.drag_start_y.min(s.drag_start_y + offset_y);
                     let rw = offset_x.abs();
                     let rh = offset_y.abs();
                     s.active_rect = Some((rx, ry, rw, rh));
@@ -650,13 +660,17 @@ fn main() {
                 Tool::Select => {
                     s.is_selecting = false;
                     // Validate selection: if too small, discard it
-                    if s.get_selection_rect().is_some() {
+                    if s.crop_w > 5.0 && s.crop_h > 5.0 {
                         // Automatically switch tool to Pen so the user can draw immediately
                         s.current_tool = Tool::Pen;
                         btn_select_end.remove_css_class("selected");
                         btn_pen_end.add_css_class("selected");
                     } else {
                         s.has_selection = false;
+                        s.crop_x = 0.0;
+                        s.crop_y = 0.0;
+                        s.crop_w = 0.0;
+                        s.crop_h = 0.0;
                     }
                 }
                 Tool::Pen => {
