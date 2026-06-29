@@ -122,7 +122,7 @@ pub fn create_media_popover(
 =======
                 archvnde_common::animation::SlideDirection::Up,
                 15,
-                500,
+                450,
                 false,
 >>>>>>> 6f31f40 (perf: optimize animation refresh rates to 120fps and relax popup durations):libs/archvnde-island/src/widgets/popover.rs
                 move || {
@@ -148,8 +148,12 @@ pub fn create_media_popover(
 =======
             archvnde_common::animation::SlideDirection::Down,
             15,
+<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
             500,
 >>>>>>> 6f31f40 (perf: optimize animation refresh rates to 120fps and relax popup durations):libs/archvnde-island/src/widgets/popover.rs
+=======
+            450,
+>>>>>>> 54d7b9f (perf: adjust all popup animation durations to 450ms):libs/archvnde-island/src/widgets/popover.rs
         );
     });
 

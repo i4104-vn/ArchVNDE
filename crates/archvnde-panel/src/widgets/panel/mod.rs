@@ -181,7 +181,7 @@ fn create_control_center_window(
             main_box_clone.upcast_ref(),
             360,
             480,
-            500,
+            450,
             move || {
                 q_win_cb.destroy();
             }
@@ -190,7 +190,7 @@ fn create_control_center_window(
     });
 
     q_win.present();
-    archvnde_common::animation::genie_in(main_box.upcast_ref(), 360, 480, 500);
+    archvnde_common::animation::genie_in(main_box.upcast_ref(), 360, 480, 450);
 
     q_win
 }

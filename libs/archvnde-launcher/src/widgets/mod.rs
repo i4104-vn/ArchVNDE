@@ -194,7 +194,7 @@ pub fn build_launcher_ui(
         box_layout.upcast_ref(),
         archvnde_common::animation::SlideDirection::Down,
         40,
-        500,
+        450,
     );
 
     search_entry.grab_focus();

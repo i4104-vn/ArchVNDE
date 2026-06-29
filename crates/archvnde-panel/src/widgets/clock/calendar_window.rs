@@ -112,7 +112,7 @@ pub fn show_calendar_window(
             main_box_clone.upcast_ref(),
             360,
             h,
-            500,
+            450,
             move || {
                 c_win_cb.destroy();
             }
@@ -123,7 +123,7 @@ pub fn show_calendar_window(
     let (_, natural_size) = main_box.preferred_size();
     let target_height = if natural_size.height() > 20 { natural_size.height() } else { 480 };
     c_win.present();
-    archvnde_common::animation::genie_in(main_box.upcast_ref(), 360, target_height, 500);
+    archvnde_common::animation::genie_in(main_box.upcast_ref(), 360, target_height, 450);
 
     c_win
 }
