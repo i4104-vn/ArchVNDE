@@ -182,7 +182,8 @@ fn main() {
         let window_release = window.clone();
         key_controller.connect_key_released(move |_, key, _, _| {
             match key {
-                gtk4::gdk::Key::Alt_L | gtk4::gdk::Key::Alt_R => {
+                gtk4::gdk::Key::Alt_L | gtk4::gdk::Key::Alt_R |
+                gtk4::gdk::Key::Meta_L | gtk4::gdk::Key::Meta_R => {
                     let idx = *current_idx_release.borrow();
                     if idx < apps_release.len() {
                         let app_item = &apps_release[idx];
@@ -201,6 +202,35 @@ fn main() {
 
         if !item_buttons.is_empty() {
             item_buttons[0].grab_focus();
+        }
+
+        // Check if Alt is already released on startup (e.g. quick tap of Alt-Tab)
+        let has_alt = {
+            if let Some(display) = gtk4::gdk::Display::default() {
+                if let Some(seat) = display.default_seat() {
+                    if let Some(keyboard) = seat.keyboard() {
+                        let mods = keyboard.modifier_state();
+                        mods.contains(gtk4::gdk::ModifierType::ALT_MASK) || mods.contains(gtk4::gdk::ModifierType::MOD1_MASK)
+                    } else {
+                        true
+                    }
+                } else {
+                    true
+                }
+            } else {
+                true
+            }
+        };
+
+        if !has_alt {
+            let idx = initial_idx;
+            if idx < apps.len() {
+                let app_item = &apps[idx];
+                println!("Alt already released on startup. Activating: {}", app_item.name);
+                save_history(&app_item.name);
+                activate_app(app_item);
+            }
+            window.close();
         }
     });
 
