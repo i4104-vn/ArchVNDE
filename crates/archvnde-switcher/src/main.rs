@@ -3,6 +3,22 @@ use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
 use std::cell::RefCell;
 use std::rc::Rc;
 use archvnde_common::desktop::DesktopApp;
+use std::os::unix::net::{UnixListener, UnixStream};
+use std::io::{Write, Read};
+
+fn handle_single_instance() -> bool {
+    let socket_path = "/tmp/archvnde-switcher.socket";
+    
+    // Try to connect to the existing running instance
+    if let Ok(mut stream) = UnixStream::connect(socket_path) {
+        let _ = stream.write_all(b"next");
+        return false; // Exit this new instance
+    }
+    
+    // Connection failed, remove stale socket file if it exists
+    let _ = std::fs::remove_file(socket_path);
+    true // Continue running as the main instance
+}
 
 fn get_running_apps() -> Vec<DesktopApp> {
     let desktop_apps = archvnde_common::desktop::find_desktop_apps();
@@ -58,7 +74,56 @@ fn get_running_apps() -> Vec<DesktopApp> {
     running
 }
 
+fn activate_app(app: &DesktopApp) {
+    let name = &app.name;
+    let exec_parts: Vec<&str> = app.exec.split_whitespace().collect();
+    let exec_name = if !exec_parts.is_empty() {
+        std::path::Path::new(exec_parts[0])
+            .file_name()
+            .map(|f| f.to_string_lossy().to_string())
+            .unwrap_or_default()
+    } else {
+        String::new()
+    };
+
+    // Try wlrctl (Wayland wlroots)
+    if !exec_name.is_empty() {
+        let _ = std::process::Command::new("wlrctl")
+            .args(&["toplevel", "focus", &exec_name])
+            .spawn();
+        let _ = std::process::Command::new("wlrctl")
+            .args(&["toplevel", "focus", &exec_name.to_lowercase()])
+            .spawn();
+        let _ = std::process::Command::new("wlrctl")
+            .args(&["toplevel", "focus", &format!("title:{}", exec_name)])
+            .spawn();
+    }
+    let _ = std::process::Command::new("wlrctl")
+        .args(&["toplevel", "focus", name])
+        .spawn();
+    let _ = std::process::Command::new("wlrctl")
+        .args(&["toplevel", "focus", &format!("title:{}", name)])
+        .spawn();
+    let _ = std::process::Command::new("wlrctl")
+        .args(&["toplevel", "focus", &format!("title:{}", name.to_lowercase())])
+        .spawn();
+
+    // Try wmctrl (X11 / XWayland)
+    let _ = std::process::Command::new("wmctrl")
+        .args(&["-a", name])
+        .spawn();
+    if !exec_name.is_empty() {
+        let _ = std::process::Command::new("wmctrl")
+            .args(&["-a", &exec_name])
+            .spawn();
+    }
+}
+
 fn main() {
+    if !handle_single_instance() {
+        return;
+    }
+
     println!("Starting ArchVNDE Alt-Tab Switcher...");
 
     let application = gtk4::Application::new(
@@ -125,36 +190,7 @@ fn main() {
             return;
         }
 
-        // 1. App Preview Stack
-        let preview_stack = gtk4::Stack::new();
-        preview_stack.add_css_class("preview-frame");
-        preview_stack.set_transition_type(gtk4::StackTransitionType::Crossfade);
-        preview_stack.set_transition_duration(150);
-
-        for app_item in &apps {
-            let p_widget = create_app_preview(app_item);
-            preview_stack.add_named(&p_widget, Some(&app_item.name));
-        }
-        main_box.append(&preview_stack);
-
-        // 2. Selected App Details
-        let details_box = gtk4::Box::new(gtk4::Orientation::Vertical, 2);
-        details_box.add_css_class("switcher-details-box");
-        details_box.set_halign(gtk4::Align::Center);
-
-        let app_title_lbl = gtk4::Label::new(None);
-        app_title_lbl.add_css_class("switcher-app-title");
-        app_title_lbl.set_halign(gtk4::Align::Center);
-
-        let app_sub_lbl = gtk4::Label::new(None);
-        app_sub_lbl.add_css_class("switcher-app-subtitle");
-        app_sub_lbl.set_halign(gtk4::Align::Center);
-
-        details_box.append(&app_title_lbl);
-        details_box.append(&app_sub_lbl);
-        main_box.append(&details_box);
-
-        // 3. Horizontal Icons Row
+        // 1. Horizontal Icons Row (on top)
         let icons_row = gtk4::Box::new(gtk4::Orientation::Horizontal, 12);
         icons_row.add_css_class("switcher-list-row");
         icons_row.set_halign(gtk4::Align::Center);
@@ -179,6 +215,20 @@ fn main() {
         }
         main_box.append(&icons_row);
 
+        // 2. Selected App Details (below it, styled as a box/capsule)
+        let details_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+        details_box.add_css_class("switcher-details-box");
+        details_box.set_halign(gtk4::Align::Fill);
+        details_box.set_hexpand(true);
+
+        let app_title_lbl = gtk4::Label::new(None);
+        app_title_lbl.add_css_class("switcher-app-title");
+        app_title_lbl.set_halign(gtk4::Align::Center);
+        app_title_lbl.set_hexpand(true);
+
+        details_box.append(&app_title_lbl);
+        main_box.append(&details_box);
+
         window.set_child(Some(&main_box));
 
         // State tracking
@@ -187,9 +237,7 @@ fn main() {
         let update_selection = {
             let current_index = current_index.clone();
             let apps = apps.clone();
-            let preview_stack = preview_stack.clone();
             let app_title_lbl = app_title_lbl.clone();
-            let app_sub_lbl = app_sub_lbl.clone();
             let item_buttons = item_buttons.clone();
 
             move |new_idx: usize| {
@@ -201,9 +249,6 @@ fn main() {
 
                 let app_item = &apps[idx];
                 app_title_lbl.set_text(&app_item.name);
-                app_sub_lbl.set_text(&format!("exec: {}", app_item.exec));
-
-                preview_stack.set_visible_child_name(&app_item.name);
 
                 for (i, btn) in item_buttons.iter().enumerate() {
                     if i == idx {
@@ -222,17 +267,53 @@ fn main() {
         // Click handlers on buttons
         for (i, btn) in item_buttons.iter().enumerate() {
             let update_sel = update_selection_rc.clone();
+            let window_close = window.clone();
+            let apps_click = apps.clone();
             btn.connect_clicked(move |_| {
                 update_sel(i);
+                activate_app(&apps_click[i]);
+                window_close.close();
             });
         }
 
+        // Unix Socket Listener to handle subsequent Alt-Tab signals
+        let (sender, receiver) = std::sync::mpsc::channel::<()>();
+        std::thread::spawn(move || {
+            let socket_path = "/tmp/archvnde-switcher.socket";
+            if let Ok(listener) = UnixListener::bind(socket_path) {
+                for stream in listener.incoming() {
+                    if let Ok(mut stream) = stream {
+                        let mut buf = [0; 4];
+                        if let Ok(_) = stream.read(&mut buf) {
+                            if &buf[0..4] == b"next" {
+                                let _ = sender.send(());
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        let update_sel_socket = update_selection_rc.clone();
+        let current_idx_socket = current_index.clone();
+        let apps_len = apps.len();
+        gtk4::glib::timeout_add_local(std::time::Duration::from_millis(10), move || {
+            while let Ok(_) = receiver.try_recv() {
+                let idx = *current_idx_socket.borrow();
+                let next = (idx + 1) % apps_len;
+                update_sel_socket(next);
+            }
+            gtk4::glib::ControlFlow::Continue
+        });
+
         // Keyboard navigation
         let key_controller = gtk4::EventControllerKey::new();
+        key_controller.set_propagation_phase(gtk4::PropagationPhase::Capture);
         let current_idx_key = current_index.clone();
         let update_sel_key = update_selection_rc.clone();
         let window_close = window.clone();
         let apps_key = apps.clone();
+        
         key_controller.connect_key_pressed(move |_, key, _, _| {
             let idx = *current_idx_key.borrow();
             match key {
@@ -241,7 +322,7 @@ fn main() {
                     update_sel_key(next);
                     gtk4::glib::Propagation::Stop
                 }
-                gtk4::gdk::Key::Left => {
+                gtk4::gdk::Key::ISO_Left_Tab | gtk4::gdk::Key::Left => {
                     let prev = if idx == 0 { apps_key.len() - 1 } else { idx - 1 };
                     update_sel_key(prev);
                     gtk4::glib::Propagation::Stop
@@ -249,6 +330,7 @@ fn main() {
                 gtk4::gdk::Key::Return | gtk4::gdk::Key::space => {
                     let app_item = &apps_key[idx];
                     println!("Selected App: {}", app_item.name);
+                    activate_app(app_item);
                     window_close.close();
                     gtk4::glib::Propagation::Stop
                 }
@@ -259,50 +341,37 @@ fn main() {
                 _ => gtk4::glib::Propagation::Proceed,
             }
         });
-        window.add_controller(key_controller);
 
+        // Activate and close on Alt release
+        let current_idx_release = current_index.clone();
+        let apps_release = apps.clone();
+        let window_release = window.clone();
+        key_controller.connect_key_released(move |_, key, _, _| {
+            match key {
+                gtk4::gdk::Key::Alt_L | gtk4::gdk::Key::Alt_R => {
+                    let idx = *current_idx_release.borrow();
+                    if idx < apps_release.len() {
+                        let app_item = &apps_release[idx];
+                        println!("Alt released. Activating: {}", app_item.name);
+                        activate_app(app_item);
+                    }
+                    window_release.close();
+                }
+                _ => {}
+            }
+        });
+
+        window.add_controller(key_controller);
         window.present();
+
+        // Grab focus on the first button to guarantee the window captures keyboard input immediately
+        if !item_buttons.is_empty() {
+            item_buttons[0].grab_focus();
+        }
     });
 
     application.run();
-}
 
-fn create_app_preview(app: &DesktopApp) -> gtk4::Widget {
-    let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
-    main_box.add_css_class("preview-generic");
-    main_box.set_vexpand(true);
-    main_box.set_hexpand(true);
-
-    let card = gtk4::Box::new(gtk4::Orientation::Vertical, 16);
-    card.add_css_class("preview-generic-box");
-    card.set_halign(gtk4::Align::Center);
-    card.set_valign(gtk4::Align::Center);
-
-    let app_icon_str = app.icon.as_deref().unwrap_or("application-x-executable");
-    let icon_w = archvnde_common::icon::get_system_or_file_icon(app_icon_str, "application-x-executable");
-    icon_w.set_pixel_size(96);
-    icon_w.set_halign(gtk4::Align::Center);
-
-    let name_lbl = gtk4::Label::new(Some(&app.name));
-    name_lbl.add_css_class("switcher-app-title");
-    name_lbl.set_halign(gtk4::Align::Center);
-
-    let desc_lbl = gtk4::Label::new(Some("Ứng dụng đang chạy"));
-    desc_lbl.add_css_class("popup-time");
-    desc_lbl.set_halign(gtk4::Align::Center);
-
-    let command_lbl = gtk4::Label::new(Some(&format!("Lệnh: {}", app.exec)));
-    command_lbl.add_css_class("popup-time");
-    command_lbl.set_halign(gtk4::Align::Center);
-    command_lbl.set_max_width_chars(40);
-    command_lbl.set_ellipsize(gtk4::pango::EllipsizeMode::End);
-
-    card.append(&icon_w);
-    card.append(&name_lbl);
-    card.append(&desc_lbl);
-    card.append(&command_lbl);
-
-    main_box.append(&card);
-
-    main_box.upcast::<gtk4::Widget>()
+    // Clean up Unix socket file on exit
+    std::fs::remove_file("/tmp/archvnde-switcher.socket").ok();
 }
