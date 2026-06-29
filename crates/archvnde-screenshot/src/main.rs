@@ -208,7 +208,7 @@ fn trigger_save(state: &EditorState) -> bool {
 }
 
 fn trigger_copy(state: &EditorState, window: &gtk4::ApplicationWindow) -> bool {
-    if let Some(surface) = save_cropped_surface(state) {
+    if let Some(mut surface) = save_cropped_surface(state) {
         // Convert cairo surface to GdkTexture
         let w = surface.width();
         let h = surface.height();
