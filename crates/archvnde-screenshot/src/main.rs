@@ -393,6 +393,7 @@ fn main() {
         toolbar_wrapper.set_halign(gtk4::Align::Center);
         toolbar_wrapper.set_valign(gtk4::Align::End);
         toolbar_wrapper.set_margin_bottom(30);
+        toolbar_wrapper.set_visible(false); // Hidden initially
 
         let toolbar = gtk4::Box::new(gtk4::Orientation::Horizontal, 12);
         toolbar.add_css_class("switcher-box"); // Reuse glassmorphism styling
@@ -551,9 +552,16 @@ fn main() {
         let state_mouse = state.clone();
         let canvas_mouse = drawing_area.clone();
         
+        let toolbar_wrapper_begin = toolbar_wrapper.clone();
         drag_gesture.connect_drag_begin(move |_, start_x, start_y| {
             let mut s_mut = state_mouse.borrow_mut();
             let s = &mut *s_mut;
+            
+            // If there's no selection yet, force the tool to be Select
+            if !s.has_selection {
+                s.current_tool = Tool::Select;
+            }
+            
             match s.current_tool {
                 Tool::Select => {
                     s.start_x = start_x;
@@ -562,6 +570,7 @@ fn main() {
                     s.end_y = start_y;
                     s.is_selecting = true;
                     s.has_selection = true;
+                    toolbar_wrapper_begin.set_visible(false); // Hide toolbar while selecting/re-selecting
                 }
                 Tool::Pen => {
                     s.active_stroke = Some(vec![(start_x, start_y)]);
@@ -628,6 +637,7 @@ fn main() {
         });
 
         let state_mouse_end = state.clone();
+        let toolbar_wrapper_end = toolbar_wrapper.clone();
         let canvas_mouse_end = drawing_area.clone();
         drag_gesture.connect_drag_end(move |_, _, _| {
             let mut s_mut = state_mouse_end.borrow_mut();
@@ -635,6 +645,10 @@ fn main() {
             match s.current_tool {
                 Tool::Select => {
                     s.is_selecting = false;
+                    // Validate selection: if too small, discard it
+                    if s.get_selection_rect().is_none() {
+                        s.has_selection = false;
+                    }
                 }
                 Tool::Pen => {
                     let color = s.current_color;
@@ -672,6 +686,14 @@ fn main() {
                 }
                 _ => {}
             }
+            
+            // Show toolbar if we have a valid selection, otherwise hide it
+            if s.has_selection {
+                toolbar_wrapper_end.set_visible(true);
+            } else {
+                toolbar_wrapper_end.set_visible(false);
+            }
+            
             canvas_mouse_end.queue_draw();
         });
 
