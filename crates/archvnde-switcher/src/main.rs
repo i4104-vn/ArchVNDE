@@ -20,6 +20,36 @@ fn handle_single_instance() -> bool {
     true // Continue running as the main instance
 }
 
+fn get_history() -> Vec<String> {
+    let history_path = "/tmp/archvnde-switcher-history.txt";
+    if let Ok(content) = std::fs::read_to_string(history_path) {
+        content.lines().map(|s| s.to_string()).collect()
+    } else {
+        Vec::new()
+    }
+}
+
+fn save_history(active_name: &str) {
+    let history_path = "/tmp/archvnde-switcher-history.txt";
+    let mut history = get_history();
+    
+    // Remove if already exists
+    history.retain(|x| x != active_name);
+    
+    // Insert at the beginning
+    history.insert(0, active_name.to_string());
+    
+    // Keep only top 20
+    history.truncate(20);
+    
+    // Write back
+    if let Ok(mut file) = std::fs::File::create(history_path) {
+        for name in history {
+            let _ = writeln!(file, "{}", name);
+        }
+    }
+}
+
 fn get_running_apps() -> Vec<DesktopApp> {
     let desktop_apps = archvnde_common::desktop::find_desktop_apps();
     let mut running = Vec::new();
@@ -70,6 +100,14 @@ fn get_running_apps() -> Vec<DesktopApp> {
             }
         }
     }
+
+    // 3. Sort running apps based on MRU history
+    let history = get_history();
+    running.sort_by(|a, b| {
+        let idx_a = history.iter().position(|x| x == &a.name).unwrap_or(usize::MAX);
+        let idx_b = history.iter().position(|x| x == &b.name).unwrap_or(usize::MAX);
+        idx_a.cmp(&idx_b)
+    });
 
     running
 }
@@ -262,7 +300,8 @@ fn main() {
 
         // Initial selection setup
         let update_selection_rc = Rc::new(update_selection);
-        update_selection_rc(0);
+        let initial_idx = if apps.len() > 1 { 1 } else { 0 };
+        update_selection_rc(initial_idx);
 
         // Click handlers on buttons
         for (i, btn) in item_buttons.iter().enumerate() {
@@ -271,7 +310,9 @@ fn main() {
             let apps_click = apps.clone();
             btn.connect_clicked(move |_| {
                 update_sel(i);
-                activate_app(&apps_click[i]);
+                let app_item = &apps_click[i];
+                save_history(&app_item.name);
+                activate_app(app_item);
                 window_close.close();
             });
         }
@@ -330,6 +371,7 @@ fn main() {
                 gtk4::gdk::Key::Return | gtk4::gdk::Key::space => {
                     let app_item = &apps_key[idx];
                     println!("Selected App: {}", app_item.name);
+                    save_history(&app_item.name);
                     activate_app(app_item);
                     window_close.close();
                     gtk4::glib::Propagation::Stop
@@ -353,6 +395,7 @@ fn main() {
                     if idx < apps_release.len() {
                         let app_item = &apps_release[idx];
                         println!("Alt released. Activating: {}", app_item.name);
+                        save_history(&app_item.name);
                         activate_app(app_item);
                     }
                     window_release.close();
