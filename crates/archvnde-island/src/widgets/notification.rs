@@ -141,7 +141,7 @@ fn close_and_fade(window: &gtk4::Window, container_box: &gtk4::Box) {
         container_box.upcast_ref(),
         380,
         76,
-        400,
+        500,
         move || {
             win.close();
         }

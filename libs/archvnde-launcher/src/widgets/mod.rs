@@ -126,7 +126,7 @@ pub fn build_launcher_ui(
             box_layout_cb.upcast_ref(),
             archvnde_common::animation::SlideDirection::Up,
             40,
-            200,
+            450,
             false,
             move || {
                 win_cb.destroy();
@@ -194,7 +194,7 @@ pub fn build_launcher_ui(
         box_layout.upcast_ref(),
         archvnde_common::animation::SlideDirection::Down,
         40,
-        250,
+        500,
     );
 
     search_entry.grab_focus();

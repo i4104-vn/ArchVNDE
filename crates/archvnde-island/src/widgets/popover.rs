@@ -115,9 +115,16 @@ pub fn create_media_popover(
             
             archvnde_common::animation::genie_out(
                 popover_box_clone.upcast_ref(),
+<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
                 240,
                 180,
                 400,
+=======
+                archvnde_common::animation::SlideDirection::Up,
+                15,
+                500,
+                false,
+>>>>>>> 6f31f40 (perf: optimize animation refresh rates to 120fps and relax popup durations):libs/archvnde-island/src/widgets/popover.rs
                 move || {
                     p_clone.popdown();
                     is_animating_cb.set(false);
@@ -134,9 +141,15 @@ pub fn create_media_popover(
     popover.connect_map(move |_| {
         archvnde_common::animation::genie_in(
             popover_box_clone2.upcast_ref(),
+<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
             240,
             180,
             400,
+=======
+            archvnde_common::animation::SlideDirection::Down,
+            15,
+            500,
+>>>>>>> 6f31f40 (perf: optimize animation refresh rates to 120fps and relax popup durations):libs/archvnde-island/src/widgets/popover.rs
         );
     });
 
