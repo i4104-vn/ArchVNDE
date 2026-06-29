@@ -180,22 +180,37 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     btn_eraser.add_css_class("flat");
     btn_eraser.add_css_class("screenshot-toolbar-btn");
 
-    // Color picker button with a color dot indicator inside
+    // Color picker button with a color dot indicator inside.
+    // Use DrawingArea + Cairo to reliably render the color circle,
+    // since GTK Box widgets do not render background-color consistently.
     let color_btn = gtk4::Button::new();
     color_btn.set_tooltip_text(Some("Chọn màu vẽ"));
     color_btn.add_css_class("flat");
     color_btn.add_css_class("screenshot-toolbar-btn");
-    
-    let color_dot = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-    color_dot.add_css_class("color-dot-indicator");
+
+    // Shared indicator color: default red
+    let indicator_color: Rc<RefCell<(f64, f64, f64)>> = Rc::new(RefCell::new((0.93, 0.15, 0.15)));
+
+    let color_dot = gtk4::DrawingArea::new();
     color_dot.set_size_request(14, 14);
     color_btn.set_child(Some(&color_dot));
 
-    // Dynamic CSS provider for updating the active color dot indicator.
-    // Must use STYLE_PROVIDER_PRIORITY_USER (800) to override the display-level stylesheet.
-    let color_provider = gtk4::CssProvider::new();
-    color_provider.load_from_data("box.color-dot-indicator { background-color: rgb(237, 38, 38); }");
-    color_dot.style_context().add_provider(&color_provider, gtk4::STYLE_PROVIDER_PRIORITY_USER);
+    let indicator_color_draw = indicator_color.clone();
+    color_dot.set_draw_func(move |_, cr, w, h| {
+        let (r, g, b) = *indicator_color_draw.borrow();
+        let cx = w as f64 / 2.0;
+        let cy = h as f64 / 2.0;
+        let radius = (w.min(h) as f64 / 2.0) - 1.0;
+        // Fill circle with selected color
+        cr.arc(cx, cy, radius, 0.0, 2.0 * std::f64::consts::PI);
+        cr.set_source_rgb(r, g, b);
+        cr.fill().unwrap();
+        // White border ring
+        cr.arc(cx, cy, radius, 0.0, 2.0 * std::f64::consts::PI);
+        cr.set_source_rgba(1.0, 1.0, 1.0, 0.5);
+        cr.set_line_width(1.0);
+        cr.stroke().unwrap();
+    });
 
     // Create the Popover containing the 2x4 color grid
     let popover = gtk4::Popover::new();
@@ -234,19 +249,15 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
         
         let state_c = state.clone();
         let popover_c = popover.clone();
-        let color_provider_c = color_provider.clone();
+        let indicator_color_c = indicator_color.clone();
+        let color_dot_c = color_dot.clone();
         let rgb_val = rgb;
         btn.connect_clicked(move |_| {
             state_c.borrow_mut().current_color = rgb_val;
             
-            // Update the color dot indicator on the toolbar button
-            let r = (rgb_val.0 * 255.0) as u8;
-            let g = (rgb_val.1 * 255.0) as u8;
-            let b = (rgb_val.2 * 255.0) as u8;
-            color_provider_c.load_from_data(&format!(
-                "box.color-dot-indicator {{ background-color: rgb({}, {}, {}); }}",
-                r, g, b
-            ));
+            // Update indicator color and trigger redraw
+            *indicator_color_c.borrow_mut() = rgb_val;
+            color_dot_c.queue_draw();
             
             popover_c.popdown();
         });
