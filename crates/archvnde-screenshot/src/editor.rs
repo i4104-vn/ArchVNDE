@@ -223,7 +223,7 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
         btn.set_size_request(16, 16);
         
         let provider_btn = gtk4::CssProvider::new();
-        provider_btn.load_from_data(&format!("button { background: {} !important; }", hex));
+        provider_btn.load_from_data(&format!("button {{ background: {} !important; }}", hex));
         btn.style_context().add_provider(&provider_btn, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
         
         let state_c = state.clone();
