@@ -49,11 +49,21 @@ impl StatusNotifierWatcher {
         };
 
         // Create proxy to query StatusNotifierItem properties
+        let bus_name = match zbus::names::BusName::try_from(target_service.clone()) {
+            Ok(name) => name,
+            Err(e) => {
+                eprintln!("Invalid bus name: {}", e);
+                return;
+            }
+        };
+        let object_path = zbus::zvariant::ObjectPath::from_static_str_unchecked("/StatusNotifierItem");
+        let interface_name = zbus::names::InterfaceName::from_static_str_unchecked("org.kde.StatusNotifierItem");
+
         let proxy = zbus::Proxy::new(
             &connection,
-            &target_service,
-            "/StatusNotifierItem",
-            "org.kde.StatusNotifierItem",
+            bus_name,
+            object_path,
+            interface_name,
         )
         .await;
 
@@ -147,9 +157,11 @@ pub fn spawn_watcher_service() {
                 let mut active_items = Vec::new();
                 if let Ok(dbus_proxy) = zbus::fdo::DBusProxy::new(&conn).await {
                     for item in current_items {
-                        match dbus_proxy.name_has_owner(item.service.as_str().into()).await {
-                            Ok(true) => active_items.push(item),
-                            _ => println!("Pruning disconnected tray item: {}", item.service),
+                        if let Ok(name) = zbus::names::BusName::try_from(item.service.clone()) {
+                            match dbus_proxy.name_has_owner(name).await {
+                                Ok(true) => active_items.push(item),
+                                _ => println!("Pruning disconnected tray item: {}", item.service),
+                            }
                         }
                     }
                 }
@@ -161,24 +173,37 @@ pub fn spawn_watcher_service() {
     });
 }
 
-/// Sends an Activate signal to the item's D-Bus service, letting the application open its menu or window.
-pub fn activate_item(service: &str) {
+/// Sends an Activate or ContextMenu signal to the item's D-Bus service, letting the application open its menu or window.
+pub fn activate_item(service: &str, x: i32, y: i32, is_right_click: bool) {
     let service_str = service.to_string();
     std::thread::spawn(move || {
         let rt = tokio::runtime::Runtime::new().unwrap();
         rt.block_on(async {
             if let Ok(conn) = zbus::Connection::session().await {
+                let bus_name = match zbus::names::BusName::try_from(service_str.clone()) {
+                    Ok(name) => name,
+                    Err(e) => {
+                        eprintln!("Invalid bus name for activation: {}", e);
+                        return;
+                    }
+                };
+                let object_path = zbus::zvariant::ObjectPath::from_static_str_unchecked("/StatusNotifierItem");
+                let interface_name = zbus::names::InterfaceName::from_static_str_unchecked("org.kde.StatusNotifierItem");
+
                 let proxy = zbus::Proxy::new(
                     &conn,
-                    &service_str,
-                    "/StatusNotifierItem",
-                    "org.kde.StatusNotifierItem",
+                    bus_name,
+                    object_path,
+                    interface_name,
                 )
                 .await;
 
                 if let Ok(p) = proxy {
-                    // Call Activate(0, 0)
-                    let _ = p.call::<_, (i32, i32), _>("Activate", &(0, 0)).await;
+                    if is_right_click {
+                        let _ = p.call::<_, _, ()>("ContextMenu", &(x, y)).await;
+                    } else {
+                        let _ = p.call::<_, _, ()>("Activate", &(x, y)).await;
+                    }
                 }
             }
         });

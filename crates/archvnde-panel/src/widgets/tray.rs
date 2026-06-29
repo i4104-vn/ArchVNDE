@@ -5,7 +5,7 @@ use std::rc::Rc;
 /// Creates a horizontal Box container containing active system tray icons.
 /// It polls the `archvnde-tray` registry every 2 seconds and reconstructs
 /// buttons only if the list of registered services changes.
-pub fn create_tray_widget() -> gtk4::Box {
+pub fn create_tray_widget(window: &gtk4::ApplicationWindow) -> gtk4::Box {
     let tray_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
     tray_container.add_css_class("panel-tray-box");
     tray_container.set_valign(gtk4::Align::Center);
@@ -14,6 +14,7 @@ pub fn create_tray_widget() -> gtk4::Box {
 
     let tray_container_clone = tray_container.clone();
     let displayed_clone = displayed_services.clone();
+    let window_clone = window.clone();
 
     // Poll D-Bus registered tray items every 2 seconds.
     // If services changed, rebuild the children widgets.
@@ -44,11 +45,26 @@ pub fn create_tray_widget() -> gtk4::Box {
                 btn.set_child(Some(&icon));
 
                 let service_name = item.service.clone();
-                btn.connect_clicked(move |_| {
-                    println!("Activating tray icon service: {}", service_name);
-                    archvnde_tray::activate_item(&service_name);
+                let btn_c = btn.clone();
+                let win_c = window_clone.clone();
+
+                let gesture = gtk4::GestureClick::new();
+                gesture.set_button(0); // Listen to all mouse buttons (left=1, right=3)
+                gesture.connect_pressed(move |g, _, click_x, click_y| {
+                    let button_num = g.current_button();
+                    let is_right_click = button_num == 3;
+                    
+                    let (root_x, root_y) = btn_c.translate_coordinates(&win_c, 0.0, 0.0).unwrap_or((0.0, 0.0));
+                    // Calculate approximate absolute screen coordinates
+                    // Top panel margin: top = 6, left = 8
+                    let abs_x = (8.0 + root_x + click_x) as i32;
+                    let abs_y = (6.0 + root_y + click_y) as i32;
+
+                    println!("Tray icon clicked! Button: {}, Abs X: {}, Abs Y: {}", button_num, abs_x, abs_y);
+                    archvnde_tray::activate_item(&service_name, abs_x, abs_y, is_right_click);
                 });
 
+                btn.add_controller(gesture);
                 tray_container_clone.append(&btn);
             }
 

@@ -114,7 +114,7 @@ fn main() {
         );
 
         let sys_monitor = create_sys_monitor_widget();
-        let tray_widget = create_tray_widget();
+        let tray_widget = create_tray_widget(&window);
 
         // Left-aligned section: Workspaces capsule (now containing logo + separator + dots)
         let left_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
