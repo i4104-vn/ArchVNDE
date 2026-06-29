@@ -175,27 +175,91 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     btn_eraser.set_tooltip_text(Some("Xóa hình vẽ"));
     btn_eraser.add_css_class("screenshot-toolbar-btn");
 
-    // Color picker button
-    let color_btn = gtk4::ColorButton::new();
+    // Color picker button with a color dot indicator inside
+    let color_btn = gtk4::Button::new();
     color_btn.set_tooltip_text(Some("Chọn màu vẽ"));
     color_btn.add_css_class("screenshot-toolbar-btn");
     
-    let rgba = gtk4::gdk::RGBA::builder()
-        .red(0.93)
-        .green(0.15)
-        .blue(0.15)
-        .alpha(1.0)
-        .build();
-    color_btn.set_rgba(&rgba);
+    let color_dot = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+    color_dot.add_css_class("color-dot-indicator");
+    color_dot.set_size_request(14, 14);
+    color_btn.set_child(Some(&color_dot));
 
-    let state_color = state.clone();
-    color_btn.connect_color_set(move |btn| {
-        let rgba = btn.rgba();
-        state_color.borrow_mut().current_color = (
-            rgba.red() as f64,
-            rgba.green() as f64,
-            rgba.blue() as f64,
-        );
+    // Set initial color of the dot to Red
+    let provider_init = gtk4::CssProvider::new();
+    provider_init.load_from_data(".color-dot-indicator { background-color: rgb(237, 38, 38) !important; }");
+    color_dot.style_context().add_provider(&provider_init, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+    // Create the Popover containing the 2x4 color grid
+    let popover = gtk4::Popover::new();
+    popover.set_parent(&color_btn);
+    popover.set_position(gtk4::PositionType::Top);
+
+    let grid = gtk4::Grid::new();
+    grid.set_column_spacing(6);
+    grid.set_row_spacing(6);
+    grid.set_margin_start(4);
+    grid.set_margin_end(4);
+    grid.set_margin_top(4);
+    grid.set_margin_bottom(4);
+
+    let colors = vec![
+        ("Đỏ", (0.93, 0.15, 0.15), "#ef4444"),
+        ("Cam", (0.98, 0.45, 0.09), "#f97316"),
+        ("Vàng", (0.92, 0.70, 0.15), "#eab308"),
+        ("Lục", (0.13, 0.77, 0.36), "#22c55e"),
+        ("Lam", (0.23, 0.51, 0.96), "#3b82f6"),
+        ("Tím", (0.66, 0.33, 0.97), "#a855f7"),
+        ("Trắng", (1.0, 1.0, 1.0), "#ffffff"),
+        ("Đen", (0.0, 0.0, 0.0), "#000000"),
+    ];
+
+    let mut col = 0;
+    let mut row = 0;
+    for (name, rgb, hex) in colors {
+        let btn = gtk4::Button::new();
+        btn.add_css_class("color-dot-btn");
+        btn.set_tooltip_text(Some(name));
+        btn.set_size_request(16, 16);
+        
+        let provider_btn = gtk4::CssProvider::new();
+        provider_btn.load_from_data(&format!("button { background: {} !important; }", hex));
+        btn.style_context().add_provider(&provider_btn, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
+        
+        let state_c = state.clone();
+        let popover_c = popover.clone();
+        let color_dot_c = color_dot.clone();
+        let rgb_val = rgb;
+        btn.connect_clicked(move |_| {
+            state_c.borrow_mut().current_color = rgb_val;
+            
+            // Update the color dot indicator on the toolbar button
+            let provider_dot = gtk4::CssProvider::new();
+            let r = (rgb_val.0 * 255.0) as u8;
+            let g = (rgb_val.1 * 255.0) as u8;
+            let b = (rgb_val.2 * 255.0) as u8;
+            provider_dot.load_from_data(&format!(
+                ".color-dot-indicator { background-color: rgb({}, {}, {}) !important; }",
+                r, g, b
+            ));
+            color_dot_c.style_context().add_provider(&provider_dot, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
+            
+            popover_c.popdown();
+        });
+        
+        grid.attach(&btn, col, row, 1, 1);
+        col += 1;
+        if col >= 4 {
+            col = 0;
+            row += 1;
+        }
+    }
+
+    popover.set_child(Some(&grid));
+
+    let popover_c = popover.clone();
+    color_btn.connect_clicked(move |_| {
+        popover_c.popup();
     });
 
     // Reset button click event
