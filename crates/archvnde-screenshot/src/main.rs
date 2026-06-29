@@ -226,7 +226,7 @@ fn trigger_copy(state: &EditorState, window: &gtk4::ApplicationWindow) -> bool {
             stride,
         );
 
-        let texture = gdk4::Texture::for_pixbuf(&pixbuf);
+        let texture = gtk4::gdk::Texture::for_pixbuf(&pixbuf);
         let clipboard = window.upcast_ref::<gtk4::Widget>().display().clipboard();
         clipboard.set_texture(&texture);
 
