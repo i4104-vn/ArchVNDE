@@ -157,27 +157,33 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     // Tool buttons
     let btn_reset = gtk4::Button::from_icon_name("view-refresh-symbolic");
     btn_reset.set_tooltip_text(Some("Bỏ chụp và làm lại (Xóa hết nét vẽ)"));
+    btn_reset.add_css_class("flat");
     btn_reset.add_css_class("screenshot-toolbar-btn");
 
     let btn_pen = gtk4::Button::from_icon_name("document-edit-symbolic");
     btn_pen.set_tooltip_text(Some("Bút vẽ"));
+    btn_pen.add_css_class("flat");
     btn_pen.add_css_class("screenshot-toolbar-btn");
 
     let btn_rect = gtk4::Button::from_icon_name("media-record-symbolic");
     btn_rect.set_tooltip_text(Some("Vẽ hình chữ nhật"));
+    btn_rect.add_css_class("flat");
     btn_rect.add_css_class("screenshot-toolbar-btn");
 
     let btn_blur = gtk4::Button::from_icon_name("view-grid-symbolic");
     btn_blur.set_tooltip_text(Some("Làm mờ thông tin"));
+    btn_blur.add_css_class("flat");
     btn_blur.add_css_class("screenshot-toolbar-btn");
 
     let btn_eraser = gtk4::Button::from_icon_name("edit-clear-all-symbolic");
     btn_eraser.set_tooltip_text(Some("Xóa hình vẽ"));
+    btn_eraser.add_css_class("flat");
     btn_eraser.add_css_class("screenshot-toolbar-btn");
 
     // Color picker button with a color dot indicator inside
     let color_btn = gtk4::Button::new();
     color_btn.set_tooltip_text(Some("Chọn màu vẽ"));
+    color_btn.add_css_class("flat");
     color_btn.add_css_class("screenshot-toolbar-btn");
     
     let color_dot = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
@@ -305,6 +311,7 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     // Action buttons
     let btn_copy = gtk4::Button::from_icon_name("edit-copy-symbolic");
     btn_copy.set_tooltip_text(Some("Sao chép vào Clipboard (Enter)"));
+    btn_copy.add_css_class("flat");
     btn_copy.add_css_class("screenshot-toolbar-btn");
     
     let state_copy = state.clone();
@@ -317,6 +324,7 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
 
     let btn_save = gtk4::Button::from_icon_name("document-save-symbolic");
     btn_save.set_tooltip_text(Some("Lưu ảnh chụp (Ctrl+S)"));
+    btn_save.add_css_class("flat");
     btn_save.add_css_class("screenshot-toolbar-btn");
     
     let state_save = state.clone();
@@ -329,6 +337,7 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
 
     let btn_cancel = gtk4::Button::from_icon_name("window-close-symbolic");
     btn_cancel.set_tooltip_text(Some("Hủy (Escape)"));
+    btn_cancel.add_css_class("flat");
     btn_cancel.add_css_class("screenshot-toolbar-btn");
     
     let win_cancel = window.clone();
