@@ -228,7 +228,11 @@ fn main() {
                 app_title_lbl.set_text(&app_item.name);
 
                 let app_icon_str = app_item.icon.as_deref().unwrap_or("application-x-executable");
-                large_icon.set_from_icon_name(Some(app_icon_str));
+                if app_icon_str.starts_with('/') {
+                    large_icon.set_from_file(Some(app_icon_str));
+                } else {
+                    large_icon.set_icon_name(Some(app_icon_str));
+                }
 
                 for (i, btn) in item_buttons.iter().enumerate() {
                     if i == idx {
