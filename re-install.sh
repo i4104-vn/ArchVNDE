@@ -10,7 +10,17 @@ echo "============================================="
 
 # 1. Install/Update all dependencies and the Rust toolchain first via pacman
 echo "Ensuring Arch Linux packages, development tools, and Rust compiler are installed..."
-sudo pacman -S --needed --noconfirm base-devel git pkgconf gtk4 gtk4-layer-shell rust labwc
+sudo pacman -S --needed --noconfirm base-devel git pkgconf gtk4 gtk4-layer-shell rust labwc meson scdoc ninja playerctl papirus-icon-theme 
+
+# Install wlrctl from AUR if not present
+if ! command -v wlrctl &> /dev/null; then
+    echo "wlrctl not found, installing from AUR..."
+    rm -rf /tmp/wlrctl
+    git clone https://aur.archlinux.org/wlrctl.git /tmp/wlrctl
+    cd /tmp/wlrctl
+    makepkg -si --noconfirm
+    cd -
+fi
 
 # 2. Clean previous build artifacts
 echo "Cleaning previous cargo build cache..."

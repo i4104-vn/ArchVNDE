@@ -65,5 +65,9 @@ pub fn init_theme() {
         eprintln!("Failed to get default GDK display, theme styling might not apply.");
     }
 
-
+    // Set GTK icon theme to Papirus to ensure all application icons are in full color
+    if let Some(settings) = gtk4::Settings::default() {
+        settings.set_gtk_icon_theme_name(Some("Papirus"));
+        println!("Set GTK icon theme to Papirus.");
+    }
 }

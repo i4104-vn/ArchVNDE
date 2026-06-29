@@ -67,86 +67,8 @@ pub fn get_icon_from_svg(svg_content: &str, size: i32) -> gtk4::Image {
     }
 }
 
-/// Robust helper to determine whether dark mode is currently active system-wide.
-pub fn is_dark_mode() -> bool {
-    if let Some(settings) = gtk4::Settings::default() {
-        settings.is_gtk_application_prefer_dark_theme()
-    } else {
-        true
-    }
-}
-
-fn parse_css_color(color: &str) -> (String, f32) {
-    let clean = color.trim().to_lowercase();
-    if clean.starts_with("rgba(") {
-        let parts: Vec<&str> = clean
-            .trim_start_matches("rgba(")
-            .trim_end_matches(")")
-            .split(',')
-            .map(|s| s.trim())
-            .collect();
-        if parts.len() >= 4 {
-            let r = parts[0].parse::<u8>().unwrap_or(255);
-            let g = parts[1].parse::<u8>().unwrap_or(255);
-            let b = parts[2].parse::<u8>().unwrap_or(255);
-            let a = parts[3].parse::<f32>().unwrap_or(1.0);
-            return (format!("#{:02x}{:02x}{:02x}", r, g, b), a);
-        }
-    } else if clean.starts_with("rgb(") {
-        let parts: Vec<&str> = clean
-            .trim_start_matches("rgb(")
-            .trim_end_matches(")")
-            .split(',')
-            .map(|s| s.trim())
-            .collect();
-        if parts.len() >= 3 {
-            let r = parts[0].parse::<u8>().unwrap_or(255);
-            let g = parts[1].parse::<u8>().unwrap_or(255);
-            let b = parts[2].parse::<u8>().unwrap_or(255);
-            return (format!("#{:02x}{:02x}{:02x}", r, g, b), 1.0);
-        }
-    } else if clean.starts_with('#') {
-        if clean.len() == 4 {
-            let r = &clean[1..2];
-            let g = &clean[2..3];
-            let b = &clean[3..4];
-            return (format!("#{}{}{}{}{}{}", r, r, g, g, b, b), 1.0);
-        }
-        return (clean, 1.0);
-    }
-    (clean, 1.0)
-}
-
 /// Helper function to retrieve an SVG icon widget by name with a custom stroke color.
 pub fn get_icon_colored(name: &str, size: i32, color_hex: &str) -> gtk4::Image {
-    let is_dark = is_dark_mode();
-
-    let resolved_color = if !is_dark {
-        let clean = color_hex.trim().to_lowercase();
-        if clean.starts_with("rgba(255, 255, 255,") || clean.starts_with("rgba(255,255,255,") {
-            let alpha = clean.split(',').last().unwrap_or("1.0)").trim().replace(")", "");
-            format!("rgba(28, 28, 30, {})", alpha)
-        } else {
-            color_hex.to_string()
-        }
-    } else {
-        color_hex.to_string()
-    };
-
-    eprintln!("[DEBUG_ICON] name={}, is_dark={}, color_hex={}, resolved_color={}", name, is_dark, color_hex, resolved_color);
-
-    let (mut hex, opacity) = parse_css_color(&resolved_color);
-    
-    // If we resolved to a white color in light mode, force translate to dark gray (except for quick tiles which have blue active backgrounds)
-    let is_quick_tile = match name {
-        "wifi" | "bluetooth" | "bell" | "bell-off" | "dark-mode" | "brightness" | 
-        "night-light" | "performance" | "caffeine" | "gsconnect" | "privacy" | "airplane" => true,
-        _ => false
-    };
-    if !is_dark && !is_quick_tile && (hex == "#ffffff" || hex == "#fff" || hex == "white") {
-        hex = "#1c1c1e".to_string();
-    }
-
     let svg = match name {
         "wifi" => Some(WIFI_SVG),
         "bluetooth" => Some(BLUETOOTH_SVG),
@@ -189,13 +111,8 @@ pub fn get_icon_colored(name: &str, size: i32, color_hex: &str) -> gtk4::Image {
         "plus" => Some(PLUS_SVG),
         _ => None,
     };
-
     if let Some(svg_content) = svg {
-        let mut colored_svg = svg_content.replace("currentColor", &hex);
-        if opacity < 1.0 {
-            let opacity_attrs = format!(" stroke-opacity=\"{}\" fill-opacity=\"{}\" ", opacity, opacity);
-            colored_svg = colored_svg.replace("<svg ", &format!("<svg {}", opacity_attrs));
-        }
+        let colored_svg = svg_content.replace("currentColor", color_hex);
         get_icon_from_svg(&colored_svg, size)
     } else {
         let img = get_system_or_file_icon(name, "image-missing");
@@ -204,72 +121,61 @@ pub fn get_icon_colored(name: &str, size: i32, color_hex: &str) -> gtk4::Image {
     }
 }
 
-/// Helper function to retrieve an SVG icon widget by name. Defaults to white in dark mode and dark gray in light mode.
+/// Helper function to retrieve an SVG icon widget by name with a brand/functional color.
 pub fn get_icon(name: &str, size: i32) -> gtk4::Image {
-    let is_dark = is_dark_mode();
-    let color = if is_dark { "#ffffff" } else { "#1c1c1e" };
+    let color = match name {
+        "wifi" => "#3b82f6",          // Blue
+        "bluetooth" => "#2563eb",     // Deep Blue
+        "performance" => "#f97316",   // Orange
+        "night-light" => "#fbbf24",   // Amber
+        "dark-mode" => "#a78bfa",      // Purple
+        "caffeine" => "#b45309",      // Brown
+        "gsconnect" => "#10b981",     // Green
+        "privacy" => "#10b981",       // Green
+        "settings" => "#9ca3af",      // Gray
+        "power" => "#ef4444",         // Red
+        "volume" => "#3b82f6",        // Blue
+        "brightness" => "#f59e0b",    // Yellow
+        "battery" => "#10b981",       // Green
+        "logo" => "#3b82f6",          // Blue
+        "microphone" => "#ef4444",    // Red
+        "airplane" => "#3b82f6",      // Blue
+        "lock" => "#fbbf24",          // Amber
+        "logout" => "#f87171",        // Soft Red
+        "restart" => "#f97316",       // Orange
+        "bell" => "#3b82f6",          // Blue
+        "bell-off" => "#9ca3af",      // Gray
+        "display" => "#6366f1",       // Indigo
+        "user" => "#60a5fa",          // Light Blue
+        "folder" => "#fbbf24",        // Yellow
+        "terminal" => "#10b981",      // Green
+        "camera" => "#ec4899",        // Pink
+        "clock" => "#8b5cf6",         // Purple
+        "search" => "#3b82f6",        // Blue
+        "music" => "#ec4899",         // Pink
+        "ethernet" => "#10b981",      // Green
+        "unlock" => "#10b981",        // Green
+        "trash" => "#ef4444",         // Red
+        "activity" => "#10b981",      // Green
+        "text" => "#3b82f6",          // Blue
+        "server" => "#10b981",        // Green
+        "download" => "#3b82f6",      // Blue
+        "shield" => "#10b981",        // Green
+        "info" => "#3b82f6",          // Blue
+        "plus" => "#10b981",          // Green
+        _ => "#ffffff",               // Default White
+    };
     get_icon_colored(name, size, color)
 }
 
-/// Loads a system icon by name or from a local absolute file path, with robust theme validation and desktop resolution.
+/// Loads a system icon by name or from a local absolute file path.
 pub fn get_system_or_file_icon(icon_path_or_name: &str, default_fallback: &str) -> gtk4::Image {
     if icon_path_or_name.is_empty() {
-        return gtk4::Image::from_icon_name(default_fallback);
-    }
-    
-    if icon_path_or_name.starts_with('/') {
-        return gtk4::Image::from_file(icon_path_or_name);
-    }
-    
-    let mut clean_name = icon_path_or_name.to_string();
-    for ext in &[".png", ".svg", ".xpm", ".jpg", ".jpeg", ".gif"] {
-        if clean_name.to_lowercase().ends_with(ext) {
-            clean_name = clean_name[..clean_name.len() - ext.len()].to_string();
-            break;
-        }
-    }
-
-    let display = gdk4::Display::default();
-    let has_icon = if let Some(ref disp) = display {
-        let theme = gtk4::IconTheme::for_display(disp);
-        theme.has_icon(&clean_name)
+        gtk4::Image::from_icon_name(default_fallback)
+    } else if icon_path_or_name.starts_with('/') {
+        gtk4::Image::from_file(icon_path_or_name)
     } else {
-        false
-    };
-
-    if has_icon {
-        gtk4::Image::from_icon_name(&clean_name)
-    } else {
-        let lower_name = clean_name.to_lowercase();
-        let apps = crate::core::desktop::find_desktop_apps();
-        let mut resolved_icon = None;
-        for app in apps {
-            if app.name.to_lowercase() == lower_name {
-                if let Some(ref app_icon) = app.icon {
-                    resolved_icon = Some(app_icon.clone());
-                }
-                break;
-            }
-        }
-        
-        if let Some(icon_name) = resolved_icon {
-            let mut clean_resolved = icon_name;
-            for ext in &[".png", ".svg", ".xpm", ".jpg", ".jpeg", ".gif"] {
-                if clean_resolved.to_lowercase().ends_with(ext) {
-                    clean_resolved = clean_resolved[..clean_resolved.len() - ext.len()].to_string();
-                    break;
-                }
-            }
-            gtk4::Image::from_icon_name(&clean_resolved)
-        } else if let Some(ref disp) = display {
-            let theme = gtk4::IconTheme::for_display(disp);
-            if theme.has_icon(default_fallback) {
-                gtk4::Image::from_icon_name(default_fallback)
-            } else {
-                gtk4::Image::from_icon_name("image-missing")
-            }
-        } else {
-            gtk4::Image::from_icon_name("image-missing")
-        }
+        gtk4::Image::from_icon_name(icon_path_or_name)
     }
 }
+
