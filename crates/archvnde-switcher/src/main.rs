@@ -166,6 +166,8 @@ fn main() {
             window.set_child(Some(&main_box));
 
             let key_controller = gtk4::EventControllerKey::new();
+            key_controller.set_propagation_phase(gtk4::PropagationPhase::Capture);
+            
             let window_close = window.clone();
             key_controller.connect_key_pressed(move |_, key, _, _| {
                 match key {
@@ -176,6 +178,17 @@ fn main() {
                     _ => gtk4::glib::Propagation::Proceed,
                 }
             });
+
+            let window_release = window.clone();
+            key_controller.connect_key_released(move |_, key, _, _| {
+                match key {
+                    gtk4::gdk::Key::Alt_L | gtk4::gdk::Key::Alt_R => {
+                        window_release.close();
+                    }
+                    _ => {}
+                }
+            });
+
             window.add_controller(key_controller);
             window.present();
             return;
