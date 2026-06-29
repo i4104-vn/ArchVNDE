@@ -3,6 +3,22 @@ use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
 use std::cell::RefCell;
 use std::rc::Rc;
 use archvnde_common::desktop::DesktopApp;
+use std::os::unix::net::{UnixListener, UnixStream};
+use std::io::{Write, Read};
+
+fn handle_single_instance() -> bool {
+    let socket_path = "/tmp/archvnde-switcher.socket";
+    
+    // Try to connect to the existing running instance
+    if let Ok(mut stream) = UnixStream::connect(socket_path) {
+        let _ = stream.write_all(b"next");
+        return false; // Exit this new instance
+    }
+    
+    // Connection failed, remove stale socket file if it exists
+    let _ = std::fs::remove_file(socket_path);
+    true // Continue running as the main instance
+}
 
 fn get_running_apps() -> Vec<DesktopApp> {
     let desktop_apps = archvnde_common::desktop::find_desktop_apps();
@@ -95,6 +111,10 @@ fn activate_app(app: &DesktopApp) {
 }
 
 fn main() {
+    if !handle_single_instance() {
+        return;
+    }
+
     println!("Starting ArchVNDE Alt-Tab Switcher...");
 
     let application = gtk4::Application::new(
@@ -260,6 +280,34 @@ fn main() {
             });
         }
 
+        // Unix Socket Listener to handle subsequent Alt-Tab signals
+        let (sender, receiver) = gtk4::glib::MainContext::channel::<()>(gtk4::glib::Priority::default());
+        std::thread::spawn(move || {
+            let socket_path = "/tmp/archvnde-switcher.socket";
+            if let Ok(listener) = UnixListener::bind(socket_path) {
+                for stream in listener.incoming() {
+                    if let Ok(mut stream) = stream {
+                        let mut buf = [0; 4];
+                        if let Ok(_) = stream.read(&mut buf) {
+                            if &buf[0..4] == b"next" {
+                                let _ = sender.send(());
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        let update_sel_socket = update_selection_rc.clone();
+        let current_idx_socket = current_index.clone();
+        let apps_len = apps.len();
+        receiver.attach(None, move |_| {
+            let idx = *current_idx_socket.borrow();
+            let next = (idx + 1) % apps_len;
+            update_sel_socket(next);
+            gtk4::glib::ControlFlow::Continue
+        });
+
         // Keyboard navigation
         let key_controller = gtk4::EventControllerKey::new();
         key_controller.set_propagation_phase(gtk4::PropagationPhase::Capture);
@@ -267,6 +315,7 @@ fn main() {
         let update_sel_key = update_selection_rc.clone();
         let window_close = window.clone();
         let apps_key = apps.clone();
+        
         key_controller.connect_key_pressed(move |_, key, _, _| {
             let idx = *current_idx_key.borrow();
             match key {
@@ -275,7 +324,7 @@ fn main() {
                     update_sel_key(next);
                     gtk4::glib::Propagation::Stop
                 }
-                gtk4::gdk::Key::Left => {
+                gtk4::gdk::Key::ISO_Left_Tab | gtk4::gdk::Key::Left => {
                     let prev = if idx == 0 { apps_key.len() - 1 } else { idx - 1 };
                     update_sel_key(prev);
                     gtk4::glib::Propagation::Stop
@@ -294,10 +343,37 @@ fn main() {
                 _ => gtk4::glib::Propagation::Proceed,
             }
         });
-        window.add_controller(key_controller);
 
+        // Activate and close on Alt release
+        let current_idx_release = current_index.clone();
+        let apps_release = apps.clone();
+        let window_release = window.clone();
+        key_controller.connect_key_released(move |_, key, _, _| {
+            match key {
+                gtk4::gdk::Key::Alt_L | gtk4::gdk::Key::Alt_R => {
+                    let idx = *current_idx_release.borrow();
+                    if idx < apps_release.len() {
+                        let app_item = &apps_release[idx];
+                        println!("Alt released. Activating: {}", app_item.name);
+                        activate_app(app_item);
+                    }
+                    window_release.close();
+                }
+                _ => {}
+            }
+        });
+
+        window.add_controller(key_controller);
         window.present();
+
+        // Grab focus on the first button to guarantee the window captures keyboard input immediately
+        if !item_buttons.is_empty() {
+            item_buttons[0].grab_focus();
+        }
     });
 
     application.run();
+
+    // Clean up Unix socket file on exit
+    std::fs::remove_file("/tmp/archvnde-switcher.socket").ok();
 }
