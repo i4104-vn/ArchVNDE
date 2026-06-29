@@ -200,7 +200,7 @@ pub fn activate_item(service: &str) {
 
                 if let Ok(p) = proxy {
                     // Call Activate(0, 0)
-                    let _ = p.call::<(), _>("Activate", &(0, 0)).await;
+                    let _ = p.call::<_, _, ()>("Activate", &(0, 0)).await;
                 }
             }
         });
