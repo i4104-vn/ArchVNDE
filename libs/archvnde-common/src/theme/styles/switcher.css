@@ -95,3 +95,33 @@
     transform: scale(1.1);
 }
 
+/* Screenshot Toolbar (Compact & Sleek) */
+.screenshot-toolbar {
+    background-color: rgba(18, 18, 22, 0.94);
+    -gtk-background-blur: 20;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 2px 4px;
+}
+
+.screenshot-toolbar-btn {
+    background: none;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 8px;
+    margin: 2px;
+    color: rgba(255, 255, 255, 0.75);
+    transition: all 150ms ease;
+}
+
+.screenshot-toolbar-btn:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+.screenshot-toolbar-btn.selected {
+    background-color: rgba(59, 130, 246, 0.20);
+    color: #3b82f6;
+}
+
+

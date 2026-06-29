@@ -396,7 +396,7 @@ fn main() {
         toolbar_wrapper.set_visible(false); // Hidden initially
 
         let toolbar = gtk4::Box::new(gtk4::Orientation::Horizontal, 12);
-        toolbar.add_css_class("switcher-box"); // Reuse glassmorphism styling
+        toolbar.add_css_class("screenshot-toolbar"); // Compact glassmorphic styling
         toolbar.set_margin_start(16);
         toolbar.set_margin_end(16);
         toolbar.set_margin_top(8);
@@ -405,24 +405,24 @@ fn main() {
         // Tool buttons
         let btn_select = gtk4::Button::from_icon_name("zoom-fit-best-symbolic");
         btn_select.set_tooltip_text(Some("Chọn vùng chụp"));
-        btn_select.add_css_class("switcher-item-btn");
+        btn_select.add_css_class("screenshot-toolbar-btn");
         btn_select.add_css_class("selected");
 
         let btn_pen = gtk4::Button::from_icon_name("document-edit-symbolic");
         btn_pen.set_tooltip_text(Some("Bút vẽ"));
-        btn_pen.add_css_class("switcher-item-btn");
+        btn_pen.add_css_class("screenshot-toolbar-btn");
 
         let btn_rect = gtk4::Button::from_icon_name("media-record-symbolic");
         btn_rect.set_tooltip_text(Some("Vẽ hình chữ nhật"));
-        btn_rect.add_css_class("switcher-item-btn");
+        btn_rect.add_css_class("screenshot-toolbar-btn");
 
         let btn_blur = gtk4::Button::from_icon_name("view-grid-symbolic");
         btn_blur.set_tooltip_text(Some("Làm mờ thông tin"));
-        btn_blur.add_css_class("switcher-item-btn");
+        btn_blur.add_css_class("screenshot-toolbar-btn");
 
         let btn_eraser = gtk4::Button::from_icon_name("edit-clear-all-symbolic");
         btn_eraser.set_tooltip_text(Some("Xóa hình vẽ"));
-        btn_eraser.add_css_class("switcher-item-btn");
+        btn_eraser.add_css_class("screenshot-toolbar-btn");
 
         // Color selection buttons
         let color_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
@@ -493,7 +493,7 @@ fn main() {
         // Action buttons
         let btn_copy = gtk4::Button::from_icon_name("edit-copy-symbolic");
         btn_copy.set_tooltip_text(Some("Sao chép vào Clipboard (Enter)"));
-        btn_copy.add_css_class("switcher-item-btn");
+        btn_copy.add_css_class("screenshot-toolbar-btn");
         
         let state_copy = state.clone();
         let win_copy = window.clone();
@@ -505,7 +505,7 @@ fn main() {
 
         let btn_save = gtk4::Button::from_icon_name("document-save-symbolic");
         btn_save.set_tooltip_text(Some("Lưu ảnh chụp (Ctrl+S)"));
-        btn_save.add_css_class("switcher-item-btn");
+        btn_save.add_css_class("screenshot-toolbar-btn");
         
         let state_save = state.clone();
         let win_save = window.clone();
@@ -517,7 +517,7 @@ fn main() {
 
         let btn_cancel = gtk4::Button::from_icon_name("window-close-symbolic");
         btn_cancel.set_tooltip_text(Some("Hủy (Escape)"));
-        btn_cancel.add_css_class("switcher-item-btn");
+        btn_cancel.add_css_class("screenshot-toolbar-btn");
         
         let win_cancel = window.clone();
         btn_cancel.connect_clicked(move |_| {
@@ -557,6 +557,10 @@ fn main() {
             let mut s_mut = state_mouse.borrow_mut();
             let s = &mut *s_mut;
             
+            // Set the start coordinates for all tools immediately to fix the jumping pen offset!
+            s.start_x = start_x;
+            s.start_y = start_y;
+            
             // If there's no selection yet, force the tool to be Select
             if !s.has_selection {
                 s.current_tool = Tool::Select;
@@ -564,8 +568,6 @@ fn main() {
             
             match s.current_tool {
                 Tool::Select => {
-                    s.start_x = start_x;
-                    s.start_y = start_y;
                     s.end_x = start_x;
                     s.end_y = start_y;
                     s.is_selecting = true;
@@ -639,6 +641,8 @@ fn main() {
         let state_mouse_end = state.clone();
         let toolbar_wrapper_end = toolbar_wrapper.clone();
         let canvas_mouse_end = drawing_area.clone();
+        let btn_select_end = btn_select.clone();
+        let btn_pen_end = btn_pen.clone();
         drag_gesture.connect_drag_end(move |_, _, _| {
             let mut s_mut = state_mouse_end.borrow_mut();
             let s = &mut *s_mut;
@@ -646,7 +650,12 @@ fn main() {
                 Tool::Select => {
                     s.is_selecting = false;
                     // Validate selection: if too small, discard it
-                    if s.get_selection_rect().is_none() {
+                    if s.get_selection_rect().is_some() {
+                        // Automatically switch tool to Pen so the user can draw immediately
+                        s.current_tool = Tool::Pen;
+                        btn_select_end.remove_css_class("selected");
+                        btn_pen_end.add_css_class("selected");
+                    } else {
                         s.has_selection = false;
                     }
                 }
