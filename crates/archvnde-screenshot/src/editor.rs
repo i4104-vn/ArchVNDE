@@ -185,10 +185,10 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     color_dot.set_size_request(14, 14);
     color_btn.set_child(Some(&color_dot));
 
-    // Set initial color of the dot to Red
-    let provider_init = gtk4::CssProvider::new();
-    provider_init.load_from_data(".color-dot-indicator { background-color: rgb(237, 38, 38) !important; }");
-    color_dot.style_context().add_provider(&provider_init, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
+    // Dynamic CSS provider for updating the active color dot indicator
+    let color_provider = gtk4::CssProvider::new();
+    color_provider.load_from_data(".color-dot-indicator { background-color: rgb(237, 38, 38) !important; }");
+    color_dot.style_context().add_provider(&color_provider, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
 
     // Create the Popover containing the 2x4 color grid
     let popover = gtk4::Popover::new();
@@ -218,6 +218,7 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     let mut row = 0;
     for (name, name_en, rgb) in colors {
         let btn = gtk4::Button::new();
+        btn.add_css_class("flat");
         btn.add_css_class("color-dot-btn");
         btn.add_css_class(&format!("color-dot-{}", name_en));
         btn.set_tooltip_text(Some(name));
@@ -225,21 +226,19 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
         
         let state_c = state.clone();
         let popover_c = popover.clone();
-        let color_dot_c = color_dot.clone();
+        let color_provider_c = color_provider.clone();
         let rgb_val = rgb;
         btn.connect_clicked(move |_| {
             state_c.borrow_mut().current_color = rgb_val;
             
             // Update the color dot indicator on the toolbar button
-            let provider_dot = gtk4::CssProvider::new();
             let r = (rgb_val.0 * 255.0) as u8;
             let g = (rgb_val.1 * 255.0) as u8;
             let b = (rgb_val.2 * 255.0) as u8;
-            provider_dot.load_from_data(&format!(
+            color_provider_c.load_from_data(&format!(
                 ".color-dot-indicator {{ background-color: rgb({}, {}, {}) !important; }}",
                 r, g, b
             ));
-            color_dot_c.style_context().add_provider(&provider_dot, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
             
             popover_c.popdown();
         });
