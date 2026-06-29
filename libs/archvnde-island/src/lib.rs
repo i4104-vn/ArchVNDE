@@ -131,7 +131,7 @@ pub fn create_system_island() -> gtk4::Box {
         popover_art_container,
         popover_app_name,
         play_btn_icon,
-    ) = widgets::popover::create_media_popover(&notch_capsule);
+    ) = widgets::popover::create_media_popover(&notch_capsule, &notification_view);
 
     // Shared state variables
     let is_playing_state = Rc::new(Cell::new(false));

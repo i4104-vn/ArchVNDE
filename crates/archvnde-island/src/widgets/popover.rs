@@ -3,6 +3,7 @@ use gtk4::prelude::*;
 /// Builds and registers the glassmorphic media control Popover anchored to the notch capsule.
 pub fn create_media_popover(
     notch_capsule: &gtk4::Box,
+    notification_view: &gtk4::Box,
 ) -> (
     gtk4::Popover,
     gtk4::Label,
@@ -113,10 +114,31 @@ pub fn create_media_popover(
     let is_animating = std::rc::Rc::new(std::cell::Cell::new(false));
     let is_animating_clone = is_animating.clone();
 
+    let notification_view_clone = notification_view.clone();
     click_gesture.connect_pressed(move |_, _, _, _| {
         if is_animating_clone.get() {
             return;
         }
+        if notification_view_clone.is_visible() {
+            let active_app_name = crate::widgets::notification::SHARED_NOTIFICATION.with(|sn| {
+                sn.borrow().as_ref().map(|n| n.icon.clone())
+            });
+            if let Some(app_name) = active_app_name {
+                if !app_name.is_empty() && !app_name.starts_with('/') {
+                    let _ = std::process::Command::new("wlrctl")
+                        .args(&["toplevel", "focus", &app_name])
+                        .spawn();
+                    let _ = std::process::Command::new("wlrctl")
+                        .args(&["toplevel", "focus", &app_name.to_lowercase()])
+                        .spawn();
+                    let _ = std::process::Command::new("wmctrl")
+                        .args(&["-a", &app_name])
+                        .spawn();
+                }
+            }
+            return;
+        }
+
         if popover_clone.is_visible() {
             let p_clone = popover_clone.clone();
             let is_animating_cb = is_animating_clone.clone();
