@@ -1,16 +1,13 @@
-//! Main entry point for the ArchVNDE Screen Locker.
-//! Sets up GTK Application, parses command line arguments for a custom wallpaper,
-//! initializes theme context, and maps locker windows to all connected monitors.
-
 mod pam;
 mod widgets;
-mod render;
 
 use gtk4::prelude::*;
+use gtk4_layer_shell::{Layer, LayerShell};
 
 fn main() {
     println!("Starting ArchVNDE Screen Locker...");
 
+    // 1. Simple argument parsing for custom wallpaper image
     let args: Vec<String> = std::env::args().collect();
     let mut custom_image = None;
     if args.len() > 1 {
@@ -28,6 +25,7 @@ fn main() {
         }
     }
 
+    // Resolve wallpaper path (fallback to standard ~/.config/archvnde/wallpaper.png)
     let home = std::env::var("HOME").unwrap_or_else(|_| "/home/i4104".to_string());
     let wallpaper_path = if let Some(ref path) = custom_image {
         if std::path::Path::new(path).exists() {
@@ -45,9 +43,44 @@ fn main() {
         Default::default(),
     );
 
+    let wallpaper_path_clone = wallpaper_path.clone();
+
     application.connect_activate(move |app| {
+        // Initialize global styles
         archvnde_common::init_theme();
-        render::build_lock_ui(app, &wallpaper_path);
+
+        // Inject dynamic wallpaper background CSS globally for all lock windows
+        let provider = gtk4::CssProvider::new();
+        let custom_css = format!(
+            ".lock-window {{ background-image: url('file://{}'); background-size: cover; background-position: center; }}",
+            wallpaper_path_clone
+        );
+        provider.load_from_data(&custom_css);
+        if let Some(display) = gtk4::gdk::Display::default() {
+            gtk4::style_context_add_provider_for_display(
+                &display,
+                &provider,
+                gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION,
+            );
+        }
+
+        // Get connected monitors
+        let display = gtk4::gdk::Display::default().expect("Failed to get default GDK display");
+        let monitors = display.monitors();
+        let num_monitors = monitors.n_items();
+
+        if num_monitors == 0 {
+            // Fallback for systems returning no monitor info
+            widgets::create_lock_window(app, None, true);
+        } else {
+            // Spawn a lock window on every monitor to ensure all screens are completely covered
+            for i in 0..num_monitors {
+                if let Some(monitor) = monitors.item(i).and_then(|obj| obj.downcast::<gtk4::gdk::Monitor>().ok()) {
+                    let is_primary = i == 0;
+                    widgets::create_lock_window(app, Some(&monitor), is_primary);
+                }
+            }
+        }
     });
 
     application.run_with_args::<&str>(&[]);
