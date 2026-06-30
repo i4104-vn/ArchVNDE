@@ -172,12 +172,72 @@ pub fn build_launcher_ui(
 
     let key_controller = gtk4::EventControllerKey::new();
     let win_clone = window.clone();
+    let left_list_box_clone = left_list_box.clone();
+    let right_scroll_clone = right_scroll.clone();
+    let search_entry_clone = search_entry.clone();
+
     key_controller.connect_key_pressed(move |_, key, _, _| {
         if key == gtk4::gdk::Key::Escape {
             win_clone.close();
             gtk4::glib::Propagation::Proceed
-        } else {
+        } else if key == gtk4::gdk::Key::Down {
+            let buttons = get_visible_selectable_buttons(&left_list_box_clone, &right_scroll_clone);
+            if !buttons.is_empty() {
+                let focused_w = gtk4::prelude::RootExt::focus(&win_clone);
+                let current_index = focused_w.and_then(|fw| {
+                    buttons.iter().position(|b| fw == b.clone().upcast::<gtk4::Widget>())
+                });
+
+                match current_index {
+                    Some(idx) => {
+                        let next_idx = (idx + 1) % buttons.len();
+                        buttons[next_idx].grab_focus();
+                    }
+                    None => {
+                        buttons[0].grab_focus();
+                    }
+                }
+            }
             gtk4::glib::Propagation::Stop
+        } else if key == gtk4::gdk::Key::Up {
+            let buttons = get_visible_selectable_buttons(&left_list_box_clone, &right_scroll_clone);
+            if !buttons.is_empty() {
+                let focused_w = gtk4::prelude::RootExt::focus(&win_clone);
+                let current_index = focused_w.and_then(|fw| {
+                    buttons.iter().position(|b| fw == b.clone().upcast::<gtk4::Widget>())
+                });
+
+                match current_index {
+                    Some(idx) => {
+                        if idx == 0 {
+                            search_entry_clone.grab_focus();
+                        } else {
+                            buttons[idx - 1].grab_focus();
+                        }
+                    }
+                    None => {
+                        buttons[buttons.len() - 1].grab_focus();
+                    }
+                }
+            }
+            gtk4::glib::Propagation::Stop
+        } else if key == gtk4::gdk::Key::Return || key == gtk4::gdk::Key::KP_Enter {
+            let focused_w = gtk4::prelude::RootExt::focus(&win_clone);
+            let buttons = get_visible_selectable_buttons(&left_list_box_clone, &right_scroll_clone);
+
+            if let Some(fw) = focused_w {
+                if let Some(btn) = fw.downcast_ref::<gtk4::Button>() {
+                    btn.activate();
+                    return gtk4::glib::Propagation::Stop;
+                }
+            }
+
+            if !buttons.is_empty() {
+                buttons[0].activate();
+            }
+            gtk4::glib::Propagation::Stop
+        } else {
+            gtk4::glib::Propagation::Proceed
         }
     });
     window.add_controller(key_controller);
@@ -214,4 +274,49 @@ pub fn build_launcher_ui(
     search_entry.grab_focus();
 
     window
+}
+
+fn get_visible_selectable_buttons(
+    left_list_box: &gtk4::Box,
+    right_scroll: &gtk4::ScrolledWindow,
+) -> Vec<gtk4::Button> {
+    let mut buttons = Vec::new();
+
+    // 1. Collect from left list box (all apps)
+    let mut child = left_list_box.first_child();
+    while let Some(w) = child {
+        if w.is_visible() {
+            if let Some(btn) = w.downcast_ref::<gtk4::Button>() {
+                buttons.push(btn.clone());
+            }
+        }
+        child = w.next_sibling();
+    }
+
+    // 2. Collect from right column
+    if let Some(right_child) = right_scroll.child() {
+        if let Some(right_box) = right_child.downcast_ref::<gtk4::Box>() {
+            let mut sub_child = right_box.first_child();
+            while let Some(w) = sub_child {
+                if w.is_visible() {
+                    if let Some(btn) = w.downcast_ref::<gtk4::Button>() {
+                        buttons.push(btn.clone());
+                    } else if let Some(files_box) = w.downcast_ref::<gtk4::Box>() {
+                        let mut file_child = files_box.first_child();
+                        while let Some(fw) = file_child {
+                            if fw.is_visible() {
+                                if let Some(btn) = fw.downcast_ref::<gtk4::Button>() {
+                                    buttons.push(btn.clone());
+                                }
+                            }
+                            file_child = fw.next_sibling();
+                        }
+                    }
+                }
+                sub_child = w.next_sibling();
+            }
+        }
+    }
+
+    buttons
 }
