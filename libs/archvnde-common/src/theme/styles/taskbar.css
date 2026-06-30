@@ -4,7 +4,7 @@
     border: 1px solid rgba(255, 255, 255, 0.10);
     border-top: 1px solid rgba(255, 255, 255, 0.20);
     border-radius: 9999px;
-    padding: 3px 8px;
+    padding: 3px 6px;
     min-height: 24px;
     box-shadow: none;
 }
@@ -18,11 +18,12 @@ button.taskbar-app-btn {
     background-color: rgb(20, 20, 26);
     background-image: none;
     border: none;
-    border-radius: 6px;
-    padding: 2px;
+    border-radius: 5px;
+    padding: 1px;
     margin: 0 1px;
-    min-width: 22px;
-    min-height: 22px;
+    min-width: 18px;
+    min-height: 18px;
+    -gtk-icon-size: 14px;
     transition: all 200ms ease;
     box-shadow: none;
 }
