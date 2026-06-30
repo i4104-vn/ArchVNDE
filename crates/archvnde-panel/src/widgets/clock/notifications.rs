@@ -344,26 +344,13 @@ fn render_collapsed_group(
 /// Formats elapsed time since notification trigger into a user-friendly localized text.
 fn format_elapsed_time(instant: std::time::Instant) -> String {
     let secs = instant.elapsed().as_secs();
-    let locale = archvnde_common::i18n::get_locale();
-    if locale == "en" {
-        if secs < 60 {
-            "Just now".to_string()
-        } else if secs < 3600 {
-            format!("{}m ago", secs / 60)
-        } else if secs < 86400 {
-            format!("{}h ago", secs / 3600)
-        } else {
-            format!("{}d ago", secs / 86400)
-        }
+    if secs < 60 {
+        archvnde_common::i18n::t("panel.just_now")
+    } else if secs < 3600 {
+        archvnde_common::i18n::t("panel.minutes_ago").replace("{}", &(secs / 60).to_string())
+    } else if secs < 86400 {
+        archvnde_common::i18n::t("panel.hours_ago").replace("{}", &(secs / 3600).to_string())
     } else {
-        if secs < 60 {
-            "Vừa xong".to_string()
-        } else if secs < 3600 {
-            format!("{} phút trước", secs / 60)
-        } else if secs < 86400 {
-            format!("{} giờ trước", secs / 3600)
-        } else {
-            format!("{} ngày trước", secs / 86400)
-        }
+        archvnde_common::i18n::t("panel.days_ago").replace("{}", &(secs / 86400).to_string())
     }
 }

@@ -31,14 +31,11 @@ pub fn create_header_row() -> gtk4::Box {
         lang_lbl_clone.set_text(&new_locale.to_uppercase());
 
         // Send a system notification alerting the user to restart widgets for full changes
-        let (notif_title, notif_msg) = if new_locale == "en" {
-            ("Language Changed", "Restart widgets to apply changes system-wide.")
-        } else {
-            ("Đã thay đổi ngôn ngữ", "Khởi động lại widgets để áp dụng toàn hệ thống.")
-        };
+        let notif_title = archvnde_common::i18n::t("control.lang_changed_title");
+        let notif_msg = archvnde_common::i18n::t("control.lang_changed_msg");
 
         let _ = std::process::Command::new("notify-send")
-            .args(&["-i", "preferences-desktop-locale", notif_title, notif_msg])
+            .args(&["-i", "preferences-desktop-locale", &notif_title, &notif_msg])
             .spawn();
     });
 

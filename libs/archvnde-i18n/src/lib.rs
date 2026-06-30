@@ -116,6 +116,10 @@ fn get_translations(locale: &str) -> HashMap<&'static str, &'static str> {
             map.insert("panel.no_storage", "No physical storage found");
             map.insert("panel.system", "System");
             map.insert("panel.clear_all", "Clear All");
+            map.insert("panel.just_now", "Just now");
+            map.insert("panel.minutes_ago", "{}m ago");
+            map.insert("panel.hours_ago", "{}h ago");
+            map.insert("panel.days_ago", "{}d ago");
 
             // Control center
             map.insert("control.network", "Network");
@@ -128,6 +132,8 @@ fn get_translations(locale: &str) -> HashMap<&'static str, &'static str> {
             map.insert("control.dark_mode", "Dark\nMode");
             map.insert("control.night_light", "Night\nColor");
             map.insert("control.title", "Control Center");
+            map.insert("control.lang_changed_title", "Language Changed");
+            map.insert("control.lang_changed_msg", "Restart widgets to apply changes system-wide.");
 
             // Screenshot
             map.insert("screenshot.reset_tooltip", "Discard and restart (Clear all drawings)");
@@ -139,6 +145,11 @@ fn get_translations(locale: &str) -> HashMap<&'static str, &'static str> {
             map.insert("screenshot.copy_tooltip", "Copy to Clipboard (Enter)");
             map.insert("screenshot.save_tooltip", "Save screenshot (Ctrl+S)");
             map.insert("screenshot.cancel_tooltip", "Cancel (Escape)");
+            map.insert("screenshot.copied_title", "Copied Screenshot");
+            map.insert("screenshot.copied_msg", "Screenshot has been saved to your clipboard.");
+            map.insert("screenshot.saved_title", "Screenshot Saved");
+            map.insert("screenshot.saved_msg", "Saved to {}");
+            map.insert("screenshot.full_saved_title", "Fullscreen Captured");
 
             // Colors
             map.insert("color.red", "Red");
@@ -173,6 +184,10 @@ fn get_translations(locale: &str) -> HashMap<&'static str, &'static str> {
             map.insert("panel.no_storage", "Không tìm thấy ổ lưu trữ");
             map.insert("panel.system", "Hệ thống");
             map.insert("panel.clear_all", "Xóa tất cả");
+            map.insert("panel.just_now", "Vừa xong");
+            map.insert("panel.minutes_ago", "{} phút trước");
+            map.insert("panel.hours_ago", "{} giờ trước");
+            map.insert("panel.days_ago", "{} ngày trước");
 
             // Control center
             map.insert("control.network", "Mạng");
@@ -185,6 +200,8 @@ fn get_translations(locale: &str) -> HashMap<&'static str, &'static str> {
             map.insert("control.dark_mode", "Chế độ\nTối");
             map.insert("control.night_light", "Ánh sáng\nĐêm");
             map.insert("control.title", "Trung tâm Điều khiển");
+            map.insert("control.lang_changed_title", "Đã thay đổi ngôn ngữ");
+            map.insert("control.lang_changed_msg", "Khởi động lại widgets để áp dụng toàn hệ thống.");
 
             // Screenshot
             map.insert("screenshot.reset_tooltip", "Bỏ chụp và làm lại (Xóa hết nét vẽ)");
@@ -196,6 +213,11 @@ fn get_translations(locale: &str) -> HashMap<&'static str, &'static str> {
             map.insert("screenshot.copy_tooltip", "Sao chép vào Clipboard (Enter)");
             map.insert("screenshot.save_tooltip", "Lưu ảnh chụp (Ctrl+S)");
             map.insert("screenshot.cancel_tooltip", "Hủy (Escape)");
+            map.insert("screenshot.copied_title", "Đã sao chép ảnh");
+            map.insert("screenshot.copied_msg", "Ảnh chụp đã được lưu vào clipboard.");
+            map.insert("screenshot.saved_title", "Đã chụp ảnh màn hình");
+            map.insert("screenshot.saved_msg", "Đã lưu tại {}");
+            map.insert("screenshot.full_saved_title", "Đã chụp toàn màn hình");
 
             // Colors
             map.insert("color.red", "Đỏ");
