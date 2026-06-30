@@ -12,10 +12,18 @@ pub fn create_app_button(app_item: &DesktopApp) -> gtk4::Button {
     let app_icon_str = app_item.icon.as_deref().unwrap_or("application-x-executable");
 
     let mut screenshot_path: Option<String> = None;
-    if let Some(ref app_id) = app_item.app_id {
-        let path = format!("/tmp/archvnde-switcher-cache/{}.png", app_id);
+    if let Some(hash) = app_item.get_screenshot_hash() {
+        let path = format!("/tmp/archvnde-switcher-cache/{}.png", hash);
         if std::path::Path::new(&path).exists() {
             screenshot_path = Some(path);
+        }
+    }
+    if screenshot_path.is_none() {
+        if let Some(ref app_id) = app_item.app_id {
+            let path = format!("/tmp/archvnde-switcher-cache/{}.png", app_id);
+            if std::path::Path::new(&path).exists() {
+                screenshot_path = Some(path);
+            }
         }
     }
     if screenshot_path.is_none() && !app_item.exec.is_empty() {
