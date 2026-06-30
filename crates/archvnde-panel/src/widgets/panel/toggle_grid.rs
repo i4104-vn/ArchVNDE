@@ -176,6 +176,24 @@ pub fn create_left_box_toggles() -> gtk4::Box {
     container
 }
 
+fn is_dnd_active() -> bool {
+    // Check dunst
+    if let Ok(output) = std::process::Command::new("dunstctl").arg("is-paused").output() {
+        let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        if stdout == "true" {
+            return true;
+        }
+    }
+    // Check mako
+    if let Ok(output) = std::process::Command::new("makoctl").arg("mode").output() {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        if stdout.contains("dnd") {
+            return true;
+        }
+    }
+    false
+}
+
 pub fn create_dnd_tile() -> gtk4::Button {
     let btn = gtk4::Button::new();
     btn.add_css_class("control-dnd-tile");
@@ -189,7 +207,15 @@ pub fn create_dnd_tile() -> gtk4::Button {
     let circle = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
     circle.add_css_class("control-icon-circle");
 
-    let icon_widget = archvnde_common::icon::get_icon_colored("bell", 14, "rgba(255, 255, 255, 0.7)");
+    let is_active_init = is_dnd_active();
+    if is_active_init {
+        btn.add_css_class("active");
+        circle.add_css_class("active");
+    }
+
+    let initial_icon = if is_active_init { "bell-off" } else { "bell" };
+    let initial_color = if is_active_init { "#ffffff" } else { "rgba(255, 255, 255, 0.7)" };
+    let icon_widget = archvnde_common::icon::get_icon_colored(initial_icon, 14, initial_color);
     circle.append(&icon_widget);
     main_box.append(&circle);
 
@@ -198,7 +224,8 @@ pub fn create_dnd_tile() -> gtk4::Button {
     title_label.set_xalign(0.0);
     title_label.add_css_class("tile-title");
 
-    let sub_label = gtk4::Label::new(Some(&archvnde_common::i18n::t("control.off")));
+    let initial_status = if is_active_init { "control.on" } else { "control.off" };
+    let sub_label = gtk4::Label::new(Some(&archvnde_common::i18n::t(initial_status)));
     sub_label.set_xalign(0.0);
     sub_label.add_css_class("tile-subtitle");
 
@@ -221,6 +248,8 @@ pub fn create_dnd_tile() -> gtk4::Button {
             if let Some(paintable) = new_img.paintable() {
                 icon_widget_clone.set_paintable(Some(&paintable));
             }
+            let _ = std::process::Command::new("dunstctl").args(&["set-paused", "false"]).spawn();
+            let _ = std::process::Command::new("makoctl").args(&["mode", "-r", "dnd"]).spawn();
         } else {
             b.add_css_class("active");
             circle_clone.add_css_class("active");
@@ -229,6 +258,72 @@ pub fn create_dnd_tile() -> gtk4::Button {
             if let Some(paintable) = new_img.paintable() {
                 icon_widget_clone.set_paintable(Some(&paintable));
             }
+            let _ = std::process::Command::new("dunstctl").args(&["set-paused", "true"]).spawn();
+            let _ = std::process::Command::new("makoctl").args(&["mode", "-a", "dnd"]).spawn();
+        }
+    });
+
+    btn
+}
+
+fn is_process_running(name: &str) -> bool {
+    if let Ok(output) = std::process::Command::new("pgrep").arg(name).output() {
+        return !output.stdout.is_empty();
+    }
+    false
+}
+
+pub fn create_night_light_tile() -> gtk4::Button {
+    let btn = gtk4::Button::new();
+    btn.add_css_class("control-square-tile");
+    btn.set_hexpand(true);
+    btn.set_valign(gtk4::Align::Fill);
+    btn.set_vexpand(true);
+
+    let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
+    main_box.set_valign(gtk4::Align::Center);
+    main_box.set_halign(gtk4::Align::Center);
+
+    let is_active_init = is_process_running("gammastep") || is_process_running("wlsunset");
+    if is_active_init {
+        btn.add_css_class("active");
+    }
+
+    let initial_color = if is_active_init { "#ffffff" } else { "rgba(255, 255, 255, 0.8)" };
+    let icon_widget = archvnde_common::icon::get_icon_colored("night-light", 16, initial_color);
+    icon_widget.set_halign(gtk4::Align::Center);
+
+    let label = gtk4::Label::new(Some(&archvnde_common::i18n::t("control.night_light")));
+    label.add_css_class("control-square-label");
+    label.set_halign(gtk4::Align::Center);
+
+    main_box.append(&icon_widget);
+    main_box.append(&label);
+    btn.set_child(Some(&main_box));
+
+    let icon_widget_clone = icon_widget.clone();
+
+    btn.connect_clicked(move |b| {
+        if b.has_css_class("active") {
+            b.remove_css_class("active");
+            let new_img = archvnde_common::icon::get_icon_colored("night-light", 16, "rgba(255, 255, 255, 0.8)");
+            if let Some(paintable) = new_img.paintable() {
+                icon_widget_clone.set_paintable(Some(&paintable));
+            }
+            let _ = std::process::Command::new("pkill").arg("gammastep").spawn();
+            let _ = std::process::Command::new("pkill").arg("wlsunset").spawn();
+        } else {
+            b.add_css_class("active");
+            let new_img = archvnde_common::icon::get_icon_colored("night-light", 16, "#ffffff");
+            if let Some(paintable) = new_img.paintable() {
+                icon_widget_clone.set_paintable(Some(&paintable));
+            }
+            let _ = std::process::Command::new("gammastep")
+                .args(&["-O", "4000", "-l", "0:0"])
+                .spawn();
+            let _ = std::process::Command::new("wlsunset")
+                .args(&["-t", "4000", "-T", "6500"])
+                .spawn();
         }
     });
 
@@ -299,7 +394,7 @@ pub fn create_control_center_grid() -> gtk4::Grid {
     small_box.set_vexpand(true);
 
     let theme_btn = create_small_theme_toggle_tile();
-    let night_btn = create_small_square_tile("night-light", &archvnde_common::i18n::t("control.night_light"));
+    let night_btn = create_night_light_tile();
 
     small_box.append(&theme_btn);
     small_box.append(&night_btn);
