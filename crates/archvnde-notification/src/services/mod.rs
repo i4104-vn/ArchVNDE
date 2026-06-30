@@ -32,12 +32,38 @@ impl NotificationService {
         expire_timeout: i32,
     ) -> u32 {
         let id = self.current_id.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-        println!("Received Notification via D-Bus: [{}] {}", summary, body);
+        println!("Received Notification via D-Bus from {}: [{}] {}", app_name, summary, body);
         
+<<<<<<< HEAD:crates/archvnde-notification/src/services/mod.rs
         let _ = self.sender.send(NotificationMsg::New {
             summary: summary.to_string(),
             body: body.to_string(),
             icon: app_icon.to_string(),
+=======
+        let mut icon = app_icon.to_string();
+        if icon.is_empty() {
+            // Try searching desktop apps cache for a matching app
+            let lower_name = app_name.to_lowercase();
+            let apps = archvnde_common::desktop::find_desktop_apps();
+            for app in apps {
+                if app.name.to_lowercase() == lower_name {
+                    if let Some(app_icon) = app.icon {
+                        icon = app_icon;
+                    }
+                    break;
+                }
+            }
+        }
+        if icon.is_empty() {
+            icon = app_name.to_lowercase();
+        }
+        
+        let _ = self.sender.send(NotificationMsg::New {
+            summary: summary.to_string(),
+            body: body.to_string(),
+            icon,
+            app_name: app_name.to_string(),
+>>>>>>> c5c198c (perf: optimize desktop caching, tray polling, alt-tab switching and notification behaviors):libs/archvnde-island/src/widgets/notification.rs
             timeout: expire_timeout,
         });
         
@@ -94,3 +120,33 @@ pub fn spawn_dbus_listener(tx: tokio::sync::mpsc::UnboundedSender<NotificationMs
         });
     });
 }
+<<<<<<< HEAD:crates/archvnde-notification/src/services/mod.rs
+=======
+
+pub fn close_notification_popup() {
+    // No-op: Notifications are managed directly inside the Dynamic Island notch
+}
+
+pub fn show_notification_popup(summary: &str, body: &str, icon_name: &str, app_name: &str, _timeout_ms: i32) {
+    // Save to historical notifications list
+    let notif = ActiveNotification {
+        title: summary.to_string(),
+        body: body.to_string(),
+        icon: icon_name.to_string(),
+        app_name: app_name.to_string(),
+        timestamp: std::time::Instant::now(),
+    };
+
+    SHARED_NOTIFICATION.with(|sn| {
+        *sn.borrow_mut() = Some(notif.clone());
+    });
+
+    HISTORICAL_NOTIFICATIONS.with(|list| {
+        let mut list_borrow = list.borrow_mut();
+        list_borrow.push(notif);
+        if list_borrow.len() > 50 {
+            list_borrow.remove(0); // Cap at 50 notifications
+        }
+    });
+}
+>>>>>>> c5c198c (perf: optimize desktop caching, tray polling, alt-tab switching and notification behaviors):libs/archvnde-island/src/widgets/notification.rs

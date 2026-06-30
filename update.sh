@@ -24,8 +24,6 @@ echo "Stopping active processes..."
 killall archvnde-panel || true
 killall archvnde-menu || true
 killall archvnde-switcher || true
-killall archvnde-screenshot || true
-killall archvnde-lock || true
 
 # 5. Overwrite binaries in ~/.local/bin
 echo "Installing new binaries..."
@@ -33,7 +31,6 @@ cp target/release/archvnde-panel "$LOCAL_BIN/archvnde-panel"
 cp target/release/archvnde-menu "$LOCAL_BIN/archvnde-menu"
 cp target/release/archvnde-switcher "$LOCAL_BIN/archvnde-switcher"
 cp target/release/archvnde-screenshot "$LOCAL_BIN/archvnde-screenshot"
-cp target/release/archvnde-lock "$LOCAL_BIN/archvnde-lock"
 
 # 6. Reload labwc settings
 echo "Reloading labwc compositor..."
@@ -42,7 +39,6 @@ labwc --reconfigure || true
 # 7. Start the panel and redirect stdout/stderr to log file
 echo "Starting archvnde-panel..."
 ~/.local/bin/archvnde-panel > "$LOG_DIR/panel.log" 2>&1 &
-disown
 
 echo "============================================="
 echo "Update complete! Streaming panel logs below..."

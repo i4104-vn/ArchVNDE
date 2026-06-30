@@ -123,3 +123,73 @@ pub fn get_icon_colored(name: &str, size: i32, color_hex: &str) -> gtk4::Image {
 pub fn get_icon(name: &str, size: i32) -> gtk4::Image {
     get_icon_colored(name, size, "#ffffff")
 }
+<<<<<<< HEAD:crates/archvnde-common/src/icon/mod.rs
+=======
+
+/// Loads a system icon by name or from a local absolute file path, with robust theme validation and desktop resolution.
+pub fn get_system_or_file_icon(icon_path_or_name: &str, default_fallback: &str) -> gtk4::Image {
+    if icon_path_or_name.is_empty() {
+        return gtk4::Image::from_icon_name(default_fallback);
+    }
+    
+    if icon_path_or_name.starts_with('/') {
+        return gtk4::Image::from_file(icon_path_or_name);
+    }
+
+    // Strip common file extensions (like .png or .svg) if present
+    let mut clean_name = icon_path_or_name.to_string();
+    for ext in &[".png", ".svg", ".xpm", ".jpg", ".jpeg", ".gif"] {
+        if clean_name.to_lowercase().ends_with(ext) {
+            clean_name = clean_name[..clean_name.len() - ext.len()].to_string();
+            break;
+        }
+    }
+
+    // Check if the icon exists in the current GTK icon theme
+    let display = gdk4::Display::default();
+    let has_icon = if let Some(ref disp) = display {
+        let theme = gtk4::IconTheme::for_display(disp);
+        theme.has_icon(&clean_name)
+    } else {
+        false
+    };
+
+    if has_icon {
+        gtk4::Image::from_icon_name(&clean_name)
+    } else {
+        // Fallback: search desktop cache for a matching app and use its icon
+        let lower_name = clean_name.to_lowercase();
+        let apps = crate::core::desktop::find_desktop_apps();
+        let mut resolved_icon = None;
+        for app in apps {
+            if app.name.to_lowercase() == lower_name {
+                if let Some(ref app_icon) = app.icon {
+                    resolved_icon = Some(app_icon.clone());
+                }
+                break;
+            }
+        }
+        
+        if let Some(icon_name) = resolved_icon {
+            let mut clean_resolved = icon_name;
+            for ext in &[".png", ".svg", ".xpm", ".jpg", ".jpeg", ".gif"] {
+                if clean_resolved.to_lowercase().ends_with(ext) {
+                    clean_resolved = clean_resolved[..clean_resolved.len() - ext.len()].to_string();
+                    break;
+                }
+            }
+            gtk4::Image::from_icon_name(&clean_resolved)
+        } else if let Some(ref disp) = display {
+            let theme = gtk4::IconTheme::for_display(disp);
+            if theme.has_icon(default_fallback) {
+                gtk4::Image::from_icon_name(default_fallback)
+            } else {
+                gtk4::Image::from_icon_name("image-missing")
+            }
+        } else {
+            gtk4::Image::from_icon_name("image-missing")
+        }
+    }
+}
+
+>>>>>>> c5c198c (perf: optimize desktop caching, tray polling, alt-tab switching and notification behaviors):libs/archvnde-common/src/icon/mod.rs
