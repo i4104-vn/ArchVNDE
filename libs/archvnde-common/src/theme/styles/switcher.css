@@ -9,11 +9,11 @@
     -gtk-background-blur: 24;
     border-top: 1px solid rgba(255, 255, 255, 0.12);
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 0px; /* Full-screen width bar looks best with no rounded corners at the screen edges */
-    padding: 18px 0px;
+    border-radius: 0px;
+    padding: 0px;
     color: #ffffff;
     box-shadow: none;
-    min-height: 110px;
+    min-height: 240px;
 }
 
 .switcher-list-row {
@@ -23,19 +23,20 @@
 .switcher-item-btn {
     background-color: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.07);
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 12px;
-    padding: 10px;
+    border-top: none;
+    border-bottom: none;
+    border-radius: 0px;
+    padding: 0px;
+    overflow: hidden;
     transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
-    min-width: 80px;
-    min-height: 80px;
     transform: skewX(-15deg);
 }
 
 .switcher-item-btn:hover {
     background-color: rgba(255, 255, 255, 0.07);
-    border-color: rgba(255, 255, 255, 0.14);
-    border-top-color: rgba(255, 255, 255, 0.20);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-top: 1px solid rgba(255, 255, 255, 0.20);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
     transform: skewX(-15deg) translateY(-2px);
     box-shadow: none;
 }
@@ -43,27 +44,63 @@
 .switcher-item-btn.selected {
     background-color: rgba(59, 130, 246, 0.14);
     background-image: linear-gradient(160deg, rgba(147, 197, 253, 0.08) 0%, rgba(59, 130, 246, 0.05) 100%);
-    border-color: rgba(96, 165, 250, 0.40);
-    border-top-color: rgba(147, 197, 253, 0.60);
+    border: 1px solid rgba(96, 165, 250, 0.40);
+    border-top: 1px solid rgba(147, 197, 253, 0.60);
+    border-bottom: 1px solid rgba(147, 197, 253, 0.60);
     box-shadow: none;
-    min-width: 150px; /* Expanding width on tab selection */
     transform: skewX(-15deg) scale(1.04);
 }
 
+.switcher-item-icon-container {
+    transform: skewX(15deg);
+    background-color: rgba(14, 14, 18, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    border-radius: 6px;
+    padding: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.switcher-item-title-container {
+    background-color: rgba(0, 0, 0, 0.65);
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+    padding: 8px 12px;
+}
+
+.switcher-app-title {
+    transform: skewX(15deg);
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+    letter-spacing: 0.3px;
+}
+
+.switcher-item-btn.selected .switcher-app-title {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.switcher-item-screenshot {
+    background-color: rgba(0, 0, 0, 0.3);
+    transform: skewX(15deg) scaleX(1.25);
+}
+
+.switcher-item-placeholder {
+    background-color: rgba(255, 255, 255, 0.04);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(0, 0, 0, 0.15) 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .switcher-item-icon {
-    /* Counter-skew the icon so it remains perfectly vertical and upright */
     transform: skewX(15deg);
     transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .switcher-item-btn.selected .switcher-item-icon {
-    /* Retain counter-skew and scale up the icon slightly */
     transform: skewX(15deg) scale(1.15);
 }
 
-.switcher-app-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: #ffffff;
-    letter-spacing: 0.3px;
-}
+
+
+
