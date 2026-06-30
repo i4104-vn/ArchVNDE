@@ -33,13 +33,13 @@ pub fn start_visualizer_animation(bars: Vec<gtk4::Box>, is_playing: Rc<Cell<bool
             }
             let elapsed_sec = (now - start_time.get()) as f64 / 1_000_000.0;
             for (i, bar) in bars.iter().enumerate() {
-                let freq1 = 18.0 + (i as f64 * 8.5);
-                let freq2 = 11.0 - (i as f64 * 4.2);
+                let freq1 = 6.0 + (i as f64 * 2.5);
+                let freq2 = 4.0 - (i as f64 * 1.2);
                 let val1 = (elapsed_sec * freq1).sin();
                 let val2 = (elapsed_sec * freq2).cos();
                 let mixed = (val1 + val2) / 2.0;
-                let val = (mixed * 5.0 + 7.0) as i32;
-                bar.set_size_request(2, val.max(2).min(12));
+                let val = (mixed * 4.0 + 6.0) as i32;
+                bar.set_size_request(2, val.max(2).min(10));
             }
         } else {
             start_time.set(0);
