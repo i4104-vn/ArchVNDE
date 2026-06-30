@@ -22,6 +22,7 @@ fi
 # Install AUR packages using yay
 yay -S --noconfirm dolphin github-desktop fastfetch neovim awww brightnessctl 
 yay -S --noconfirm inter-font ttf-ubuntu-font-family ttf-jetbrains-mono-nerd otf-font-awesome ttf-nerd-fonts-symbols
+yay -S --noconfirm papirus-icon-theme kvantum-qt5
 
 # 2. Install wlrctl from AUR if not present (required by the window switcher)
 if ! command -v wlrctl &> /dev/null; then
@@ -183,6 +184,23 @@ EOF
 # Rebuild font cache
 echo "Rebuilding font cache..."
 fc-cache -fv || true
+
+# 10. Apply ArchVNDE app configs (Dolphin, KDE globals, color scheme)
+echo "Applying ArchVNDE application configurations..."
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# KDE color scheme
+mkdir -p "$HOME/.local/share/color-schemes"
+cp "$SCRIPT_DIR/configs/dolphin/ArchVNDE.colors" "$HOME/.local/share/color-schemes/ArchVNDE.colors"
+
+# Dolphin preferences
+mkdir -p "$HOME/.config"
+cp "$SCRIPT_DIR/configs/dolphin/dolphinrc" "$HOME/.config/dolphinrc"
+
+# KDE global appearance (colors, fonts, icons for all Qt apps)
+cp "$SCRIPT_DIR/configs/dolphin/kdeglobals" "$HOME/.config/kdeglobals"
+
+echo "App configurations applied."
 
 echo "============================================="
 echo "Installation & Setup complete!"
