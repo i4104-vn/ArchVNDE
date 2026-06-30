@@ -283,6 +283,14 @@ button.control-square-tile.active image {
     margin-bottom: 2px;
 }
 
+.control-slider-value {
+    font-size: 11px;
+    font-weight: 700;
+    color: #3b82f6;
+    margin-bottom: 2px;
+}
+
+
 .control-disk-card {
     background-color: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.06);

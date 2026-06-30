@@ -35,15 +35,70 @@ pub fn create_status_indicators(
     let wifi_icon = archvnde_common::icon::get_icon("wifi", 14);
     wifi_icon.add_css_class("status-icon");
 
-    let battery_icon = archvnde_common::icon::get_icon("battery", 14);
-    battery_icon.add_css_class("status-icon");
-    let battery_percent = gtk4::Label::new(Some("100%"));
-    battery_percent.add_css_class("status-text");
-
     status_content.append(&wifi_icon);
     status_content.append(&bluetooth_icon);
-    status_content.append(&battery_icon);
-    status_content.append(&battery_percent);
+
+    // --- Battery: only show if a battery device exists in /sys/class/power_supply/ ---
+    let battery_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 3);
+    battery_box.add_css_class("battery-box");
+
+    fn get_battery_info() -> Option<(u8, bool)> {
+        let power_dir = std::path::Path::new("/sys/class/power_supply");
+        if !power_dir.exists() { return None; }
+        for entry in std::fs::read_dir(power_dir).ok()?.flatten() {
+            let path = entry.path();
+            let type_path = path.join("type");
+            if let Ok(kind) = std::fs::read_to_string(&type_path) {
+                if kind.trim() == "Battery" {
+                    let cap_str = std::fs::read_to_string(path.join("capacity")).ok()?;
+                    let pct = cap_str.trim().parse::<u8>().ok()?;
+                    let charging = std::fs::read_to_string(path.join("status"))
+                        .map(|s| s.trim() == "Charging" || s.trim() == "Full")
+                        .unwrap_or(false);
+                    return Some((pct, charging));
+                }
+            }
+        }
+        None
+    }
+
+    if let Some((pct, charging)) = get_battery_info() {
+        let battery_icon_name = if charging { "battery-charging" } else { "battery" };
+        let battery_icon = archvnde_common::icon::get_icon(battery_icon_name, 14);
+        battery_icon.add_css_class("status-icon");
+
+        let battery_percent = gtk4::Label::new(Some(&format!("{}%", pct)));
+        battery_percent.add_css_class("status-text");
+
+        battery_box.append(&battery_icon);
+        battery_box.append(&battery_percent);
+        status_content.append(&battery_box);
+
+        // Update battery every 30s
+        let battery_box_c = battery_box.clone();
+        gtk4::glib::timeout_add_local(std::time::Duration::from_secs(30), move || {
+            if let Some((new_pct, new_charging)) = get_battery_info() {
+                // Update percentage label
+                let mut child = battery_box_c.first_child();
+                while let Some(widget) = child {
+                    let next = widget.next_sibling();
+                    if let Some(label) = widget.downcast_ref::<gtk4::Label>() {
+                        label.set_text(&format!("{}%", new_pct));
+                    }
+                    if let Some(img) = widget.downcast_ref::<gtk4::Image>() {
+                        let new_name = if new_charging { "battery-charging" } else { "battery" };
+                        let new_icon = archvnde_common::icon::get_icon(new_name, 14);
+                        if let Some(paintable) = new_icon.paintable() {
+                            img.set_paintable(Some(&paintable));
+                        }
+                    }
+                    child = next;
+                }
+            }
+            gtk4::glib::ControlFlow::Continue
+        });
+    }
+    // If no battery found, battery_box stays empty and is not appended → nothing shown
 
     status_button.set_child(Some(&status_content));
 
