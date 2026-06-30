@@ -202,7 +202,7 @@ pub fn trigger_save(state: &EditorState) -> bool {
 }
 
 pub fn trigger_copy(state: &EditorState, window: &gtk4::ApplicationWindow) -> bool {
-    if let Some(surface) = save_cropped_surface(state) {
+    if let Some(mut surface) = save_cropped_surface(state) {
         let temp_copy_path = "/tmp/archvnde-screenshot-copy.png";
         
         // Write the cropped surface to a temp PNG file
