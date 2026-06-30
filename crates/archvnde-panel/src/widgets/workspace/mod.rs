@@ -103,10 +103,8 @@ fn rebuild_taskbar(
         let icon = archvnde_common::icon::get_icon(&icon_name, 15);
         btn.set_child(Some(&icon));
 
-        // Store the app_id in a way accessible for active-tracking
-        // We tag each button with its app_id via a unique CSS name class
-        let tag_class = format!("taskbar-btn-{}", app_id.to_lowercase().replace(|c: char| !c.is_alphanumeric(), "-"));
-        btn.add_css_class(&tag_class);
+        // Store app_id in the widget name for fast lookup during active-highlight updates
+        btn.set_widget_name(&app_id);
 
         // Create Popover for window previews
         let popover = gtk4::Popover::new();
@@ -154,22 +152,11 @@ fn update_active_highlight(apps_box: &gtk4::Box, active_app_id: Option<&str>) ->
     let mut child = apps_box.first_child();
     while let Some(widget) = child {
         if let Some(btn) = widget.downcast_ref::<gtk4::Button>() {
-            // Extract the app_id from the tag CSS class (taskbar-btn-<app_id>)
-            let ctx = btn.style_context();
-            let classes = ctx.list_classes();
-            let app_tag = classes.iter().find_map(|c| {
-                let s = c.as_str();
-                if s.starts_with("taskbar-btn-") {
-                    Some(s["taskbar-btn-".len()..].to_string())
-                } else {
-                    None
-                }
-            });
-
-            if let Some(tag) = app_tag {
+            // Retrieve the stored app_id from the widget name
+            let btn_app_id = btn.widget_name().to_string();
+            if !btn_app_id.is_empty() {
                 let should_be_active = active_app_id.map(|a| {
-                    let a_lower = a.to_lowercase().replace(|c: char| !c.is_alphanumeric(), "-");
-                    tag == a_lower || a.to_lowercase() == tag
+                    a.to_lowercase() == btn_app_id.to_lowercase()
                 }).unwrap_or(false);
 
                 let is_active = btn.has_css_class("active");
