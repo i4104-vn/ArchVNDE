@@ -194,11 +194,22 @@ mkdir -p "$HOME/.local/share/color-schemes"
 cp "$SCRIPT_DIR/configs/dolphin/ArchVNDE.colors" "$HOME/.local/share/color-schemes/ArchVNDE.colors"
 
 # Dolphin preferences
-mkdir -p "$HOME/.config"
+mkdir -p "$HOME/.config/dolphin"
 cp "$SCRIPT_DIR/configs/dolphin/dolphinrc" "$HOME/.config/dolphinrc"
+cp "$SCRIPT_DIR/configs/dolphin/dolphin.qss" "$HOME/.config/dolphin/dolphin.qss"
 
 # KDE global appearance (colors, fonts, icons for all Qt apps)
 cp "$SCRIPT_DIR/configs/dolphin/kdeglobals" "$HOME/.config/kdeglobals"
+
+# Create a local desktop file override to apply the stylesheet automatically
+echo "Configuring Dolphin desktop launcher with custom stylesheet..."
+mkdir -p "$HOME/.local/share/applications"
+if [ -f "/usr/share/applications/org.kde.dolphin.desktop" ]; then
+    cp "/usr/share/applications/org.kde.dolphin.desktop" "$HOME/.local/share/applications/org.kde.dolphin.desktop"
+    # Replace Exec=dolphin %u with Exec=dolphin -stylesheet ~/.config/dolphin/dolphin.qss %u
+    sed -i 's|Exec=dolphin %u|Exec=dolphin -stylesheet '"$HOME"'/.config/dolphin/dolphin.qss %u|g' "$HOME/.local/share/applications/org.kde.dolphin.desktop"
+    sed -i 's|Exec=dolphin|Exec=dolphin -stylesheet '"$HOME"'/.config/dolphin/dolphin.qss|g' "$HOME/.local/share/applications/org.kde.dolphin.desktop"
+fi
 
 echo "App configurations applied."
 
