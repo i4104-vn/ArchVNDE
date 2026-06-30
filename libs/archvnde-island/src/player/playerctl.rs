@@ -56,17 +56,33 @@ pub fn load_album_art(art_url: &str, size: i32) -> Option<gtk4::Image> {
 }
 
 use gdk_pixbuf::prelude::*;
+use gtk4::prelude::*;
 
 pub fn load_album_art_from_bytes(bytes: &[u8], size: i32) -> Option<gtk4::Image> {
     let loader = gdk_pixbuf::PixbufLoader::new();
     loader.write(bytes).ok()?;
     loader.close().ok()?;
     let pb = loader.pixbuf()?;
-    let scaled_pb = pb.scale_simple(size, size, gdk_pixbuf::InterpType::Bilinear)?;
+    
+    let w = pb.width();
+    let h = pb.height();
+    if w <= 0 || h <= 0 {
+        return None;
+    }
+    
+    // Calculate aspect-ratio preserved dimensions fitting inside `size x size`
+    let scale_w = size as f64 / w as f64;
+    let scale_h = size as f64 / h as f64;
+    let scale = scale_w.min(scale_h);
+    
+    let dest_w = (w as f64 * scale) as i32;
+    let dest_h = (h as f64 * scale) as i32;
+    
+    let scaled_pb = pb.scale_simple(dest_w, dest_h, gdk_pixbuf::InterpType::Bilinear)?;
     
     let texture = gdk4::Texture::for_pixbuf(&scaled_pb);
     let img = gtk4::Image::from_paintable(Some(&texture));
-    img.set_pixel_size(size);
+    img.set_size_request(dest_w, dest_h);
     Some(img)
 }
 

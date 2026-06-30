@@ -72,11 +72,10 @@ pub fn start_player_polling_loop(
                             widgets_clone.popover_art_container.remove(&child);
                         }
                         l_art.add_css_class("media-popover-art");
-                        l_art.set_size_request(240, 240);
                         l_art.set_hexpand(true);
                         l_art.set_vexpand(true);
-                        l_art.set_halign(gtk4::Align::Fill);
-                        l_art.set_valign(gtk4::Align::Fill);
+                        l_art.set_halign(gtk4::Align::Center);
+                        l_art.set_valign(gtk4::Align::Center);
                         widgets_clone.popover_art_container.append(&l_art);
                     } else {
                         let current_fails = fail_count_clone.get() + 1;
