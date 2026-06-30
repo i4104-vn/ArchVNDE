@@ -11,6 +11,14 @@ pub fn populate_popover_previews(
     let previews_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
     previews_box.add_css_class("taskbar-previews-container");
 
+    // Header
+    let header = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
+    header.add_css_class("taskbar-previews-header");
+    let header_label = gtk4::Label::new(Some("Tasks"));
+    header_label.add_css_class("taskbar-previews-header-label");
+    header.append(&header_label);
+    previews_box.append(&header);
+
     // List of open windows
     for app in windows {
         let item_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
@@ -23,16 +31,16 @@ pub fn populate_popover_previews(
 
         // Window title label
         let title_str = app.window_title.as_deref().unwrap_or("");
-        let label_text = if title_str.is_empty() {
+        let label_text = format!("● {}", if title_str.is_empty() {
             app.name.clone()
         } else {
             title_str.to_string()
-        };
+        });
 
         let title_lbl = gtk4::Label::new(Some(&label_text));
         title_lbl.add_css_class("taskbar-preview-title");
         title_lbl.set_ellipsize(gtk4::pango::EllipsizeMode::End);
-        title_lbl.set_max_width_chars(20);
+        title_lbl.set_max_width_chars(18);
         title_lbl.set_hexpand(true);
         title_lbl.set_halign(gtk4::Align::Start);
 
@@ -80,7 +88,6 @@ pub fn populate_popover_previews(
     separator.add_css_class("taskbar-preview-separator");
     previews_box.append(&separator);
 
-
     // Button: <Tên của App> (Mở cửa sổ mới)
     let open_new_btn = gtk4::Button::new();
     open_new_btn.add_css_class("taskbar-preview-action-btn");
@@ -122,8 +129,11 @@ pub fn populate_popover_previews(
 
     let close_all_content = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
     close_all_content.set_halign(gtk4::Align::Start);
+    
     let close_all_icon = gtk4::Image::from_icon_name("window-close-symbolic");
     close_all_icon.set_pixel_size(16);
+    close_all_icon.add_css_class("taskbar-preview-action-icon");
+
     let close_all_label = gtk4::Label::new(Some("Đóng tất cả"));
     close_all_label.add_css_class("taskbar-preview-action-label");
     close_all_content.append(&close_all_icon);
