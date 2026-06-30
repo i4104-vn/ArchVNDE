@@ -23,6 +23,86 @@ fn main() {
         println!("Background desktop apps cache refresh complete.");
     });
 
+    // Spawn background thread to track focused app and capture screenshots
+    std::thread::spawn(|| {
+        use std::process::Command;
+        use std::time::{Instant, Duration};
+        use std::fs;
+
+        let cache_dir = "/tmp/archvnde-switcher-cache";
+        let _ = fs::create_dir_all(cache_dir);
+
+        let mut current_focused_app: Option<String> = None;
+        let mut focus_start = Instant::now();
+        let mut screenshot_taken = false;
+
+        loop {
+            std::thread::sleep(Duration::from_millis(500));
+
+            // Run wlrctl to get the currently focused window
+            let output = Command::new("wlrctl")
+                .args(&["window", "list", "state:focused"])
+                .output();
+
+            let active_app = if let Ok(out) = output {
+                let stdout = String::from_utf8_lossy(&out.stdout);
+                if let Some(line) = stdout.lines().next() {
+                    if let Some(pos) = line.find(':') {
+                        let app_id = line[..pos].trim().to_string();
+                        if !app_id.is_empty() {
+                            Some(app_id)
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
+
+            // Ignore the switcher itself if it gets focused
+            let is_switcher = active_app.as_ref().map(|s| s == "archvnde-switcher" || s == "org.archvnde.switcher").unwrap_or(false);
+            if is_switcher {
+                continue;
+            }
+
+            if active_app != current_focused_app {
+                // User switched away from current_focused_app
+                if let Some(ref old_app) = current_focused_app {
+                    if screenshot_taken {
+                        // Copy the temp screenshot to the old app's cache file
+                        let temp_file = format!("{}/temp_active.png", cache_dir);
+                        let dest_file = format!("{}/{}.png", cache_dir, old_app);
+                        let _ = fs::copy(&temp_file, &dest_file);
+                    }
+                }
+
+                // Reset for the new active app
+                current_focused_app = active_app;
+                focus_start = Instant::now();
+                screenshot_taken = false;
+            } else if current_focused_app.is_some() && !screenshot_taken {
+                // If they have stayed in the same app for >= 5 seconds, take a screenshot
+                if focus_start.elapsed() >= Duration::from_secs(5) {
+                    let temp_file = format!("{}/temp_active.png", cache_dir);
+                    // Run grim to capture the screen
+                    let status = Command::new("grim")
+                        .arg(&temp_file)
+                        .status();
+                    if let Ok(s) = status {
+                        if s.success() {
+                            screenshot_taken = true;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
     let application = gtk4::Application::new(
         Some("org.archvnde.panel"),
         Default::default(),
