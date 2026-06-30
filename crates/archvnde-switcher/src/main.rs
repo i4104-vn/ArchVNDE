@@ -130,17 +130,54 @@ fn main() {
             }
         });
 
+        // Grace period: don't check Alt-release for 300ms after startup or socket "next"
+        // to avoid premature activation from stale events during GTK init.
+        let alt_check_enabled = Rc::new(RefCell::new(false));
+        let alt_check_enabled_clone = alt_check_enabled.clone();
+        gtk4::glib::timeout_add_local_once(std::time::Duration::from_millis(300), move || {
+            *alt_check_enabled_clone.borrow_mut() = true;
+        });
+
         let update_sel_socket = update_selection_rc.clone();
         let current_idx_socket = current_index.clone();
         let apps_len = apps.len();
+        let alt_check_socket = alt_check_enabled.clone();
         gtk4::glib::timeout_add_local(std::time::Duration::from_millis(10), move || {
             while let Ok(_) = receiver.try_recv() {
                 let idx = *current_idx_socket.borrow();
                 let next = (idx + 1) % apps_len;
                 update_sel_socket(next);
+
+                // Reset grace period on each "next" signal to prevent
+                // premature close during rapid Alt+Tab cycling
+                *alt_check_socket.borrow_mut() = false;
+                let alt_re_enable = alt_check_socket.clone();
+                gtk4::glib::timeout_add_local_once(std::time::Duration::from_millis(300), move || {
+                    *alt_re_enable.borrow_mut() = true;
+                });
             }
             gtk4::glib::ControlFlow::Continue
         });
+
+        // Helper: activate the selected app and close the switcher
+        let do_activate = {
+            let current_index = current_index.clone();
+            let apps = apps.clone();
+            let window = window.clone();
+            Rc::new(move || {
+                let idx = *current_index.borrow();
+                if idx < apps.len() {
+                    let app_item = apps[idx].clone();
+                    println!("Activating: {}", app_item.name);
+                    save_history(&app_item.name);
+                    activate_app(&app_item);
+                }
+                let win = window.clone();
+                gtk4::glib::timeout_add_local_once(std::time::Duration::from_millis(50), move || {
+                    win.close();
+                });
+            })
+        };
 
         // Keyboard navigation
         let key_controller = gtk4::EventControllerKey::new();
@@ -149,9 +186,9 @@ fn main() {
         let update_sel_key = update_selection_rc.clone();
         let window_close = window.clone();
         let apps_key = apps.clone();
+        let do_activate_press = do_activate.clone();
         
-        key_controller.connect_key_pressed(move |_, key, _, _| {
-            println!("Key pressed: {:?}", key);
+        key_controller.connect_key_pressed(move |_, key, _, modifiers| {
             let idx = *current_idx_key.borrow();
             match key {
                 gtk4::gdk::Key::Tab | gtk4::gdk::Key::Right => {
@@ -165,14 +202,7 @@ fn main() {
                     gtk4::glib::Propagation::Stop
                 }
                 gtk4::gdk::Key::Return | gtk4::gdk::Key::space => {
-                    let app_item = apps_key[idx].clone();
-                    println!("Selected App: {}", app_item.name);
-                    save_history(&app_item.name);
-                    activate_app(&app_item);
-                    let win = window_close.clone();
-                    gtk4::glib::timeout_add_local_once(std::time::Duration::from_millis(50), move || {
-                        win.close();
-                    });
+                    do_activate_press();
                     gtk4::glib::Propagation::Stop
                 }
                 gtk4::gdk::Key::Escape => {
@@ -183,31 +213,23 @@ fn main() {
             }
         });
 
-        let current_idx_release = current_index.clone();
-        let apps_release = apps.clone();
-        let window_release = window.clone();
-        key_controller.connect_key_released(move |_, key, _, _| {
-            println!("Key released: {:?}", key);
-            match key {
-                gtk4::gdk::Key::Alt_L | gtk4::gdk::Key::Alt_R |
-                gtk4::gdk::Key::Meta_L | gtk4::gdk::Key::Meta_R => {
-                    let idx = *current_idx_release.borrow();
-                    if idx < apps_release.len() {
-                        let app_item = apps_release[idx].clone();
-                        println!("Alt released. Activating: {}", app_item.name);
-                        save_history(&app_item.name);
-                        activate_app(&app_item);
-                        let win = window_release.clone();
-                        gtk4::glib::timeout_add_local_once(std::time::Duration::from_millis(50), move || {
-                            win.close();
-                        });
-                    } else {
-                        window_release.close();
-                    }
-                }
-                _ => {}
+        // On key release, check if Alt modifier is still held.
+        // If Alt is no longer in the modifier state AND grace period has passed,
+        // activate the selected app and close the switcher.
+        // This is more reliable than matching specific Alt_L/Alt_R key symbols,
+        // which the compositor may swallow.
+        let do_activate_release = do_activate.clone();
+        let alt_check_release = alt_check_enabled.clone();
+        key_controller.connect_key_released(move |_, _key, _, modifiers| {
+            if !*alt_check_release.borrow() {
+                return;
+            }
+            let alt_held = modifiers.contains(gtk4::gdk::ModifierType::ALT_MASK);
+            if !alt_held {
+                do_activate_release();
             }
         });
+
         window.add_controller(key_controller);
         window.present();
 

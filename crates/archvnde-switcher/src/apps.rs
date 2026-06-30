@@ -211,38 +211,5 @@ pub fn activate_app(app: &DesktopApp) {
     let _ = std::process::Command::new("wlrctl")
         .args(&["window", "focus", &format!("title:{}", name)])
         .status();
-    let _ = std::process::Command::new("wlrctl")
-        .args(&["window", "focus", &format!("title:{}", name.to_lowercase())])
-        .status();
-
-    // Try wmctrl (X11 / XWayland)
-    let _ = std::process::Command::new("wmctrl")
-        .args(&["-a", name])
-        .spawn();
-    if !exec_name.is_empty() {
-        let _ = std::process::Command::new("wmctrl")
-            .args(&["-a", &exec_name])
-            .spawn();
-    }
-
-    // Spawn a thread to send a dummy Ctrl press and release to cancel the Alt menu bar trigger
-    std::thread::spawn(|| {
-        std::thread::sleep(std::time::Duration::from_millis(150));
-        let home = std::env::var("HOME").unwrap_or_default();
-        let wtype_path = if !home.is_empty() {
-            let path = format!("{}/.local/bin/wtype", home);
-            if std::path::Path::new(&path).exists() {
-                path
-            } else {
-                "wtype".to_string()
-            }
-        } else {
-            "wtype".to_string()
-        };
-
-        let _ = std::process::Command::new(wtype_path)
-            .args(&["-M", "ctrl", "-m", "ctrl"])
-            .status();
-    });
 }
 
