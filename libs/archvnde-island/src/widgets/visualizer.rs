@@ -1,10 +1,7 @@
-//! Animated wave bars audio visualizer indicator for the media player.
-
 use gtk4::prelude::*;
 use std::cell::Cell;
 use std::rc::Rc;
 
-/// Creates a horizontal box container containing 4 animated visualizer bars.
 pub fn create_visualizer() -> (gtk4::Box, Vec<gtk4::Box>) {
     let visualizer_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 2);
     visualizer_box.add_css_class("notch-visualizer");
@@ -22,7 +19,6 @@ pub fn create_visualizer() -> (gtk4::Box, Vec<gtk4::Box>) {
     (visualizer_box, bars)
 }
 
-/// Registers tick callbacks on visualizer bars to dynamically animate height changes using mixed sine/cosine waves when music is playing.
 pub fn start_visualizer_animation(bars: Vec<gtk4::Box>, is_playing: Rc<Cell<bool>>) {
     if bars.is_empty() {
         return;
@@ -37,13 +33,13 @@ pub fn start_visualizer_animation(bars: Vec<gtk4::Box>, is_playing: Rc<Cell<bool
             }
             let elapsed_sec = (now - start_time.get()) as f64 / 1_000_000.0;
             for (i, bar) in bars.iter().enumerate() {
-                let freq1 = 6.0 + (i as f64 * 2.5);
-                let freq2 = 4.0 - (i as f64 * 1.2);
+                let freq1 = 18.0 + (i as f64 * 8.5);
+                let freq2 = 11.0 - (i as f64 * 4.2);
                 let val1 = (elapsed_sec * freq1).sin();
                 let val2 = (elapsed_sec * freq2).cos();
                 let mixed = (val1 + val2) / 2.0;
-                let val = (mixed * 4.0 + 6.0) as i32;
-                bar.set_size_request(2, val.max(2).min(10));
+                let val = (mixed * 5.0 + 7.0) as i32;
+                bar.set_size_request(2, val.max(2).min(12));
             }
         } else {
             start_time.set(0);
@@ -54,4 +50,3 @@ pub fn start_visualizer_animation(bars: Vec<gtk4::Box>, is_playing: Rc<Cell<bool
         glib::ControlFlow::Continue
     });
 }
-
