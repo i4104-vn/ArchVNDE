@@ -202,33 +202,57 @@ pub fn trigger_save(state: &EditorState) -> bool {
 }
 
 pub fn trigger_copy(state: &EditorState, window: &gtk4::ApplicationWindow) -> bool {
-    if let Some(mut surface) = save_cropped_surface(state) {
-        // Convert cairo surface to GdkTexture
+    if let Some(surface) = save_cropped_surface(state) {
+        let temp_copy_path = "/tmp/archvnde-screenshot-copy.png";
+        
+        // Write the cropped surface to a temp PNG file
+        if let Ok(mut file) = std::fs::File::create(temp_copy_path) {
+            if surface.write_to_png(&mut file).is_ok() {
+                // Pipe the file to wl-copy (standard Wayland clipboard tool)
+                if let Ok(file_in) = std::fs::File::open(temp_copy_path) {
+                    let status = std::process::Command::new("wl-copy")
+                        .args(&["-t", "image/png"])
+                        .stdin(file_in)
+                        .status();
+                    
+                    if let Ok(s) = status {
+                        if s.success() {
+                            println!("Screenshot copied to clipboard via wl-copy.");
+                            let _ = std::process::Command::new("notify-send")
+                                .args(&["-i", "edit-paste", "Đã sao chép ảnh", "Ảnh chụp đã được lưu vào clipboard."])
+                                .spawn();
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Fallback to GTK4 clipboard if wl-copy is not available
         let w = surface.width();
         let h = surface.height();
-        
-        // Create pixbuf from surface data
         let stride = surface.stride();
-        let data = surface.data().unwrap();
-        let pixbuf = gdk_pixbuf::Pixbuf::from_mut_slice(
-            data.to_vec(),
-            gdk_pixbuf::Colorspace::Rgb,
-            true,
-            8,
-            w,
-            h,
-            stride,
-        );
+        if let Ok(data) = surface.data() {
+            let pixbuf = gdk_pixbuf::Pixbuf::from_mut_slice(
+                data.to_vec(),
+                gdk_pixbuf::Colorspace::Rgb,
+                true,
+                8,
+                w,
+                h,
+                stride,
+            );
 
-        let texture = gtk4::gdk::Texture::for_pixbuf(&pixbuf);
-        let clipboard = window.upcast_ref::<gtk4::Widget>().display().clipboard();
-        clipboard.set_texture(&texture);
+            let texture = gtk4::gdk::Texture::for_pixbuf(&pixbuf);
+            let clipboard = window.upcast_ref::<gtk4::Widget>().display().clipboard();
+            clipboard.set_texture(&texture);
 
-        println!("Screenshot copied to clipboard.");
-        let _ = std::process::Command::new("notify-send")
-            .args(&["-i", "edit-paste", "Đã sao chép ảnh", "Ảnh chụp đã được lưu vào clipboard."])
-            .spawn();
-        return true;
+            println!("Screenshot copied to clipboard via GTK fallback.");
+            let _ = std::process::Command::new("notify-send")
+                .args(&["-i", "edit-paste", "Đã sao chép ảnh", "Ảnh chụp đã được lưu vào clipboard."])
+                .spawn();
+            return true;
+        }
     }
     false
 }
