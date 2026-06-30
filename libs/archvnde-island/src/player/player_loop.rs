@@ -2,7 +2,7 @@ use gtk4::prelude::*;
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
-use super::playerctl::{load_album_art, run_playerctl, load_album_art_from_bytes, decode_uri};
+use super::playerctl::{run_playerctl, load_album_art_from_bytes, decode_uri};
 use crate::models::IslandWidgets;
 
 /// Starts a background timer loop that polls active D-Bus notifications and playerctl
