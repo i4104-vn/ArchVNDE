@@ -203,55 +203,6 @@ fn main() {
                 _ => {}
             }
         });
-
-        // Check if Alt is already released when the window becomes active (e.g. quick tap of Alt-Tab)
-        let current_idx_active = current_index.clone();
-        let apps_active = apps.clone();
-        let window_active = window.clone();
-        window.connect_is_active_notify(move |win| {
-            if win.is_active() {
-                let current_idx_active = current_idx_active.clone();
-                let apps_active = apps_active.clone();
-                let window_active = window_active.clone();
-                
-                gtk4::glib::timeout_add_local_once(std::time::Duration::from_millis(50), move || {
-                    let has_alt = {
-                        if let Some(display) = gtk4::gdk::Display::default() {
-                            if let Some(seat) = display.default_seat() {
-                                if let Some(keyboard) = seat.keyboard() {
-                                    let mods = keyboard.modifier_state();
-                                    mods.contains(gtk4::gdk::ModifierType::ALT_MASK) ||
-                                    mods.contains(gtk4::gdk::ModifierType::META_MASK)
-                                } else {
-                                    true
-                                }
-                            } else {
-                                true
-                            }
-                        } else {
-                            true
-                        }
-                    };
-
-                    if !has_alt {
-                        let idx = *current_idx_active.borrow();
-                        let target_idx = if idx == 0 { initial_idx } else { idx };
-                        if target_idx < apps_active.len() {
-                            let app_item = apps_active[target_idx].clone();
-                            println!("Alt already released on startup. Activating: {}", app_item.name);
-                            save_history(&app_item.name);
-                            window_active.close();
-                            gtk4::glib::timeout_add_local_once(std::time::Duration::from_millis(50), move || {
-                                activate_app(&app_item);
-                            });
-                        } else {
-                            window_active.close();
-                        }
-                    }
-                });
-            }
-        });
-
         window.add_controller(key_controller);
         window.present();
 
