@@ -5,9 +5,23 @@ echo "============================================="
 echo "   ArchVNDE Desktop Shell Installation Script"
 echo "============================================="
 
-# 1. Install all dependencies and the Rust toolchain via pacman
-echo "Installing Arch Linux packages, development tools, and Rust compiler..."
-sudo pacman -S --needed --noconfirm base-devel git pkgconf gtk4 gtk4-layer-shell rust labwc meson ninja playerctl papirus-icon-theme grim ttf-inter ttf-ubuntu-font-family ttf-jetbrains-mono-nerd otf-font-awesome
+# 1. Install all dependencies, the Rust toolchain, and system fonts via pacman
+echo "Installing Arch Linux packages..."
+sudo pacman -Syu --needed --noconfirm base-devel git pkgconf gtk4 gtk4-layer-shell rust labwc meson ninja playerctl grim wl-clipboard
+
+# Check if yay is installed, and install it from AUR if missing
+if ! command -v yay &> /dev/null; then
+    echo "yay not found, installing yay-bin from AUR..."
+    rm -rf /tmp/yay-bin
+    git clone https://aur.archlinux.org/yay-bin.git /tmp/yay-bin
+    cd /tmp/yay-bin
+    makepkg -si --noconfirm
+    cd -
+fi
+
+# Install AUR packages using yay
+yay -S --noconfirm dolphin github-desktop fastfetch neovim awww brightnessctl 
+yay -S --noconfirm inter-font ttf-ubuntu-font-family ttf-jetbrains-mono-nerd otf-font-awesome ttf-nerd-fonts-symbols
 
 # 2. Install wlrctl from AUR if not present (required by the window switcher)
 if ! command -v wlrctl &> /dev/null; then
@@ -38,12 +52,13 @@ echo "Cleaning and compiling ArchVNDE components in release mode..."
 cargo clean
 cargo build --release
 
-# 5. Stop running panel/menu/switcher instances
+# 5. Stop running panel/menu/switcher/lock instances
 echo "Stopping active processes..."
 killall archvnde-panel || true
 killall archvnde-menu || true
 killall archvnde-switcher || true
 killall archvnde-screenshot || true
+killall archvnde-lock || true
 
 # 6. Install the binaries
 echo "Installing binaries to $LOCAL_BIN..."
@@ -51,6 +66,11 @@ cp target/release/archvnde-panel "$LOCAL_BIN/archvnde-panel"
 cp target/release/archvnde-menu "$LOCAL_BIN/archvnde-menu"
 cp target/release/archvnde-switcher "$LOCAL_BIN/archvnde-switcher"
 cp target/release/archvnde-screenshot "$LOCAL_BIN/archvnde-screenshot"
+cp target/release/archvnde-lock "$LOCAL_BIN/archvnde-lock"
+
+# Copy wallpaper to standard config dir
+mkdir -p "$HOME/.config/archvnde"
+cp wallpaper.png "$HOME/.config/archvnde/wallpaper.png"
 
 # 7. Write/update labwc configuration files
 echo "Configuring labwc compositor integrations..."
@@ -66,7 +86,7 @@ awww-daemon &
 sleep 0.5
 
 # Set the default wallpaper
-awww img wallpaper.png &
+awww img "$HOME/.config/archvnde/wallpaper.png" &
 
 # Start ArchVNDE status panel
 mkdir -p "$HOME/.cache/archvnde"
@@ -88,6 +108,10 @@ cat << 'EOF' > "$HOME/.config/labwc/rc.xml"
     <keybind key="W-S-s">
       <action name="Execute" command="~/.local/bin/archvnde-screenshot" />
     </keybind>
+    <!-- Lock screen with Win+L -->
+    <keybind key="W-l">
+      <action name="Execute" command="~/.local/bin/archvnde-lock" />
+    </keybind>
   </keyboard>
   <mouse>
     <default />
@@ -106,6 +130,59 @@ echo "Reloading labwc configuration and starting panel..."
 labwc --reconfigure || true
 mkdir -p "$HOME/.cache/archvnde"
 ~/.local/bin/archvnde-panel > "$HOME/.cache/archvnde/panel.log" 2>&1 &
+
+# 9. Configure system-wide default fonts (Inter & JetBrains Mono)
+echo "Configuring system-wide default fonts for GTK and Fontconfig..."
+mkdir -p "$HOME/.config/gtk-3.0" "$HOME/.config/gtk-4.0" "$HOME/.config/fontconfig"
+
+# GTK 3.0 settings
+cat << 'EOF' > "$HOME/.config/gtk-3.0/settings.ini"
+[Settings]
+gtk-font-name=Inter 11
+gtk-icon-theme-name=Adwaita
+EOF
+
+# GTK 4.0 settings
+cat << 'EOF' > "$HOME/.config/gtk-4.0/settings.ini"
+[Settings]
+gtk-font-name=Inter 11
+gtk-icon-theme-name=Adwaita
+EOF
+
+# Fontconfig default aliases
+cat << 'EOF' > "$HOME/.config/fontconfig/fonts.conf"
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+<fontconfig>
+  <!-- Default sans-serif font -->
+  <match target="pattern">
+    <test qual="any" name="family"><string>sans-serif</string></test>
+    <edit name="family" mode="assign" binding="same">
+      <string>Inter</string>
+    </edit>
+  </match>
+
+  <!-- Default serif font -->
+  <match target="pattern">
+    <test qual="any" name="family"><string>serif</string></test>
+    <edit name="family" mode="assign" binding="same">
+      <string>Inter</string>
+    </edit>
+  </match>
+
+  <!-- Default monospace font -->
+  <match target="pattern">
+    <test qual="any" name="family"><string>monospace</string></test>
+    <edit name="family" mode="assign" binding="same">
+      <string>JetBrainsMono Nerd Font</string>
+    </edit>
+  </match>
+</fontconfig>
+EOF
+
+# Rebuild font cache
+echo "Rebuilding font cache..."
+fc-cache -fv || true
 
 echo "============================================="
 echo "Installation & Setup complete!"

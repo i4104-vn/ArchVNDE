@@ -9,5 +9,6 @@ members = [
     "crates/archvnde-menu",
     "crates/archvnde-switcher",
     "crates/archvnde-screenshot",
+    "crates/archvnde-lock",
 ]
 

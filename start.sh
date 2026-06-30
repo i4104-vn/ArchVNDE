@@ -18,6 +18,10 @@ killall mako || true
 killall fnott || true
 killall xfce4-notifyd || true 
 
+# Copy wallpaper to standard config dir
+mkdir -p "$HOME/.config/archvnde"
+cp wallpaper.png "$HOME/.config/archvnde/wallpaper.png"
+
 # Setup default autostart
 cat << 'EOF' > "$AUTOSTART_FILE"
 #!/bin/bash
@@ -28,7 +32,7 @@ awww-daemon &
 sleep 0.5
 
 # Set the default wallpaper
-awww img wallpaper.png &
+awww img "$HOME/.config/archvnde/wallpaper.png" &
 
 # Start ArchVNDE status panel
 archvnde-panel &
@@ -45,6 +49,10 @@ cat << 'EOF' > "$RC_FILE"
     <!-- Override Alt-Tab with custom archvnde-switcher -->
     <keybind key="A-Tab">
       <action name="Execute" command="archvnde-switcher" />
+    </keybind>
+    <!-- Lock screen with Win+L -->
+    <keybind key="W-l">
+      <action name="Execute" command="~/.local/bin/archvnde-lock" />
     </keybind>
   </keyboard>
   <mouse>
