@@ -2,7 +2,21 @@ use std::fs;
 use crate::core::config::get_archvnde_config_dir;
 
 const DEFAULT_CSS: &str = concat!(
-    include_str!("styles/bar.css"),
+    include_str!("styles/panel.css"),
+    "\n",
+    include_str!("styles/workspaces.css"),
+    "\n",
+    include_str!("styles/clock.css"),
+    "\n",
+    include_str!("styles/status.css"),
+    "\n",
+    include_str!("styles/system_island.css"),
+    "\n",
+    include_str!("styles/sys_monitor.css"),
+    "\n",
+    include_str!("styles/tray.css"),
+    "\n",
+    include_str!("styles/taskbar.css"),
     "\n",
     include_str!("styles/button.css"),
     "\n",
