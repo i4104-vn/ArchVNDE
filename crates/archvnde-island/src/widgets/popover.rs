@@ -126,10 +126,10 @@ pub fn create_media_popover(
             if let Some(app_name) = active_app_name {
                 if !app_name.is_empty() && !app_name.starts_with('/') {
                     let _ = std::process::Command::new("wlrctl")
-                        .args(&["toplevel", "focus", &app_name])
+                        .args(&["window", "focus", &app_name])
                         .spawn();
                     let _ = std::process::Command::new("wlrctl")
-                        .args(&["toplevel", "focus", &app_name.to_lowercase()])
+                        .args(&["window", "focus", &app_name.to_lowercase()])
                         .spawn();
                     let _ = std::process::Command::new("wmctrl")
                         .args(&["-a", &app_name])

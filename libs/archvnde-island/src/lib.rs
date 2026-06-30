@@ -67,6 +67,83 @@ pub fn create_system_island() -> gtk4::Box {
     notification_view.set_hexpand(true);
     notification_view.set_visible(false); // Hidden by default
 
+    // Add click gesture to jump to app
+    let click_gesture = gtk4::GestureClick::new();
+    click_gesture.set_button(0); // Respond to all mouse buttons
+    click_gesture.connect_pressed(move |_, _, _, _| {
+        let app_to_activate = widgets::notification::SHARED_NOTIFICATION.with(|sn| {
+            sn.borrow().as_ref().map(|n| n.app_name.clone())
+        });
+        
+        if let Some(app_name) = app_to_activate {
+            println!("Notification clicked! Attempting to activate app: {}", app_name);
+            
+            // 1. Search desktop apps for a matching application
+            let apps = archvnde_common::desktop::find_desktop_apps();
+            let mut found_app = None;
+            let lower_name = app_name.to_lowercase();
+            
+            for app in &apps {
+                if app.name.to_lowercase() == lower_name {
+                    found_app = Some(app.clone());
+                    break;
+                }
+            }
+            
+            // Substring fallback
+            if found_app.is_none() {
+                for app in &apps {
+                    if app.name.to_lowercase().contains(&lower_name) || lower_name.contains(&app.name.to_lowercase()) {
+                        found_app = Some(app.clone());
+                        break;
+                    }
+                }
+            }
+            
+            // 2. Focus the app window using wlrctl (similar to Alt-Tab switcher)
+            if let Some(app) = found_app {
+                let exec_parts: Vec<&str> = app.exec.split_whitespace().collect();
+                let exec_name = if !exec_parts.is_empty() {
+                    std::path::Path::new(exec_parts[0])
+                        .file_name()
+                        .map(|f| f.to_string_lossy().to_string())
+                        .unwrap_or_default()
+                } else {
+                    String::new()
+                };
+
+                // Focus windows using wlrctl
+                if !exec_name.is_empty() {
+                    let _ = std::process::Command::new("wlrctl")
+                        .args(&["window", "focus", &exec_name])
+                        .spawn();
+                    let _ = std::process::Command::new("wlrctl")
+                        .args(&["window", "focus", &exec_name.to_lowercase()])
+                        .spawn();
+                }
+                
+                if !app.exec.is_empty() {
+                    let _ = std::process::Command::new("wlrctl")
+                        .args(&["window", "focus", &app.exec])
+                        .spawn();
+                }
+
+                let _ = std::process::Command::new("wlrctl")
+                    .args(&["window", "focus", &app.name])
+                    .spawn();
+            } else {
+                // Fallback: directly try wlrctl focus on the raw app_name
+                let _ = std::process::Command::new("wlrctl")
+                    .args(&["window", "focus", &app_name])
+                    .spawn();
+                let _ = std::process::Command::new("wlrctl")
+                    .args(&["window", "focus", &app_name.to_lowercase()])
+                    .spawn();
+            }
+        }
+    });
+    notification_view.add_controller(click_gesture);
+
     let notif_art_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
     notif_art_container.set_valign(gtk4::Align::Center);
 
@@ -143,8 +220,8 @@ pub fn create_system_island() -> gtk4::Box {
     glib::MainContext::default().spawn_local(async move {
         while let Some(msg) = rx.recv().await {
             match msg {
-                models::NotificationMsg::New { summary, body, icon, timeout } => {
-                    widgets::notification::show_notification_popup(&summary, &body, &icon, timeout);
+                models::NotificationMsg::New { summary, body, icon, app_name, timeout } => {
+                    widgets::notification::show_notification_popup(&summary, &body, &icon, &app_name, timeout);
                 }
                 models::NotificationMsg::Close => {
                     widgets::notification::close_notification_popup();
