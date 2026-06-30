@@ -7,7 +7,7 @@ echo "============================================="
 
 # 1. Install all dependencies and the Rust toolchain via pacman
 echo "Installing Arch Linux packages, development tools, and Rust compiler..."
-sudo pacman -S --needed --noconfirm base-devel git pkgconf gtk4 gtk4-layer-shell rust labwc meson ninja playerctl papirus-icon-theme grim ttf-inter ttf-ubuntu-font-family
+sudo pacman -S --needed --noconfirm base-devel git pkgconf gtk4 gtk4-layer-shell rust labwc meson ninja playerctl papirus-icon-theme grim ttf-inter ttf-ubuntu-font-family ttf-jetbrains-mono-nerd otf-font-awesome
 
 # 2. Install wlrctl from AUR if not present (required by the window switcher)
 if ! command -v wlrctl &> /dev/null; then
