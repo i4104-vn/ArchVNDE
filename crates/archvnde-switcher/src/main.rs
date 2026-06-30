@@ -104,9 +104,10 @@ fn main() {
                 update_sel(i);
                 let app_item = apps_click[i].clone();
                 save_history(&app_item.name);
-                window_close.close();
+                activate_app(&app_item);
+                let win = window_close.clone();
                 gtk4::glib::timeout_add_local_once(std::time::Duration::from_millis(50), move || {
-                    activate_app(&app_item);
+                    win.close();
                 });
             });
         }
@@ -150,6 +151,7 @@ fn main() {
         let apps_key = apps.clone();
         
         key_controller.connect_key_pressed(move |_, key, _, _| {
+            println!("Key pressed: {:?}", key);
             let idx = *current_idx_key.borrow();
             match key {
                 gtk4::gdk::Key::Tab | gtk4::gdk::Key::Right => {
@@ -166,9 +168,10 @@ fn main() {
                     let app_item = apps_key[idx].clone();
                     println!("Selected App: {}", app_item.name);
                     save_history(&app_item.name);
-                    window_close.close();
+                    activate_app(&app_item);
+                    let win = window_close.clone();
                     gtk4::glib::timeout_add_local_once(std::time::Duration::from_millis(50), move || {
-                        activate_app(&app_item);
+                        win.close();
                     });
                     gtk4::glib::Propagation::Stop
                 }
@@ -184,6 +187,7 @@ fn main() {
         let apps_release = apps.clone();
         let window_release = window.clone();
         key_controller.connect_key_released(move |_, key, _, _| {
+            println!("Key released: {:?}", key);
             match key {
                 gtk4::gdk::Key::Alt_L | gtk4::gdk::Key::Alt_R |
                 gtk4::gdk::Key::Meta_L | gtk4::gdk::Key::Meta_R => {
@@ -192,9 +196,10 @@ fn main() {
                         let app_item = apps_release[idx].clone();
                         println!("Alt released. Activating: {}", app_item.name);
                         save_history(&app_item.name);
-                        window_release.close();
+                        activate_app(&app_item);
+                        let win = window_release.clone();
                         gtk4::glib::timeout_add_local_once(std::time::Duration::from_millis(50), move || {
-                            activate_app(&app_item);
+                            win.close();
                         });
                     } else {
                         window_release.close();
