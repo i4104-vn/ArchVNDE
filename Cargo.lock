@@ -15,24 +15,26 @@ dependencies = [
 name = "archvnde-common"
 version = "0.1.0"
 dependencies = [
- "archvnde-i18n",
  "dirs",
  "gdk-pixbuf",
  "gdk4",
  "gio",
  "glib",
  "gtk4",
- "gtk4-layer-shell",
  "serde",
  "toml 0.8.23",
  "tracing",
 ]
 
 [[package]]
-name = "archvnde-i18n"
+name = "archvnde-dock"
 version = "0.1.0"
 dependencies = [
- "dirs",
+ "archvnde-common",
+ "gio",
+ "glib",
+ "gtk4",
+ "gtk4-layer-shell",
  "serde",
  "toml 0.8.23",
 ]
@@ -83,8 +85,6 @@ version = "0.1.0"
 dependencies = [
  "archvnde-common",
  "archvnde-island",
- "archvnde-launcher",
- "archvnde-tray",
  "chrono",
  "gdk-pixbuf",
  "gdk4",
@@ -93,44 +93,6 @@ dependencies = [
  "gtk4-layer-shell",
  "tokio",
  "tracing",
-]
-
-[[package]]
-name = "archvnde-screenshot"
-version = "0.1.0"
-dependencies = [
- "archvnde-common",
- "cairo-rs",
- "chrono",
- "dirs",
- "gdk-pixbuf",
- "gio",
- "glib",
- "gtk4",
- "gtk4-layer-shell",
-]
-
-[[package]]
-name = "archvnde-switcher"
-version = "0.1.0"
-dependencies = [
- "archvnde-common",
- "dirs",
- "gio",
- "glib",
- "gtk4",
- "gtk4-layer-shell",
-]
-
-[[package]]
-name = "archvnde-tray"
-version = "0.1.0"
-dependencies = [
- "archvnde-common",
- "dirs",
- "serde",
- "tokio",
- "zbus",
 ]
 
 [[package]]

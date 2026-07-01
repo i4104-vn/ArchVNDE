@@ -65,6 +65,7 @@ fn get_ram_usage() -> Option<(f64, f64, f64)> {
 pub fn create_sys_monitor_widget() -> gtk4::Box {
     let capsule = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
 
+<<<<<<< HEAD:crates/archvnde-panel/src/widgets/sys_monitor/mod.rs
     let (
         sys_label,
         popover,
@@ -81,6 +82,59 @@ pub fn create_sys_monitor_widget() -> gtk4::Box {
 
     render::setup_chart_draw(&cpu_chart, cpu_history.clone(), "#3b82f6");
     render::setup_chart_draw(&ram_chart, ram_history.clone(), "#a855f7");
+=======
+    let sys_label = gtk4::Label::new(Some("CPU: 0% | RAM: 0%"));
+    sys_label.add_css_class("status-text");
+
+    capsule.append(&sys_label);
+
+    // --- Hover Popover Configuration ---
+    let popover = gtk4::Popover::new();
+    popover.add_css_class("sys-monitor-popover");
+    popover.set_parent(&capsule);
+    popover.set_autohide(false);
+
+    let popover_box = gtk4::Box::new(gtk4::Orientation::Vertical, 10);
+    popover_box.set_size_request(200, -1);
+
+    // Title
+    let popover_title = gtk4::Label::new(Some("System Resources"));
+    popover_title.add_css_class("tile-title");
+    popover_title.set_xalign(0.0);
+    popover_title.set_margin_bottom(4);
+
+    // CPU Info Row
+    let cpu_label = gtk4::Label::new(Some("CPU Usage: 0%"));
+    cpu_label.set_xalign(0.0);
+    cpu_label.add_css_class("tile-subtitle");
+    
+    let cpu_progress = gtk4::ProgressBar::new();
+    cpu_progress.set_fraction(0.0);
+    cpu_progress.set_hexpand(true);
+
+    // RAM Info Row
+    let ram_label = gtk4::Label::new(Some("RAM Usage: 0%"));
+    ram_label.set_xalign(0.0);
+    ram_label.add_css_class("tile-subtitle");
+
+    let ram_progress = gtk4::ProgressBar::new();
+    ram_progress.set_fraction(0.0);
+    ram_progress.set_hexpand(true);
+
+    let ram_detail = gtk4::Label::new(Some("0.0 GB / 0.0 GB"));
+    ram_detail.set_xalign(0.0);
+    ram_detail.add_css_class("control-square-label");
+    ram_detail.set_opacity(0.7);
+
+    popover_box.append(&popover_title);
+    popover_box.append(&cpu_label);
+    popover_box.append(&cpu_progress);
+    popover_box.append(&ram_label);
+    popover_box.append(&ram_progress);
+    popover_box.append(&ram_detail);
+
+    popover.set_child(Some(&popover_box));
+>>>>>>> 4957db7 (Update sys_monitor.rs):crates/archvnde-panel/src/widgets/sys_monitor.rs
 
     // Shared references to update values inside loops/hover events
     let last_cpu: Rc<RefCell<Option<CpuTime>>> = Rc::new(RefCell::new(None));

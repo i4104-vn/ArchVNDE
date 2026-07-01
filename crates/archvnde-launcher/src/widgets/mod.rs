@@ -136,6 +136,37 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
         }
     });
 
+    let is_animating = Rc::new(std::cell::Cell::new(false));
+    let is_animating_clone = is_animating.clone();
+    let win_clone_close = window.clone();
+    let box_layout_clone_close = box_layout.clone();
+    window.connect_close_request(move |_| {
+        if is_animating_clone.get() {
+            return glib::Propagation::Proceed;
+        }
+        is_animating_clone.set(true);
+        let win_cb = win_clone_close.clone();
+        let box_layout_cb = box_layout_clone_close.clone();
+        let w = box_layout_cb.width().max(450);
+        let h = box_layout_cb.height().max(550);
+        archvnde_common::animation::genie_out(
+            box_layout_cb.upcast_ref(),
+            w,
+            h,
+            200,
+            move || {
+                win_cb.destroy();
+            }
+        );
+        glib::Propagation::Stop
+    });
+
+    window.connect_is_active_notify(|win| {
+        if !win.is_active() {
+            win.close();
+        }
+    });
+
     let key_controller = gtk4::EventControllerKey::new();
     let win_clone = window.clone();
     key_controller.connect_key_pressed(move |_, key, _, _| {

@@ -250,7 +250,7 @@ button.panel-clock-btn:hover {
 }
 
 /* Hover Scale Transition for active music notch */
-.panel-notch.active-music:not(.popover-open):hover {
+.panel-notch.active-music:hover {
     transform: scale(1.04);
     background-color: rgba(16, 16, 18, 0.98);
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45),
@@ -279,13 +279,14 @@ popover.media-popover > contents {
     padding: 0;
     min-width: 240px;
     max-width: 260px;
-    transform: scale(0.82);
+    transform: scale(0.0);
+    transform-origin: top center;
     opacity: 0;
-    transition: transform 250ms cubic-bezier(0.16, 1, 0.3, 1),
-                opacity 200ms ease;
+    transition: transform 400ms cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 300ms ease;
 }
 
-.media-popover-box.zoom-visible {
+.media-popover-box.genie-visible {
     transform: scale(1);
     opacity: 1;
 }
@@ -317,11 +318,11 @@ popover.media-popover > contents {
     font-size: 10px;
     font-weight: 500;
     color: rgba(255, 255, 255, 0.6);
-    margin-bottom: 16px;
+    margin-bottom: 8px;
 }
 
 .media-popover-controls {
-    margin-top: 4px;
+    margin-top: 0;
 }
 
 .media-control-btn {
@@ -341,3 +342,49 @@ popover.media-popover > contents {
     background-color: rgba(255, 255, 255, 0.08);
 }
 
+/* ================================================================
+   MEDIA TIMELINE / PROGRESS BAR
+   ================================================================ */
+
+.media-timeline-box {
+    margin: 0 4px;
+    padding: 0;
+}
+
+/* Override the generic scale styling for media timeline */
+scale.media-timeline-scale trough {
+    min-height: 4px;
+    border-radius: 2px;
+    background-color: rgba(255, 255, 255, 0.12);
+    border: none;
+}
+
+scale.media-timeline-scale trough highlight {
+    border-radius: 2px;
+    background-color: #ffffff;
+    background-image: none;
+    min-height: 4px;
+}
+
+scale.media-timeline-scale trough slider {
+    min-width: 10px;
+    min-height: 10px;
+    margin: -3px;
+    border-radius: 5px;
+    background-color: #ffffff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.40);
+    border: none;
+    opacity: 0;
+    transition: opacity 150ms ease;
+}
+
+scale.media-timeline-scale:hover trough slider {
+    opacity: 1;
+}
+
+.media-time-label {
+    font-size: 9px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.45);
+    margin: 0 2px;
+}
