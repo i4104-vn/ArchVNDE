@@ -24,13 +24,11 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     window.set_layer(Layer::Overlay);
     window.set_keyboard_mode(KeyboardMode::Exclusive);
 
-    // Stretch across the entire screen, ignoring panel exclusive zones
+    // Stretch across the entire screen
     window.set_anchor(Edge::Top, true);
     window.set_anchor(Edge::Bottom, true);
     window.set_anchor(Edge::Left, true);
     window.set_anchor(Edge::Right, true);
-    // -1 = ignore all exclusive zones (panel, dock, etc.) → true fullscreen overlay
-    window.set_exclusive_zone(-1);
     window.add_css_class("screenshot-window");
 
     let overlay = gtk4::Overlay::new();
@@ -159,62 +157,43 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     // Tool buttons
     let btn_reset = gtk4::Button::from_icon_name("view-refresh-symbolic");
     btn_reset.set_tooltip_text(Some("Bỏ chụp và làm lại (Xóa hết nét vẽ)"));
-    btn_reset.add_css_class("flat");
     btn_reset.add_css_class("screenshot-toolbar-btn");
 
     let btn_pen = gtk4::Button::from_icon_name("document-edit-symbolic");
     btn_pen.set_tooltip_text(Some("Bút vẽ"));
-    btn_pen.add_css_class("flat");
     btn_pen.add_css_class("screenshot-toolbar-btn");
 
     let btn_rect = gtk4::Button::from_icon_name("media-record-symbolic");
     btn_rect.set_tooltip_text(Some("Vẽ hình chữ nhật"));
-    btn_rect.add_css_class("flat");
     btn_rect.add_css_class("screenshot-toolbar-btn");
 
     let btn_blur = gtk4::Button::from_icon_name("view-grid-symbolic");
     btn_blur.set_tooltip_text(Some("Làm mờ thông tin"));
-    btn_blur.add_css_class("flat");
     btn_blur.add_css_class("screenshot-toolbar-btn");
 
     let btn_eraser = gtk4::Button::from_icon_name("edit-clear-all-symbolic");
     btn_eraser.set_tooltip_text(Some("Xóa hình vẽ"));
-    btn_eraser.add_css_class("flat");
     btn_eraser.add_css_class("screenshot-toolbar-btn");
 
-    // since GTK Box widgets do not render background-color consistently.
+    // Color picker button with a color dot indicator inside
     let color_btn = gtk4::Button::new();
     color_btn.set_tooltip_text(Some("Chọn màu vẽ"));
-    color_btn.add_css_class("flat");
     color_btn.add_css_class("screenshot-toolbar-btn");
-
-    // Color indicator: DrawingArea drawn by Cairo.
-    // Reads current_color directly from shared EditorState — same pattern as the main canvas.
-    let color_dot = gtk4::DrawingArea::new();
-    color_dot.set_size_request(16, 16);
+    
+    let color_dot = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+    color_dot.add_css_class("color-dot-indicator");
+    color_dot.set_size_request(14, 14);
     color_btn.set_child(Some(&color_dot));
 
-    let state_indicator = state.clone();
-    color_dot.set_draw_func(move |_, cr, w, h| {
-        let (r, g, b) = state_indicator.borrow().current_color;
-        let cx = w as f64 / 2.0;
-        let cy = h as f64 / 2.0;
-        let radius = (w.min(h) as f64 / 2.0) - 1.5;
-        if radius <= 0.0 { return; }
-        // Filled circle with current color + white border in one path
-        cr.arc(cx, cy, radius, 0.0, 2.0 * std::f64::consts::PI);
-        cr.set_source_rgb(r, g, b);
-        cr.fill_preserve().unwrap();
-        cr.set_source_rgba(1.0, 1.0, 1.0, 0.6);
-        cr.set_line_width(1.5);
-        cr.stroke().unwrap();
-    });
+    // Set initial color of the dot to Red
+    let provider_init = gtk4::CssProvider::new();
+    provider_init.load_from_data(".color-dot-indicator { background-color: rgb(237, 38, 38) !important; }");
+    color_dot.style_context().add_provider(&provider_init, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
 
     // Create the Popover containing the 2x4 color grid
     let popover = gtk4::Popover::new();
     popover.set_parent(&color_btn);
     popover.set_position(gtk4::PositionType::Top);
-    popover.add_css_class("screenshot-color-popover");
 
     let grid = gtk4::Grid::new();
     grid.set_column_spacing(6);
@@ -225,37 +204,49 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     grid.set_margin_bottom(4);
 
     let colors = vec![
-        ("Đỏ", "red", (0.93, 0.15, 0.15)),
-        ("Cam", "orange", (0.98, 0.45, 0.09)),
-        ("Vàng", "yellow", (0.92, 0.70, 0.15)),
-        ("Lục", "green", (0.13, 0.77, 0.36)),
-        ("Lam", "blue", (0.23, 0.51, 0.96)),
-        ("Tím", "purple", (0.66, 0.33, 0.97)),
-        ("Trắng", "white", (1.0, 1.0, 1.0)),
-        ("Đen", "black", (0.0, 0.0, 0.0)),
+        ("Đỏ", (0.93, 0.15, 0.15), "#ef4444"),
+        ("Cam", (0.98, 0.45, 0.09), "#f97316"),
+        ("Vàng", (0.92, 0.70, 0.15), "#eab308"),
+        ("Lục", (0.13, 0.77, 0.36), "#22c55e"),
+        ("Lam", (0.23, 0.51, 0.96), "#3b82f6"),
+        ("Tím", (0.66, 0.33, 0.97), "#a855f7"),
+        ("Trắng", (1.0, 1.0, 1.0), "#ffffff"),
+        ("Đen", (0.0, 0.0, 0.0), "#000000"),
     ];
 
     let mut col = 0;
     let mut row = 0;
-    for (name, name_en, rgb) in colors {
+    for (name, rgb, hex) in colors {
         let btn = gtk4::Button::new();
-        btn.add_css_class("flat");
         btn.add_css_class("color-dot-btn");
-        btn.add_css_class(&format!("color-dot-{}", name_en));
         btn.set_tooltip_text(Some(name));
         btn.set_size_request(16, 16);
-
+        
+        let provider_btn = gtk4::CssProvider::new();
+        provider_btn.load_from_data(&format!("button { background: {} !important; }", hex));
+        btn.style_context().add_provider(&provider_btn, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
+        
         let state_c = state.clone();
         let popover_c = popover.clone();
         let color_dot_c = color_dot.clone();
         let rgb_val = rgb;
         btn.connect_clicked(move |_| {
             state_c.borrow_mut().current_color = rgb_val;
-            // Trigger redraw of the indicator — state is shared so draw func sees new color
-            color_dot_c.queue_draw();
+            
+            // Update the color dot indicator on the toolbar button
+            let provider_dot = gtk4::CssProvider::new();
+            let r = (rgb_val.0 * 255.0) as u8;
+            let g = (rgb_val.1 * 255.0) as u8;
+            let b = (rgb_val.2 * 255.0) as u8;
+            provider_dot.load_from_data(&format!(
+                ".color-dot-indicator { background-color: rgb({}, {}, {}) !important; }",
+                r, g, b
+            ));
+            color_dot_c.style_context().add_provider(&provider_dot, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
+            
             popover_c.popdown();
         });
-
+        
         grid.attach(&btn, col, row, 1, 1);
         col += 1;
         if col >= 4 {
@@ -318,7 +309,6 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
     // Action buttons
     let btn_copy = gtk4::Button::from_icon_name("edit-copy-symbolic");
     btn_copy.set_tooltip_text(Some("Sao chép vào Clipboard (Enter)"));
-    btn_copy.add_css_class("flat");
     btn_copy.add_css_class("screenshot-toolbar-btn");
     
     let state_copy = state.clone();
@@ -331,7 +321,6 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
 
     let btn_save = gtk4::Button::from_icon_name("document-save-symbolic");
     btn_save.set_tooltip_text(Some("Lưu ảnh chụp (Ctrl+S)"));
-    btn_save.add_css_class("flat");
     btn_save.add_css_class("screenshot-toolbar-btn");
     
     let state_save = state.clone();
@@ -344,7 +333,6 @@ pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::Applic
 
     let btn_cancel = gtk4::Button::from_icon_name("window-close-symbolic");
     btn_cancel.set_tooltip_text(Some("Hủy (Escape)"));
-    btn_cancel.add_css_class("flat");
     btn_cancel.add_css_class("screenshot-toolbar-btn");
     
     let win_cancel = window.clone();
