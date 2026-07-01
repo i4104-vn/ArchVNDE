@@ -4,21 +4,26 @@
 
 window.notification-popup-card {
 <<<<<<< HEAD:libs/archvnde-common/src/theme/styles/notification.css
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/notification.css
     background-color: transparent;
     background-image: none;
 =======
     background-color:rgba(28, 28, 30, 0.82);
     background-image:none;
 >>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/notification.css
+=======
+    background-color: rgba(255, 255, 255, 0.85);
+    background-image: none;
+>>>>>>> de6144c (style(theme): correct background and text contrast regex in light theme):libs/archvnde-common/src/theme/styles/light/notification.css
     box-shadow: none;
-    border:none;
+    border: none;
 }
 
 .notification-popup-box {
-    background-color:rgb(14, 14, 18);
-    background-image:none;
-    border:1px solid rgba(0, 0, 0, 0.14);
-    border-top:1px solid rgba(0, 0, 0, 0.28);
+    background-color: rgb(14, 14, 18);
+    background-image: none;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: 20px;
     color: rgba(28, 28, 30, 0.95);
     padding: 16px 20px;
@@ -50,12 +55,17 @@ window.notification-popup-card {
 
 .popup-avatar-box {
 <<<<<<< HEAD:libs/archvnde-common/src/theme/styles/notification.css
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/notification.css
     background-color: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.10);
 =======
     background-color:rgba(0, 0, 0, 0.06);
     border:1px solid rgba(0, 0, 0, 0.08);
 >>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/notification.css
+=======
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+>>>>>>> de6144c (style(theme): correct background and text contrast regex in light theme):libs/archvnde-common/src/theme/styles/light/notification.css
     border-radius: 50%;
     padding: 6px;
     min-width: 20px;
@@ -64,6 +74,7 @@ window.notification-popup-card {
 }
 
 button.popup-action-btn {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/notification.css
 <<<<<<< HEAD:libs/archvnde-common/src/theme/styles/notification.css
     background-color: rgba(255, 255, 255, 0.08);
     background-image: none;
@@ -75,6 +86,12 @@ button.popup-action-btn {
     color: #1c1c1e;
     border:1px solid rgba(0, 0, 0, 0.06);
 >>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/notification.css
+=======
+    background-color: rgba(255, 255, 255, 0.08);
+    background-image: none;
+    color: #1c1c1e;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+>>>>>>> de6144c (style(theme): correct background and text contrast regex in light theme):libs/archvnde-common/src/theme/styles/light/notification.css
     border-radius: 9999px;
     font-size: 11px;
     font-weight: 600;
@@ -85,8 +102,8 @@ button.popup-action-btn {
 }
 
 button.popup-action-btn:hover {
-    background-color:rgba(28, 28, 30, 0.14);
-    background-image:none;
-    border-color:rgba(28, 28, 30, 0.14);
+    background-color: rgba(0, 0, 0, 0.08);
+    background-image: none;
+    border-color: rgba(0, 0, 0, 0.08);
 }
 

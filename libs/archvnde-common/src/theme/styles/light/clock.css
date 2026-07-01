@@ -6,9 +6,9 @@
 }
 
 button.panel-clock-btn {
-    background-color:transparent;
-    background-image:none;
-    border:none;
+    background-color: transparent;
+    background-image: none;
+    border: none;
     color: #1c1c1e;
     padding: 2px 10px;
     box-shadow: none;
@@ -17,5 +17,5 @@ button.panel-clock-btn {
 }
 
 button.panel-clock-btn:hover {
-    background-color:rgba(0, 0, 0, 0.08);
+    background-color: rgba(0, 0, 0, 0.08);
 }
