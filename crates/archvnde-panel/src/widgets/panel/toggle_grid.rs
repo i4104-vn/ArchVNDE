@@ -123,14 +123,20 @@ pub fn create_small_theme_toggle_tile() -> gtk4::Button {
             .unwrap_or(true);
         let new_dark = !current_dark;
 
-        if let Some(ref s) = settings {
-            s.set_gtk_application_prefer_dark_theme(new_dark);
-        }
-
+        // Write gsettings synchronously FIRST so the value is settled before the
+        // gtk_application_prefer_dark_theme_notify signal fires and reloads CSS.
+        // Also ensures separate binaries (screenshot, switcher, etc.) launched
+        // afterwards will read the correct color-scheme via init_theme().
         let scheme = if new_dark { "prefer-dark" } else { "prefer-light" };
         let _ = std::process::Command::new("gsettings")
             .args(&["set", "org.gnome.desktop.interface", "color-scheme", scheme])
-            .spawn();
+            .output(); // .output() blocks until done — gsettings is fast (~5ms)
+
+        // Now trigger the signal; is_dark_mode() reads the GTK in-process setting
+        // which is about to be updated to new_dark.
+        if let Some(ref s) = settings {
+            s.set_gtk_application_prefer_dark_theme(new_dark);
+        }
 
         // Swap icon widget inside the container
         if let Some(old) = icon_container.first_child() {

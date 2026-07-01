@@ -6,8 +6,8 @@ edition = "2021"
 
 
 [dependencies]
-archvnde-common = { path = "../archvnde-common" }
-archvnde-wallpaper = { path = "../archvnde-wallpaper" }
+archvnde-common = { path = "../../libs/archvnde-common" }
+archvnde-wallpaper = { path = "../../libs/archvnde-wallpaper" }
 
 # GUI & Layer Shell
 gtk4 = { version = "0.9", features = ["v4_10"] }

@@ -10,6 +10,85 @@ use std::rc::Rc;
 use toggle_grid::create_control_center_grid;
 use sliders::create_slider_row;
 use power_actions::create_header_row;
+use std::collections::HashMap;
+
+fn get_current_volume() -> f64 {
+    if let Ok(output) = std::process::Command::new("wpctl")
+        .args(&["get-volume", "@DEFAULT_AUDIO_SINK@"])
+        .output()
+    {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        if let Some(vol_str) = stdout.split_whitespace().nth(1) {
+            if let Ok(vol) = vol_str.parse::<f64>() {
+                return vol * 100.0;
+            }
+        }
+    }
+    if let Ok(output) = std::process::Command::new("pactl")
+        .args(&["get-sink-volume", "@DEFAULT_SINK@"])
+        .output()
+    {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        if let Some(pos) = stdout.find('%') {
+            let start = stdout[..pos].rfind(' ').unwrap_or(0);
+            if let Ok(vol) = stdout[start..pos].trim().parse::<f64>() {
+                return vol;
+            }
+        }
+    }
+    80.0
+}
+
+fn set_volume(val: f64) {
+    let percent = val as i32;
+    let _ = std::process::Command::new("wpctl")
+        .args(&["set-volume", "@DEFAULT_AUDIO_SINK@", &format!("{}%", percent)])
+        .spawn();
+    let _ = std::process::Command::new("pactl")
+        .args(&["set-sink-volume", "@DEFAULT_SINK@", &format!("{}%", percent)])
+        .spawn();
+    let _ = std::process::Command::new("amixer")
+        .args(&["set", "Master", &format!("{}%", percent)])
+        .spawn();
+}
+
+fn get_current_brightness() -> f64 {
+    if let Ok(output) = std::process::Command::new("brightnessctl")
+        .args(&["-m"])
+        .output()
+    {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        if let Some(line) = stdout.lines().next() {
+            let parts: Vec<&str> = line.split(',').collect();
+            if parts.len() >= 4 {
+                let pct_str = parts[3].trim_end_matches('%');
+                if let Ok(pct) = pct_str.parse::<f64>() {
+                    return pct;
+                }
+            }
+        }
+    }
+    if let Ok(output) = std::process::Command::new("light")
+        .args(&["-G"])
+        .output()
+    {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        if let Ok(pct) = stdout.trim().parse::<f64>() {
+            return pct;
+        }
+    }
+    60.0
+}
+
+fn set_brightness(val: f64) {
+    let percent = val as i32;
+    let _ = std::process::Command::new("brightnessctl")
+        .args(&["set", &format!("{}%", percent)])
+        .spawn();
+    let _ = std::process::Command::new("light")
+        .args(&["-S", &percent.to_string()])
+        .spawn();
+}
 
 /// Creates a unified status indicators capsule containing (1) status details button and (2) clock button.
 /// Clicking the status button toggles Control Center; clicking the clock button toggles Calendar.
@@ -35,15 +114,70 @@ pub fn create_status_indicators(
     let wifi_icon = archvnde_common::icon::get_icon("wifi", 14);
     wifi_icon.add_css_class("status-icon");
 
-    let battery_icon = archvnde_common::icon::get_icon("battery", 14);
-    battery_icon.add_css_class("status-icon");
-    let battery_percent = gtk4::Label::new(Some("100%"));
-    battery_percent.add_css_class("status-text");
-
     status_content.append(&wifi_icon);
     status_content.append(&bluetooth_icon);
-    status_content.append(&battery_icon);
-    status_content.append(&battery_percent);
+
+    // --- Battery: only show if a battery device exists in /sys/class/power_supply/ ---
+    let battery_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 3);
+    battery_box.add_css_class("battery-box");
+
+    fn get_battery_info() -> Option<(u8, bool)> {
+        let power_dir = std::path::Path::new("/sys/class/power_supply");
+        if !power_dir.exists() { return None; }
+        for entry in std::fs::read_dir(power_dir).ok()?.flatten() {
+            let path = entry.path();
+            let type_path = path.join("type");
+            if let Ok(kind) = std::fs::read_to_string(&type_path) {
+                if kind.trim() == "Battery" {
+                    let cap_str = std::fs::read_to_string(path.join("capacity")).ok()?;
+                    let pct = cap_str.trim().parse::<u8>().ok()?;
+                    let charging = std::fs::read_to_string(path.join("status"))
+                        .map(|s| s.trim() == "Charging" || s.trim() == "Full")
+                        .unwrap_or(false);
+                    return Some((pct, charging));
+                }
+            }
+        }
+        None
+    }
+
+    if let Some((pct, charging)) = get_battery_info() {
+        let battery_icon_name = if charging { "battery-charging" } else { "battery" };
+        let battery_icon = archvnde_common::icon::get_icon(battery_icon_name, 14);
+        battery_icon.add_css_class("status-icon");
+
+        let battery_percent = gtk4::Label::new(Some(&format!("{}%", pct)));
+        battery_percent.add_css_class("status-text");
+
+        battery_box.append(&battery_icon);
+        battery_box.append(&battery_percent);
+        status_content.append(&battery_box);
+
+        // Update battery every 30s
+        let battery_box_c = battery_box.clone();
+        gtk4::glib::timeout_add_local(std::time::Duration::from_secs(30), move || {
+            if let Some((new_pct, new_charging)) = get_battery_info() {
+                // Update percentage label
+                let mut child = battery_box_c.first_child();
+                while let Some(widget) = child {
+                    let next = widget.next_sibling();
+                    if let Some(label) = widget.downcast_ref::<gtk4::Label>() {
+                        label.set_text(&format!("{}%", new_pct));
+                    }
+                    if let Some(img) = widget.downcast_ref::<gtk4::Image>() {
+                        let new_name = if new_charging { "battery-charging" } else { "battery" };
+                        let new_icon = archvnde_common::icon::get_icon(new_name, 14);
+                        if let Some(paintable) = new_icon.paintable() {
+                            img.set_paintable(Some(&paintable));
+                        }
+                    }
+                    child = next;
+                }
+            }
+            gtk4::glib::ControlFlow::Continue
+        });
+    }
+    // If no battery found, battery_box stays empty and is not appended → nothing shown
 
     status_button.set_child(Some(&status_content));
 
@@ -97,6 +231,43 @@ pub fn create_status_indicators(
     status_box
 }
 
+fn rebuild_control_center_contents(
+    main_box: &gtk4::Box,
+    on_popover_toggled: Option<Rc<dyn Fn(bool) + 'static>>,
+) {
+    // 1. Remove all existing children
+    while let Some(child) = main_box.first_child() {
+        main_box.remove(&child);
+    }
+
+    // 2. Append header
+    main_box.append(&create_header_row());
+
+    // 3. Append grid
+    main_box.append(&create_control_center_grid());
+
+    // 4. Append volume slider
+    let initial_volume = get_current_volume();
+    main_box.append(&create_slider_row(
+        "volume",
+        initial_volume,
+        on_popover_toggled.clone(),
+        |val| { set_volume(val); }
+    ));
+
+    // 5. Append brightness slider
+    let initial_brightness = get_current_brightness();
+    main_box.append(&create_slider_row(
+        "brightness",
+        initial_brightness,
+        None,
+        |val| { set_brightness(val); }
+    ));
+
+    // 6. Append disk monitor box
+    main_box.append(&create_disk_list_box());
+}
+
 /// Builds and maps a glassmorphic Control Center popup ApplicationWindow anchored
 /// to the top-right corner. It binds volume and brightness sliders, grid toggles,
 /// and registers Genie animations on close and map events.
@@ -107,6 +278,7 @@ fn create_control_center_window(
     use gtk4_layer_shell::{KeyboardMode, Layer, Edge};
 
     let q_win = gtk4::ApplicationWindow::new(app);
+    archvnde_common::apply_theme_class(&q_win);
     q_win.init_layer_shell();
     q_win.set_layer(Layer::Overlay);
     q_win.set_keyboard_mode(KeyboardMode::OnDemand);
@@ -126,19 +298,35 @@ fn create_control_center_window(
     main_box.set_margin_top(6);
     main_box.set_margin_end(12);
 
-    main_box.append(&create_header_row());
-    main_box.append(&create_control_center_grid());
+    let popover_active = Rc::new(std::cell::Cell::new(false));
+    let popover_active_clone = popover_active.clone();
+    let q_win_weak = q_win.downgrade();
+    
+    let motion_controller = gtk4::EventControllerMotion::new();
+    main_box.add_controller(motion_controller.clone());
+    let motion_c = motion_controller.clone();
 
-    main_box.append(&create_slider_row("volume", 80.0, |val| {
-        println!("Volume changed: {}%", val as i32);
-    }));
+    let on_popover_toggled = Rc::new(move |is_open: bool| {
+        popover_active_clone.set(is_open);
+        if !is_open {
+            if !motion_c.contains_pointer() {
+                if let Some(win) = q_win_weak.upgrade() {
+                    win.close();
+                }
+            }
+        }
+    }) as Rc<dyn Fn(bool)>;
 
-    main_box.append(&create_slider_row("brightness", 60.0, |val| {
-        println!("Brightness changed: {}%", val as i32);
-    }));
+    let on_popover_toggled_opt = Some(on_popover_toggled.clone());
+    rebuild_control_center_contents(&main_box, on_popover_toggled_opt.clone());
 
-    let disk_box = create_disk_list_box();
-    main_box.append(&disk_box);
+    if let Some(settings) = gtk4::Settings::default() {
+        let main_box_c = main_box.clone();
+        let on_popover_toggled_c = on_popover_toggled_opt.clone();
+        settings.connect_gtk_application_prefer_dark_theme_notify(move |_| {
+            rebuild_control_center_contents(&main_box_c, on_popover_toggled_c.clone());
+        });
+    }
 
     q_win.set_child(Some(&main_box));
 
@@ -157,8 +345,9 @@ fn create_control_center_window(
     });
     q_win.add_controller(click_gesture);
 
-    q_win.connect_is_active_notify(|win| {
-        if !win.is_active() {
+    let popover_active_for_notify = popover_active.clone();
+    q_win.connect_is_active_notify(move |win| {
+        if !win.is_active() && !popover_active_for_notify.get() {
             win.close();
         }
     });
@@ -205,10 +394,35 @@ struct DiskInfo {
     mount_point: String,
 }
 
+fn get_parent_drive(filesystem: &str) -> String {
+    if filesystem.starts_with("/dev/sd") {
+        if filesystem.len() >= 8 {
+            return filesystem[0..8].to_string();
+        }
+    } else if filesystem.starts_with("/dev/nvme") {
+        if let Some(p_idx) = filesystem.rfind('p') {
+            if p_idx > 9 {
+                return filesystem[0..p_idx].to_string();
+            }
+        }
+    }
+    filesystem.to_string()
+}
+
+fn format_size(kb: u64) -> String {
+    let gb = kb as f64 / 1024.0 / 1024.0;
+    if gb >= 1000.0 {
+        format!("{:.1} TB", gb / 1024.0)
+    } else {
+        format!("{:.1} GB", gb)
+    }
+}
+
 fn get_disk_list() -> Vec<DiskInfo> {
-    let mut list = Vec::new();
+    let mut drive_map: HashMap<String, (u64, u64, u64)> = HashMap::new();
+    let mut seen_partitions = std::collections::HashSet::new();
+
     let output = std::process::Command::new("df")
-        .arg("-h")
         .output();
     
     if let Ok(out) = output {
@@ -218,25 +432,40 @@ fn get_disk_list() -> Vec<DiskInfo> {
             if parts.len() >= 6 {
                 let filesystem = parts[0];
                 if filesystem.starts_with("/dev/") {
-                    let size = parts[1].to_string();
-                    let used = parts[2].to_string();
-                    let avail = parts[3].to_string();
-                    let pcent_str = parts[4].trim_end_matches('%');
-                    let percent = pcent_str.parse::<f64>().unwrap_or(0.0);
-                    let mount_point = parts[5].to_string();
-                    
-                    list.push(DiskInfo {
-                        filesystem: filesystem.to_string(),
-                        size,
-                        used,
-                        avail,
-                        percent,
-                        mount_point,
-                    });
+                    if !seen_partitions.insert(filesystem.to_string()) {
+                        continue;
+                    }
+
+                    let total_kb = parts[1].parse::<u64>().unwrap_or(0);
+                    let used_kb = parts[2].parse::<u64>().unwrap_or(0);
+                    let avail_kb = parts[3].parse::<u64>().unwrap_or(0);
+
+                    let parent = get_parent_drive(filesystem);
+                    let entry = drive_map.entry(parent).or_insert((0, 0, 0));
+                    entry.0 += total_kb;
+                    entry.1 += used_kb;
+                    entry.2 += avail_kb;
                 }
             }
         }
     }
+
+    let mut list = Vec::new();
+    for (drive, (total, used, avail)) in drive_map {
+        if total > 0 {
+            let percent = (used as f64 / total as f64) * 100.0;
+            list.push(DiskInfo {
+                filesystem: drive.clone(),
+                size: format_size(total),
+                used: format_size(used),
+                avail: format_size(avail),
+                percent,
+                mount_point: drive,
+            });
+        }
+    }
+
+    list.sort_by(|a, b| a.filesystem.cmp(&b.filesystem));
     list
 }
 
@@ -246,7 +475,7 @@ fn create_disk_list_box() -> gtk4::Box {
 
     let title_row = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
     let disk_icon = archvnde_common::icon::get_icon_colored("server", 12, "#10b981");
-    let title_label = gtk4::Label::new(Some("Storage Usage"));
+    let title_label = gtk4::Label::new(Some(&archvnde_common::i18n::t("panel.storage_usage")));
     title_label.add_css_class("control-slider-title");
     
     title_row.append(&disk_icon);
@@ -257,7 +486,7 @@ fn create_disk_list_box() -> gtk4::Box {
     
     let disks = get_disk_list();
     if disks.is_empty() {
-        let no_disks = gtk4::Label::new(Some("No physical storage found"));
+        let no_disks = gtk4::Label::new(Some(&archvnde_common::i18n::t("panel.no_storage")));
         no_disks.add_css_class("tile-subtitle");
         list_container.append(&no_disks);
     } else {

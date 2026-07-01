@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-archvnde-common = { path = "../archvnde-common" }
-archvnde-island = { path = "../archvnde-island" }
+archvnde-common = { path = "../../libs/archvnde-common" }
+archvnde-island = { path = "../../libs/archvnde-island" }
 
 # GUI & Layer Shell
 gtk4 = { version = "0.9", features = ["v4_10"] }

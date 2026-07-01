@@ -1,297 +1,169 @@
-/* Switcher Window & Container styling */
 .switcher-window {
     background-color: transparent;
     background-image: none;
 }
 
 .switcher-box {
-    background-color: rgba(18, 18, 20, 0.90);
-    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(15, 15, 17, 0.95) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-    border-left: 1px solid rgba(255, 255, 255, 0.10);
-    border-radius: 28px;
-    padding: 24px;
+    background-color: rgba(14, 14, 18, 0.92);
+    background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.05) 0%, rgba(0, 0, 0, 0.15) 100%);
+    -gtk-background-blur: 24;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0px; /* Full-screen width bar looks best with no rounded corners at the screen edges */
+    padding: 24px 0px;
     color: #ffffff;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-    min-width: 620px;
+    box-shadow: none;
+    min-height: 140px;
 }
 
-/* App list row */
 .switcher-list-row {
-    margin-top: 18px;
+    margin: 0px;
 }
 
 .switcher-item-btn {
-    background-color: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.04);
-    border-radius: 18px;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
     padding: 12px;
-    transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
-    min-width: 80px;
-    min-height: 80px;
+    transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
+    min-width: 96px;
+    min-height: 96px;
+    transform: skewX(-15deg);
 }
 
 .switcher-item-btn:hover {
-    background-color: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.12);
-    transform: translateY(-2px);
+    background-color: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.14);
+    border-top-color: rgba(255, 255, 255, 0.20);
+    transform: skewX(-15deg) translateY(-2px);
+    box-shadow: none;
 }
 
 .switcher-item-btn.selected {
-    background-color: rgba(0, 242, 254, 0.08);
-    border-color: rgba(0, 242, 254, 0.40);
-    box-shadow: 0 0 20px rgba(0, 242, 254, 0.25);
-    transform: scale(1.08) translateY(-4px);
+    background-color: rgba(59, 130, 246, 0.14);
+    background-image: linear-gradient(160deg, rgba(147, 197, 253, 0.08) 0%, rgba(59, 130, 246, 0.05) 100%);
+    border-color: rgba(96, 165, 250, 0.40);
+    border-top-color: rgba(147, 197, 253, 0.60);
+    box-shadow: none;
+    min-width: 180px; /* Expanding width on tab selection */
+    transform: skewX(-15deg) scale(1.04);
 }
 
 .switcher-item-icon {
-    transition: all 200ms ease;
+    /* Counter-skew the icon so it remains perfectly vertical and upright */
+    transform: skewX(15deg);
+    transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .switcher-item-btn.selected .switcher-item-icon {
+    /* Retain counter-skew and scale up the icon slightly */
+    transform: skewX(15deg) scale(1.15);
+}
+
+.switcher-app-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 0.3px;
+}
+
+/* Screenshot Toolbar Color Dots */
+.color-dot-btn {
+    border-radius: 50%;
+    min-width: 14px;
+    min-height: 14px;
+    margin: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 0;
+    background-image: none;
+    box-shadow: none;
+    transition: all 200ms ease;
+}
+
+.color-dot-btn:hover {
+    transform: scale(1.2);
+}
+
+.color-dot-red { background-color: #ef4444; }
+.color-dot-green { background-color: #10b981; }
+.color-dot-blue { background-color: #3b82f6; }
+.color-dot-yellow { background-color: #f59e0b; }
+
+.color-dot-btn.color-active {
+    border: 2px solid #ffffff;
     transform: scale(1.1);
 }
 
-/* App Name display */
-.switcher-app-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: #ffffff;
-    letter-spacing: 0.5px;
-    margin-bottom: 2px;
-}
-
-.switcher-app-subtitle {
-    font-size: 11px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.40);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-}
-
-/* Details area layout */
-.switcher-details-box {
-    margin-bottom: 12px;
-}
-
-/* Mock Previews Frame */
-.preview-frame {
-    background-color: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 16px;
-    width: 572px;
-    height: 300px;
-    overflow: hidden;
-    margin-bottom: 14px;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
-}
-
-/* 1. Terminal Preview styling */
-.preview-terminal {
-    background-color: #0f1419;
-    color: #3df290;
-    font-family: monospace;
-    font-size: 11px;
-    padding: 16px;
-}
-
-.terminal-titlebar {
-    background-color: #1a1f29;
-    padding: 4px 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.terminal-btn-red { background-color: #ff5f56; border-radius: 50%; width: 8px; height: 8px; }
-.terminal-btn-yellow { background-color: #ffbd2e; border-radius: 50%; width: 8px; height: 8px; }
-.terminal-btn-green { background-color: #27c93f; border-radius: 50%; width: 8px; height: 8px; }
-
-.terminal-text {
-    color: #00ff66;
-}
-
-/* 2. Browser Preview styling */
-.preview-browser {
-    background-color: #1e1e24;
-    color: #ffffff;
-}
-
-.browser-header {
-    background-color: #2a2a35;
-    padding: 6px 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.browser-address-bar {
-    background-color: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.04);
-    border-radius: 8px;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 11px;
-    padding: 3px 12px;
-}
-
-.browser-tab {
-    background-color: #1e1e24;
-    border-radius: 8px 8px 0 0;
-    color: #ffffff;
-    font-size: 10px;
-    font-weight: 600;
+/* Screenshot Toolbar (Compact & Sleek Capsule) */
+.screenshot-toolbar {
+    background-color: rgba(14, 14, 18, 0.94);
+    background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.06) 0%, rgba(0, 0, 0, 0.15) 100%);
+    -gtk-background-blur: 24;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-top: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 9999px;
     padding: 4px 12px;
 }
 
-.browser-grid {
-    padding: 24px;
-}
-
-.browser-shortcut {
-    background-color: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    padding: 12px;
-    transition: all 150ms ease;
-}
-
-.browser-shortcut:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-}
-
-/* 3. VS Code Preview styling */
-.preview-editor {
-    background-color: #1e1e1e;
-    color: #d4d4d4;
-}
-
-.editor-sidebar {
-    background-color: #252526;
-    border-right: 1px solid #3c3c3c;
-    width: 140px;
-    padding: 12px;
-    font-size: 11px;
-}
-
-.editor-sidebar-title {
-    color: #858585;
-    font-weight: 700;
-    font-size: 9px;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-}
-
-.editor-file-item {
-    color: #cccccc;
-    margin: 3px 0;
-}
-
-.editor-content {
-    background-color: #1e1e1e;
-    padding: 16px;
-    font-family: monospace;
-    font-size: 11px;
-    color: #9cdcfe;
-}
-
-.editor-line-num {
-    color: #858585;
-    text-align: right;
-    margin-right: 12px;
-}
-
-/* 4. Files Preview styling */
-.preview-files {
-    background-color: #18181c;
-}
-
-.files-sidebar {
-    background-color: #1f1f24;
-    border-right: 1px solid rgba(255, 255, 255, 0.04);
-    width: 140px;
-    padding: 12px;
-}
-
-.files-sidebar-item {
-    font-size: 11px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.7);
-    margin: 4px 0;
-    padding: 4px 8px;
-    border-radius: 6px;
-}
-
-.files-sidebar-item.active {
+.screenshot-toolbar-btn {
     background-color: rgba(255, 255, 255, 0.06);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 9999px;
+    padding: 5px 10px;
+    margin: 2px;
+    color: rgba(255, 255, 255, 0.85);
+    transition: all 200ms ease;
+    min-height: 24px;
+}
+
+.screenshot-toolbar-btn:hover {
+    background-color: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.14);
+    border-top-color: rgba(255, 255, 255, 0.20);
     color: #ffffff;
 }
 
-.files-grid {
-    padding: 16px;
+.screenshot-toolbar-btn.selected {
+    background-color: rgba(59, 130, 246, 0.70) !important;
+    background-image: linear-gradient(135deg, rgba(147, 197, 253, 0.30) 0%, rgba(37, 99, 235, 0.60) 100%) !important;
+    border: 1px solid rgba(147, 197, 253, 0.25) !important;
+    border-top: 1px solid rgba(147, 197, 253, 0.45) !important;
+    color: #ffffff !important;
 }
 
-.files-grid-item {
-    margin: 10px;
+/* Screenshot Toolbar Color Dots */
+.color-dot-btn {
+    border-radius: 50% !important;
+    width: 14px !important;
+    height: 14px !important;
+    min-width: 14px !important;
+    min-height: 14px !important;
+    max-width: 14px !important;
+    max-height: 14px !important;
+    margin: 4px 3px !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    padding: 0 !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    transition: all 200ms ease;
 }
 
-.files-grid-label {
-    font-size: 10px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.8);
-    margin-top: 4px;
+.color-dot-btn:hover {
+    transform: scale(1.25);
+    border-color: rgba(255, 255, 255, 0.6) !important;
 }
 
-/* 5. Spotify Preview styling */
-.preview-spotify {
-    background-color: #121212;
-    background-image: linear-gradient(180deg, #242424 0%, #121212 100%);
-    padding: 24px;
+.color-dot-red { background: #ef4444 !important; }
+.color-dot-green { background: #10b981 !important; }
+.color-dot-blue { background: #3b82f6 !important; }
+.color-dot-yellow { background: #f59e0b !important; }
+
+.color-dot-btn.color-active {
+    border: 2px solid #ffffff !important;
+    transform: scale(1.15);
 }
 
-.spotify-art {
-    background-color: #282828;
-    background-image: linear-gradient(135deg, #1db954 0%, #191414 100%);
-    border-radius: 12px;
-    width: 120px;
-    height: 120px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-}
 
-.spotify-title {
-    font-size: 16px;
-    font-weight: 800;
-    color: #ffffff;
-}
-
-.spotify-artist {
-    font-size: 12px;
-    color: #b3b3b3;
-    font-weight: 600;
-}
-
-.spotify-bar {
-    background-color: #535353;
-    border-radius: 2px;
-    height: 4px;
-    width: 280px;
-}
-
-.spotify-progress {
-    background-color: #1db954;
-    border-radius: 2px;
-    height: 4px;
-}
-
-/* Generic Fallback Preview */
-.preview-generic {
-    background-image: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.preview-generic-box {
-    background-color: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 24px;
-    padding: 30px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-}

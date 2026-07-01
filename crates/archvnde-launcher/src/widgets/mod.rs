@@ -5,7 +5,7 @@ pub mod search;
 
 use crate::core::find_desktop_apps;
 use gtk4::prelude::*;
-use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
+use gtk4_layer_shell::{Edge, KeyboardMode, Layer};
 use std::rc::Rc;
 use std::cell::RefCell;
 use footer::create_launcher_footer;
@@ -18,7 +18,7 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     archvnde_common::window::init_layer_window(
         &window,
         Layer::Overlay,
-        KeyboardMode::OnDemand,
+        KeyboardMode::Exclusive,
         -1,
         &[
             (Edge::Top, true),
@@ -28,25 +28,22 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
         ],
         -1,
     );
-    window.set_margin(Edge::Top, 0);
-    window.set_margin(Edge::Left, 0);
+    window.set_margin(Edge::Top, 52);
+    window.set_margin(Edge::Left, 12);
 
     window.set_default_size(780, 560);
     window.add_css_class("launcher-window");
 
     let box_layout = gtk4::Box::new(gtk4::Orientation::Vertical, 12);
     box_layout.add_css_class("launcher-box");
-    box_layout.set_margin_top(10);
-    box_layout.set_margin_bottom(12);
-    box_layout.set_margin_start(12);
-    box_layout.set_margin_end(12);
+    box_layout.set_margin_start(16);
+    box_layout.set_margin_end(16);
+    box_layout.set_margin_top(16);
+    box_layout.set_margin_bottom(16);
 
     let search_entry = gtk4::Entry::new();
     search_entry.set_placeholder_text(Some("Tìm ứng dụng hoặc tệp tin..."));
     search_entry.add_css_class("launcher-search");
-    search_entry.set_margin_top(16);
-    search_entry.set_margin_start(16);
-    search_entry.set_margin_end(16);
 
     // Horizontal split box for two columns
     let columns_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 12);
@@ -136,37 +133,6 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
         }
     });
 
-    let is_animating = Rc::new(std::cell::Cell::new(false));
-    let is_animating_clone = is_animating.clone();
-    let win_clone_close = window.clone();
-    let box_layout_clone_close = box_layout.clone();
-    window.connect_close_request(move |_| {
-        if is_animating_clone.get() {
-            return glib::Propagation::Proceed;
-        }
-        is_animating_clone.set(true);
-        let win_cb = win_clone_close.clone();
-        let box_layout_cb = box_layout_clone_close.clone();
-        let w = box_layout_cb.width().max(450);
-        let h = box_layout_cb.height().max(550);
-        archvnde_common::animation::genie_out(
-            box_layout_cb.upcast_ref(),
-            w,
-            h,
-            200,
-            move || {
-                win_cb.destroy();
-            }
-        );
-        glib::Propagation::Stop
-    });
-
-    window.connect_is_active_notify(|win| {
-        if !win.is_active() {
-            win.close();
-        }
-    });
-
     let key_controller = gtk4::EventControllerKey::new();
     let win_clone = window.clone();
     key_controller.connect_key_pressed(move |_, key, _, _| {
@@ -183,20 +149,13 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     
     columns_box.append(&left_scroll);
     columns_box.append(&right_scroll);
-    columns_box.set_margin_start(16);
-    columns_box.set_margin_end(16);
     box_layout.append(&columns_box);
 
     let footer_sep = gtk4::Separator::new(gtk4::Orientation::Horizontal);
     footer_sep.add_css_class("launcher-footer-separator");
-    footer_sep.set_margin_start(16);
-    footer_sep.set_margin_end(16);
     box_layout.append(&footer_sep);
 
     let footer = create_launcher_footer();
-    footer.set_margin_start(16);
-    footer.set_margin_end(16);
-    footer.set_margin_bottom(16);
     box_layout.append(&footer);
 
     window.set_child(Some(&box_layout));
@@ -207,8 +166,6 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
         40,
         250,
     );
-
-    search_entry.grab_focus();
 
     window
 }

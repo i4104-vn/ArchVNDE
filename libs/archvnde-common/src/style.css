@@ -1,0 +1,265 @@
+/* ArchVNDE Glassmorphism GTK4 Theme
+ *
+ * NOTE: GTK4 CSS does NOT support:
+ *   - !important (causes parse errors, declarations silently dropped)
+ *   - border-bottom shorthand (use border-bottom-width, border-bottom-color, border-bottom-style)
+ *   - transform: scale()
+ *   - letter-spacing
+ *   - backdrop-filter
+ *
+ * Our provider is registered at STYLE_PROVIDER_PRIORITY_USER (800)
+ * which overrides Adwaita's THEME priority (200), so we don't need !important.
+ */
+
+* {
+    font-family: 'Outfit', 'Inter', sans-serif;
+}
+
+/* ===== WINDOW TRANSPARENCY ===== */
+/* Critical: make all shell windows transparent so only our styled boxes show */
+window.background {
+    background-color: transparent;
+    background-image: none;
+    box-shadow: none;
+    border: none;
+}
+
+window.panel-window {
+    background-color: transparent;
+    background-image: none;
+}
+
+window.quick-settings-window {
+    background-color: transparent;
+    background-image: none;
+}
+
+window.launcher-window {
+    background-color: transparent;
+    background-image: none;
+}
+
+window.notification-card {
+    background-color: transparent;
+    background-image: none;
+}
+
+/* ===== TOP BAR PANEL ===== */
+box.panel-box {
+    background-color: rgba(19, 24, 36, 0.15);
+    background-image: none;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.95);
+    margin: 0px;
+    padding: 0px 15px;
+    min-height: 40px;
+    border-radius: 0px;
+}
+
+label.panel-title {
+    font-weight: bold;
+    color: #1f6feb;
+    font-size: 14px;
+}
+
+box.workspace-box {
+    margin-left: 10px;
+}
+
+/* Workspace buttons - inactive state */
+button.workspace-button {
+    background-color: rgba(39, 45, 62, 0.6);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 2px 12px;
+    font-size: 11px;
+    font-weight: bold;
+    margin-right: 5px;
+    box-shadow: none;
+}
+
+button.workspace-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
+    color: #ffffff;
+}
+
+/* Workspace buttons - active state */
+button.workspace-button.active {
+    background-color: #1f6feb;
+    background-image: none;
+    border-color: #3b82f6;
+    color: #ffffff;
+    box-shadow: 0 0 8px rgba(31, 111, 235, 0.4);
+}
+
+/* Clock label */
+label.panel-clock {
+    font-weight: bold;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+/* Settings button */
+button.panel-settings-btn {
+    background-color: rgba(39, 45, 62, 0.6);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.95);
+    padding: 2px 14px;
+    font-weight: bold;
+    box-shadow: none;
+}
+
+button.panel-settings-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
+}
+
+/* ===== QUICK SETTINGS OVERLAY ===== */
+box.quick-settings-box {
+    background-color: rgba(19, 24, 36, 0.85);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    color: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+label.quick-settings-title {
+    font-weight: bold;
+    color: #1f6feb;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+/* Toggle tiles - inactive */
+button.quick-tile {
+    background-color: rgba(39, 45, 62, 0.6);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.95);
+    padding: 10px;
+    font-weight: bold;
+    box-shadow: none;
+}
+
+button.quick-tile:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
+}
+
+/* Toggle tiles - active (white highlight per design_analysis.md) */
+button.quick-tile.active {
+    background-color: rgba(255, 255, 255, 0.95);
+    background-image: none;
+    color: #121620;
+    border-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+/* ===== CAPSULE SLIDERS ===== */
+scale trough {
+    min-height: 12px;
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: none;
+}
+
+scale trough highlight {
+    border-radius: 6px;
+    background-image: linear-gradient(to right, #1f6feb, #3b82f6);
+}
+
+scale trough slider {
+    min-width: 16px;
+    min-height: 16px;
+    margin: -3px;
+    border-radius: 9px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    border: none;
+}
+
+/* ===== APPLICATION LAUNCHER ===== */
+box.launcher-box {
+    background-color: rgba(12, 16, 25, 0.9);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 24px;
+    color: rgba(255, 255, 255, 0.95);
+    padding: 24px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+}
+
+.launcher-search entry {
+    background-color: rgba(255, 255, 255, 0.06);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    color: #ffffff;
+    padding: 12px 18px;
+    font-size: 14px;
+    box-shadow: none;
+}
+
+.launcher-search entry:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.35);
+    background-color: rgba(255, 255, 255, 0.08);
+    background-image: none;
+}
+
+.launcher-list {
+    background-color: transparent;
+    background-image: none;
+}
+
+.launcher-list row {
+    background-color: transparent;
+    background-image: none;
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin: 5px 0;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.launcher-list row:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+    background-image: none;
+    color: #ffffff;
+}
+
+.launcher-list row:selected {
+    background-image: linear-gradient(135deg, #1f6feb 0%, #3b82f6 100%);
+    color: #ffffff;
+}
+
+/* ===== NOTIFICATION DAEMON ===== */
+box.notification-box {
+    background-color: rgba(12, 16, 25, 0.92);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    color: rgba(255, 255, 255, 0.95);
+    padding: 16px 20px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+}
+
+label.notification-title {
+    font-weight: 700;
+    color: #3b82f6;
+    font-size: 14px;
+}
+
+label.notification-body {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 12px;
+}
