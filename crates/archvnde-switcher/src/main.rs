@@ -103,7 +103,7 @@ fn main() {
             btn.connect_clicked(move |_| {
                 update_sel(i);
                 let app_item = apps_click[i].clone();
-                save_history(app_item.window_title.as_deref().unwrap_or(&app_item.name));
+                save_history(&app_item.name);
                 activate_app(&app_item);
                 let win = window_close.clone();
                 gtk4::glib::timeout_add_local_once(std::time::Duration::from_millis(50), move || {
@@ -167,7 +167,7 @@ fn main() {
                 if idx < apps.len() {
                     let app_item = apps[idx].clone();
                     println!("Activating: {}", app_item.name);
-                    save_history(app_item.window_title.as_deref().unwrap_or(&app_item.name));
+                    save_history(&app_item.name);
                     activate_app(&app_item);
                 }
                 let win = window.clone();
