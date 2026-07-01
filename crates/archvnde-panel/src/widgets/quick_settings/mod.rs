@@ -12,65 +12,8 @@ use sliders::create_slider_row;
 use power_actions::create_header_row;
 
 pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Button {
-    let settings_button = gtk4::Button::new();
+    let settings_button = gtk4::Button::with_label("Wi-Fi | 100% ⚙");
     settings_button.add_css_class("panel-settings-btn");
-
-    let content_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
-    content_box.set_valign(gtk4::Align::Center);
-
-<<<<<<< HEAD:crates/archvnde-panel/src/widgets/quick_settings/mod.rs
-    // Language label
-    let lang_label = gtk4::Label::new(Some("US"));
-    lang_label.add_css_class("status-text");
-
-    // Network speed label
-    let net_label = gtk4::Label::new(Some("844 B/s"));
-    net_label.add_css_class("status-text");
-=======
-    let status_content = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
->>>>>>> e4a3914 (feat: implement custom GTK4 glassmorphic context menu and override labwc root bind):crates/archvnde-panel/src/widgets/panel/mod.rs
-
-    // Bluetooth icon
-    let bluetooth_icon = archvnde_icon::get_icon("bluetooth", 14);
-    bluetooth_icon.add_css_class("status-icon");
-
-    // Wi-Fi icon
-    let wifi_icon = archvnde_icon::get_icon("wifi", 14);
-    wifi_icon.add_css_class("status-icon");
-
-    // Battery layout (battery icon + percentage)
-    let battery_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
-    let battery_icon = archvnde_icon::get_icon("battery", 14);
-    battery_icon.add_css_class("status-icon");
-    let battery_percent = gtk4::Label::new(Some("100%"));
-    battery_percent.add_css_class("status-text");
-    battery_box.append(&battery_icon);
-    battery_box.append(&battery_percent);
-
-<<<<<<< HEAD:crates/archvnde-panel/src/widgets/quick_settings/mod.rs
-    // Settings icon
-    let settings_icon = archvnde_icon::get_icon("settings", 14);
-    settings_icon.add_css_class("status-icon");
-=======
-    status_content.append(&wifi_icon);
-    status_content.append(&bluetooth_icon);
-    status_content.append(&battery_icon);
-    status_content.append(&battery_percent);
->>>>>>> e4a3914 (feat: implement custom GTK4 glassmorphic context menu and override labwc root bind):crates/archvnde-panel/src/widgets/panel/mod.rs
-
-    // Power icon
-    let power_icon = archvnde_icon::get_icon("power", 14);
-    power_icon.add_css_class("status-icon");
-
-    content_box.append(&lang_label);
-    content_box.append(&net_label);
-    content_box.append(&bluetooth_icon);
-    content_box.append(&wifi_icon);
-    content_box.append(&battery_box);
-    content_box.append(&settings_icon);
-    content_box.append(&power_icon);
-
-    settings_button.set_child(Some(&content_box));
 
     let quick_settings_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>> = Rc::new(RefCell::new(None));
 
@@ -102,12 +45,12 @@ pub fn create_settings_button(app: &gtk4::Application) -> gtk4::Button {
             main_box.append(&create_header_row());
 
             // 2. Volume control slider
-            main_box.append(&create_slider_row("volume", 80.0, |val| {
+            main_box.append(&create_slider_row("🔊", 80.0, |val| {
                 println!("Volume changed: {}%", val as i32);
             }));
 
             // 3. Brightness control slider
-            main_box.append(&create_slider_row("brightness", 60.0, |val| {
+            main_box.append(&create_slider_row("☀", 60.0, |val| {
                 println!("Brightness changed: {}%", val as i32);
             }));
 

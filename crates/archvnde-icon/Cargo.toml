@@ -4,6 +4,15 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+<<<<<<< HEAD:crates/archvnde-icon/Cargo.toml
+=======
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.8"
+tracing = "0.1"
+archvnde-i18n = { path = "../archvnde-i18n" }
+
+# GTK4 for theme provider support
+>>>>>>> 082108f (feat: implement archvnde-i18n library and integrate EN/VI dynamic translations into panel, launcher, screenshot, and context menu):libs/archvnde-common/Cargo.toml
 gtk4 = { version = "0.9", features = ["v4_10"] }
 gtk4-layer-shell = "0.4.0"
 glib = "0.20"

@@ -213,6 +213,66 @@ scale slider:hover {
     transform: scale(1.2);
 }
 
+.workspace-box {
+    margin-left: 10px;
+}
+
+.workspace-button {
+    background-color: @bg-card-inactive;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    color: @text-primary;
+    padding: 2px 8px;
+    font-size: 0.85em;
+    font-weight: bold;
+    transition: all 0.2s ease-in-out;
+}
+
+.workspace-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.workspace-button.active {
+    background-color: @color-accent;
+    border-color: @color-accent-hover;
+    color: @text-primary;
+}
+
+/* Quick Settings Styles */
+.quick-settings-window {
+    background-color: @bg-glass-dark;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    color: @text-primary;
+}
+
+.quick-settings-title {
+    font-weight: bold;
+    color: @color-accent;
+    font-size: 1.2em;
+}
+
+.quick-tile {
+    background-color: @bg-card-inactive;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    color: @text-primary;
+    padding: 10px;
+    transition: all 0.2s ease-in-out;
+}
+
+.quick-tile:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.quick-tile.active {
+    background-color: @bg-card-active;
+    color: @text-active-dark;
+    border-color: #ffffff;
+}
+
+
+
 /* Launcher Styles */
 .launcher-box {
     background-color: rgba(12, 16, 25, 0.9) !important;

@@ -1,7 +1,3 @@
-//! Interactive notifications history manager.
-//! Manages loading, grouped rendering (by app), and expanding/collapsing of notifications,
-//! as well as formatting timestamps and clearing history.
-
 use gtk4::prelude::*;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -124,17 +120,7 @@ pub fn setup_notifications_list(
     let update_header = move || {
         let current_now = chrono::Local::now();
         bt_clone.set_text(&current_now.format("%I:%M %p").to_string());
-        
-        let weekday_key = format!("weekday.{}", current_now.format("%a").to_string().to_lowercase());
-        let weekday = archvnde_common::i18n::t(&weekday_key);
-        let month_key = format!("month.{}", current_now.format("%m").to_string());
-        let month_str = archvnde_common::i18n::t(&month_key);
-        
-        let date_str = archvnde_common::i18n::t("panel.date_format")
-            .replace("{weekday}", &weekday)
-            .replace("{day}", &current_now.format("%d").to_string())
-            .replace("{month}", &month_str);
-        bd_clone.set_text(&date_str);
+        bd_clone.set_text(&current_now.format("%A, %B %d").to_string());
 
         let current_count = archvnde_island::widgets::notification::HISTORICAL_NOTIFICATIONS.with(|list| {
             list.borrow().len()
@@ -148,7 +134,6 @@ pub fn setup_notifications_list(
     };
     glib::timeout_add_local(std::time::Duration::from_millis(500), update_header);
 }
-
 
 /// Renders the expanded group layout displaying all historical notifications grouped
 /// under the specific application name with slide animation transitions.

@@ -26,7 +26,8 @@ fn main() {
         archvnde_common::init_theme();
 
         // Build launcher window layout (from ui module)
-        let window = build_launcher_ui(app);
+        let dummy_ref = std::rc::Rc::new(std::cell::RefCell::new(None));
+        let window = build_launcher_ui(app, dummy_ref);
 
         // Present window
         window.present();

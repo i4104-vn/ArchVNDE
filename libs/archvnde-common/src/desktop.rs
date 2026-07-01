@@ -218,9 +218,13 @@ fn parse_desktop_file(path: &Path) -> Option<DesktopApp> {
     }
 }
 <<<<<<< HEAD:libs/archvnde-common/src/desktop.rs
+<<<<<<< HEAD:libs/archvnde-common/src/desktop.rs
 =======
 
 /// Generates a unique hash string representing a specific Wayland window based on its app_id and title.
+=======
+
+>>>>>>> 339c62e (feat(switcher): implement per-window switcher preview screenshots with hash-based caching and generic app fallback):libs/archvnde-common/src/core/desktop.rs
 pub fn get_window_hash(app_id: &str, title: &str) -> String {
     use std::hash::{Hash, Hasher};
     let mut hasher = std::collections::hash_map::DefaultHasher::new();
@@ -230,7 +234,10 @@ pub fn get_window_hash(app_id: &str, title: &str) -> String {
 }
 
 impl DesktopApp {
+<<<<<<< HEAD:libs/archvnde-common/src/desktop.rs
     /// Returns the unique window preview cache key hash of this application.
+=======
+>>>>>>> 339c62e (feat(switcher): implement per-window switcher preview screenshots with hash-based caching and generic app fallback):libs/archvnde-common/src/core/desktop.rs
     pub fn get_screenshot_hash(&self) -> Option<String> {
         let app_id = self.app_id.as_ref()?;
         let title = self.window_title.as_deref().unwrap_or("");
@@ -238,5 +245,8 @@ impl DesktopApp {
     }
 }
 
+<<<<<<< HEAD:libs/archvnde-common/src/desktop.rs
 
 >>>>>>> 52145a1 (refactor: clean up comments and add i18n support):libs/archvnde-common/src/core/desktop.rs
+=======
+>>>>>>> 339c62e (feat(switcher): implement per-window switcher preview screenshots with hash-based caching and generic app fallback):libs/archvnde-common/src/core/desktop.rs

@@ -1,6 +1,3 @@
-//! Background scheduling loop managing the Dynamic Island transitions.
-//! Handles switching between playerctl metadata updates and DBus notifications.
-
 use gtk4::prelude::*;
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
@@ -269,7 +266,7 @@ pub fn start_player_polling_loop(
                     
                     archvnde_common::animation::island_animate_size(
                         widgets.notch_capsule.clone().upcast_ref(),
-                        280,
+                        300,
                         200,
                         70,
                         30,
@@ -414,19 +411,8 @@ fn update_notification_view(
     last_art_url: &RefCell<String>,
     last_attempted_url: &RefCell<String>,
 ) {
-    let truncated_title = if notif.title.chars().count() > 35 {
-        notif.title.chars().take(35).collect::<String>() + "..."
-    } else {
-        notif.title.clone()
-    };
-    widgets.notif_title_lbl.set_text(&truncated_title);
-
-    let truncated_body = if notif.body.chars().count() > 80 {
-        notif.body.chars().take(80).collect::<String>() + "..."
-    } else {
-        notif.body.clone()
-    };
-    widgets.notif_body_lbl.set_text(&truncated_body);
+    widgets.notif_title_lbl.set_text(&notif.title);
+    widgets.notif_body_lbl.set_text(&notif.body);
 
     if let Some(child) = widgets.notif_art_container.first_child() {
         widgets.notif_art_container.remove(&child);

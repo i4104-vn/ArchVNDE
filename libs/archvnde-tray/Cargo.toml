@@ -1,0 +1,11 @@
+[package]
+name = "archvnde-tray"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+zbus = "4.0"
+tokio = { version = "1.32", features = ["full"] }
+dirs = "5.0"
+archvnde-common = { path = "../archvnde-common" }

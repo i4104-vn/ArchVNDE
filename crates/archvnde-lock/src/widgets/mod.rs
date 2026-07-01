@@ -9,6 +9,7 @@ pub fn create_lock_window(
     is_primary: bool,
 ) {
     let window = gtk4::ApplicationWindow::new(app);
+    archvnde_common::apply_theme_class(&window);
     window.init_layer_shell();
     window.set_layer(Layer::Overlay);
 

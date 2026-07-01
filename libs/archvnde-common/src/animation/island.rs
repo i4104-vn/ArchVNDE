@@ -1,5 +1,3 @@
-//! Dynamic Island capsule size / zoom transition animations.
-
 use gtk4::prelude::*;
 use super::easing;
 

@@ -1,6 +1,7 @@
-
-//! Theme and styling system coordinator.
-//! Concatenates component stylesheets and registers them with the GDK Display context.
+// Trigger rebuild to update embedded CSS resources
+use std::fs;
+use crate::core::config::get_archvnde_config_dir;
+use gtk4::prelude::*;
 
 const DARK_CSS: &str = concat!(
     include_str!("styles/dark/panel.css"), "\n",
@@ -51,21 +52,6 @@ thread_local! {
 /// Initializes the GtkCssProvider, registers it with the GdkDisplay,
 /// and dynamically loads either the dark or light stylesheet folder.
 pub fn init_theme() {
-    if let Some(settings) = gtk4::Settings::default() {
-        if let Ok(output) = std::process::Command::new("gsettings")
-            .args(&["get", "org.gnome.desktop.interface", "color-scheme"])
-            .output()
-        {
-            let stdout = String::from_utf8_lossy(&output.stdout);
-            let value = stdout.trim().trim_matches('\'');
-            if value == "prefer-dark" {
-                settings.set_gtk_application_prefer_dark_theme(true);
-            } else if value == "prefer-light" {
-                settings.set_gtk_application_prefer_dark_theme(false);
-            }
-        }
-    }
-
     CSS_PROVIDER.with(|provider| {
         thread_local! {
             static REGISTERED: std::cell::Cell<bool> = std::cell::Cell::new(false);
@@ -84,27 +70,28 @@ pub fn init_theme() {
             }
         }
 
+        // Load correct theme according to GTK dark mode preference
         if let Some(settings) = gtk4::Settings::default() {
-            let is_dark = crate::icon::is_dark_mode();
+            let is_dark = settings.is_gtk_application_prefer_dark_theme();
             let css = if is_dark { DARK_CSS } else { LIGHT_CSS };
             let cleaned_css = css.replace("\r", "");
             provider.load_from_data(&cleaned_css);
 
+            // Connect a notify handler to dynamically switch stylesheet contents on-the-fly
             let provider_clone = provider.clone();
-            settings.connect_gtk_application_prefer_dark_theme_notify(move |_s| {
-                let is_dark = crate::icon::is_dark_mode();
+            settings.connect_gtk_application_prefer_dark_theme_notify(move |s| {
+                let is_dark = s.is_gtk_application_prefer_dark_theme();
                 let css = if is_dark { DARK_CSS } else { LIGHT_CSS };
                 let cleaned_css = css.replace("\r", "");
                 provider_clone.load_from_data(&cleaned_css);
                 println!("Dynamic theme re-loaded (is_dark = {}).", is_dark);
             });
         } else {
+            // Fallback to dark if settings not available
             let cleaned_css = DARK_CSS.replace("\r", "");
             provider.load_from_data(&cleaned_css);
         }
     });
 }
 
-/// Helper stub for backward compatibility.
 pub fn apply_theme_class(_window: &gtk4::ApplicationWindow) { }
-

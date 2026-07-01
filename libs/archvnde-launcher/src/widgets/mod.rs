@@ -17,6 +17,7 @@ pub fn build_launcher_ui(
     launcher_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
 ) -> gtk4::ApplicationWindow {
     let window = gtk4::ApplicationWindow::new(app);
+    archvnde_common::apply_theme_class(&window);
     
     archvnde_common::window::init_layer_window(
         &window,
@@ -25,23 +26,25 @@ pub fn build_launcher_ui(
         -1,
         &[
             (Edge::Top, true),
-            (Edge::Bottom, false),
+            (Edge::Bottom, true),
             (Edge::Left, true),
-            (Edge::Right, false),
+            (Edge::Right, true),
         ],
         -1,
     );
-    window.set_margin(Edge::Top, 50);
-    window.set_margin(Edge::Left, 12);
 
-    window.set_default_size(780, 560);
     window.add_css_class("launcher-window");
 
     let box_layout = gtk4::Box::new(gtk4::Orientation::Vertical, 12);
     box_layout.add_css_class("launcher-box");
+    box_layout.set_halign(gtk4::Align::Start);
+    box_layout.set_valign(gtk4::Align::Start);
+    box_layout.set_size_request(780, 560);
+    box_layout.set_margin_top(50);
+    box_layout.set_margin_start(12);
 
     let search_entry = gtk4::Entry::new();
-    search_entry.set_placeholder_text(Some("Tìm ứng dụng hoặc tệp tin..."));
+    search_entry.set_placeholder_text(Some(&archvnde_common::i18n::t("launcher.search_placeholder")));
     search_entry.add_css_class("launcher-search");
     search_entry.set_margin_top(16);
     search_entry.set_margin_start(16);
@@ -132,6 +135,21 @@ pub fn build_launcher_ui(
         );
         gtk4::glib::Propagation::Stop
     });
+
+    // Dismiss when clicking outside the launcher box area
+    let click_gesture = gtk4::GestureClick::new();
+    let box_layout_c = box_layout.clone();
+    let window_c = window.clone();
+    click_gesture.connect_pressed(move |_, _, x, y| {
+        let picked = window_c.pick(x, y, gtk4::PickFlags::DEFAULT);
+        let inside = picked
+            .map(|w| w.is_ancestor(&box_layout_c) || w == box_layout_c)
+            .unwrap_or(false);
+        if !inside {
+            window_c.close();
+        }
+    });
+    window.add_controller(click_gesture);
 
     window.connect_is_active_notify(|win| {
         if !win.is_active() {

@@ -9,6 +9,7 @@ edition = "2021"
 archvnde-common = { path = "../../libs/archvnde-common" }
 archvnde-island = { path = "../../libs/archvnde-island" }
 archvnde-launcher = { path = "../../libs/archvnde-launcher" }
+archvnde-tray = { path = "../../libs/archvnde-tray" }
 
 # GUI & Layer Shell
 gtk4 = { version = "0.9", features = ["v4_10"] }

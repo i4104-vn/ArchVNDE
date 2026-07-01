@@ -1,24 +1,16 @@
-//! StatusNotifierItem system tray server daemon.
-//! Implements DBuswatcher daemon specifications to allow client apps to register system tray items.
-
 use std::sync::{Arc, Mutex, OnceLock};
 use std::time::Duration;
 use zbus::interface;
 
-/// Representation of a registered system tray item.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TrayItem {
-    /// DBus destination service name.
     pub service: String,
-    /// Icon theme name or path string.
     pub icon_name: String,
-    /// Friendly tooltip title.
     pub title: String,
 }
 
 static TRAY_ITEMS: OnceLock<Arc<Mutex<Vec<TrayItem>>>> = OnceLock::new();
 
-/// Returns a cloned copy of all currently registered system tray items.
 pub fn get_tray_items() -> Vec<TrayItem> {
     let registry = TRAY_ITEMS.get_or_init(|| Arc::new(Mutex::new(Vec::new())));
     registry.lock().unwrap().clone()
@@ -40,7 +32,6 @@ trait StatusNotifierItem {
     fn title(&self) -> zbus::Result<String>;
 }
 
-/// DBus watcher object for org.kde.StatusNotifierWatcher.
 pub struct StatusNotifierWatcher;
 
 #[interface(name = "org.kde.StatusNotifierWatcher")]
@@ -52,6 +43,8 @@ impl StatusNotifierWatcher {
     ) {
         let sender = header.sender().map(|s| s.to_string()).unwrap_or_default();
         let target_service = if service.starts_with('/') {
+            // Some buggy apps register by passing object path instead of service name.
+            // In that case, fall back to the message sender's unique connection name.
             sender.clone()
         } else {
             service.clone()
@@ -105,6 +98,7 @@ impl StatusNotifierWatcher {
 
         let registry = TRAY_ITEMS.get_or_init(|| Arc::new(Mutex::new(Vec::new())));
         let mut lock = registry.lock().unwrap();
+        // Remove existing item with same service name to avoid duplicates
         lock.retain(|x| x.service != item.service);
         lock.push(item);
     }
@@ -157,8 +151,10 @@ pub fn spawn_watcher_service() {
                 }
             };
 
+            // Garbage Collection Loop: Check connection owners every 5 seconds.
+            // If an app crashed or quit, its unique bus name owner disappears.
             loop {
-                tokio::time::sleep(Duration::from_secs(1)).await;
+                tokio::time::sleep(Duration::from_secs(5)).await;
                 let registry = TRAY_ITEMS.get_or_init(|| Arc::new(Mutex::new(Vec::new())));
                 let current_items = {
                     let lock = registry.lock().unwrap();
@@ -167,60 +163,12 @@ pub fn spawn_watcher_service() {
 
                 let mut active_items = Vec::new();
                 if let Ok(dbus_proxy) = zbus::fdo::DBusProxy::new(&conn).await {
-                    let mut handles = Vec::new();
                     for item in current_items {
-                        let conn_clone = conn.clone();
-                        let dbus_proxy_clone = dbus_proxy.clone();
-                        let handle = tokio::spawn(async move {
-                            if let Ok(bus_name) = zbus::names::BusName::try_from(item.service.clone()) {
-                                let has_owner = tokio::time::timeout(
-                                    Duration::from_millis(100),
-                                    dbus_proxy_clone.name_has_owner(bus_name.clone())
-                                ).await;
-                                
-                                match has_owner {
-                                    Ok(Ok(true)) => {
-                                        let query_fut = async {
-                                            if let Ok(proxy) = StatusNotifierItemProxy::builder(&conn_clone)
-                                                .destination(bus_name)
-                                                .unwrap()
-                                                .path("/StatusNotifierItem")
-                                                .unwrap()
-                                                .build()
-                                                .await
-                                            {
-                                                let new_icon = proxy.icon_name().await.unwrap_or_else(|_| item.icon_name.clone());
-                                                let new_title = proxy.title().await.unwrap_or_else(|_| item.title.clone());
-                                                Some((new_icon, new_title))
-                                            } else {
-                                                None
-                                            }
-                                        };
-                                        
-                                        if let Ok(Some((new_icon, new_title))) = tokio::time::timeout(
-                                            Duration::from_millis(150),
-                                            query_fut
-                                        ).await {
-                                            return Some(TrayItem {
-                                                service: item.service.clone(),
-                                                icon_name: if new_icon.is_empty() { item.icon_name.clone() } else { new_icon },
-                                                title: new_title,
-                                            });
-                                        }
-                                    }
-                                     _ => {
-                                         return None;
-                                     }
-                                }
+                        if let Ok(name) = zbus::names::BusName::try_from(item.service.clone()) {
+                            match dbus_proxy.name_has_owner(name).await {
+                                Ok(true) => active_items.push(item),
+                                _ => println!("Pruning disconnected tray item: {}", item.service),
                             }
-                            Some(item)
-                        });
-                        handles.push(handle);
-                    }
-                    
-                    for handle in handles {
-                        if let Ok(Some(updated_item)) = handle.await {
-                            active_items.push(updated_item);
                         }
                     }
                 }
@@ -266,9 +214,11 @@ pub fn activate_item(service: &str, x: i32, y: i32, is_right_click: bool) {
                     println!("Sending D-Bus context_menu({}, {}) to {}", x, y, service_str);
                     if let Err(e) = proxy.context_menu(x, y).await {
                         eprintln!("D-Bus context_menu call failed for {}: {}", service_str, e);
+                        // Fallback 1: Some apps use SecondaryActivate for menus
                         println!("Attempting fallback secondary_activate({}, {}) for {}", x, y, service_str);
                         if let Err(e2) = proxy.secondary_activate(x, y).await {
                             eprintln!("D-Bus secondary_activate call failed for {}: {}", service_str, e2);
+                            // Fallback 2: Some apps use Activate as a catch-all
                             println!("Attempting fallback activate({}, {}) for {}", x, y, service_str);
                             let _ = proxy.activate(x, y).await;
                         }
@@ -283,4 +233,3 @@ pub fn activate_item(service: &str, x: i32, y: i32, is_right_click: bool) {
         });
     });
 }
-
