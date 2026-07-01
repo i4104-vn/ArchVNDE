@@ -135,7 +135,9 @@ scale trough {
     min-height: 6px;
     border-radius: 9999px;
     background-color: rgba(0, 0, 0, 0.06);
+    background-image: none;
     border: none;
+    box-shadow: none;
 }
 
 scale trough highlight {
@@ -146,18 +148,21 @@ scale trough highlight {
 }
 
 scale slider {
-    min-width: 14px;
-    min-height: 14px;
-    margin: -4px;
+    min-width: 16px;
+    min-height: 16px;
+    margin: -5px;
     border-radius: 9999px;
     background-color: #ffffff;
-    box-shadow: none;
-    border: 1px solid rgba(0, 0, 0, 0.06);
+    background-image: none;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+    border: none;
+    transition: background-color 150ms ease, box-shadow 150ms ease;
 }
 
 scale slider:hover {
-    box-shadow: none;
     background-color: #f0f4ff;
+    background-image: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
 }
 
 .control-left-toggles-box {
