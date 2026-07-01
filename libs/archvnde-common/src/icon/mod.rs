@@ -76,6 +76,47 @@ pub fn is_dark_mode() -> bool {
     }
 }
 
+fn parse_css_color(color: &str) -> (String, f32) {
+    let clean = color.trim().to_lowercase();
+    if clean.starts_with("rgba(") {
+        let parts: Vec<&str> = clean
+            .trim_start_matches("rgba(")
+            .trim_end_matches(")")
+            .split(',')
+            .map(|s| s.trim())
+            .collect();
+        if parts.len() >= 4 {
+            let r = parts[0].parse::<u8>().unwrap_or(255);
+            let g = parts[1].parse::<u8>().unwrap_or(255);
+            let b = parts[2].parse::<u8>().unwrap_or(255);
+            let a = parts[3].parse::<f32>().unwrap_or(1.0);
+            return (format!("#{:02x}{:02x}{:02x}", r, g, b), a);
+        }
+    } else if clean.starts_with("rgb(") {
+        let parts: Vec<&str> = clean
+            .trim_start_matches("rgb(")
+            .trim_end_matches(")")
+            .split(',')
+            .map(|s| s.trim())
+            .collect();
+        if parts.len() >= 3 {
+            let r = parts[0].parse::<u8>().unwrap_or(255);
+            let g = parts[1].parse::<u8>().unwrap_or(255);
+            let b = parts[2].parse::<u8>().unwrap_or(255);
+            return (format!("#{:02x}{:02x}{:02x}", r, g, b), 1.0);
+        }
+    } else if clean.starts_with('#') {
+        if clean.len() == 4 {
+            let r = &clean[1..2];
+            let g = &clean[2..3];
+            let b = &clean[3..4];
+            return (format!("#{}{}{}{}{}{}", r, r, g, g, b, b), 1.0);
+        }
+        return (clean, 1.0);
+    }
+    (clean, 1.0)
+}
+
 /// Helper function to retrieve an SVG icon widget by name with a custom stroke color.
 pub fn get_icon_colored(name: &str, size: i32, color_hex: &str) -> gtk4::Image {
     let is_dark = is_dark_mode();
@@ -91,6 +132,20 @@ pub fn get_icon_colored(name: &str, size: i32, color_hex: &str) -> gtk4::Image {
     } else {
         color_hex.to_string()
     };
+
+    eprintln!("[DEBUG_ICON] name={}, is_dark={}, color_hex={}, resolved_color={}", name, is_dark, color_hex, resolved_color);
+
+    let (mut hex, opacity) = parse_css_color(&resolved_color);
+    
+    // If we resolved to a white color in light mode, force translate to dark gray (except for quick tiles which have blue active backgrounds)
+    let is_quick_tile = match name {
+        "wifi" | "bluetooth" | "bell" | "bell-off" | "dark-mode" | "brightness" | 
+        "night-light" | "performance" | "caffeine" | "gsconnect" | "privacy" | "airplane" => true,
+        _ => false
+    };
+    if !is_dark && !is_quick_tile && (hex == "#ffffff" || hex == "#fff" || hex == "white") {
+        hex = "#1c1c1e".to_string();
+    }
 
     let svg = match name {
         "wifi" => Some(WIFI_SVG),
@@ -136,7 +191,11 @@ pub fn get_icon_colored(name: &str, size: i32, color_hex: &str) -> gtk4::Image {
     };
 
     if let Some(svg_content) = svg {
-        let colored_svg = svg_content.replace("currentColor", &resolved_color);
+        let mut colored_svg = svg_content.replace("currentColor", &hex);
+        if opacity < 1.0 {
+            let opacity_attrs = format!(" stroke-opacity=\"{}\" fill-opacity=\"{}\" ", opacity, opacity);
+            colored_svg = colored_svg.replace("<svg ", &format!("<svg {}", opacity_attrs));
+        }
         get_icon_from_svg(&colored_svg, size)
     } else {
         let img = get_system_or_file_icon(name, "image-missing");
