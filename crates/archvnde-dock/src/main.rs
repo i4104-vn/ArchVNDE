@@ -1,8 +1,11 @@
 mod config;
-mod ui;
+pub mod models;
+mod widgets;
+
+
 
 use gtk4::prelude::*;
-use ui::build_dock_ui;
+use widgets::build_dock_ui;
 
 fn main() {
     println!("Starting ArchVNDE Dock...");

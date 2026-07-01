@@ -1,10 +1,16 @@
 use crate::models::DesktopApp;
 use gtk4::prelude::*;
 use std::process::Command;
+use std::cell::RefCell;
+use std::rc::Rc;
+use archvnde_common::models::{DockConfig, PinnedApp};
+use archvnde_common::config::save_dock_config;
 
 pub fn create_grid_app_widget(
     app: &DesktopApp,
     window: &gtk4::ApplicationWindow,
+    config: Rc<RefCell<DockConfig>>,
+    on_pinned_changed: Rc<dyn Fn()>,
 ) -> gtk4::Button {
     let btn = gtk4::Button::new();
     btn.add_css_class("launcher-grid-item");
@@ -64,6 +70,57 @@ pub fn create_grid_app_widget(
         }
         win_to_close.close();
     });
+
+    // Right-click context menu (Pin/Unpin)
+    let popover = gtk4::Popover::new();
+    popover.set_parent(&btn);
+    popover.set_has_arrow(true);
+
+    let menu_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
+    menu_box.add_css_class("dock-menu-box");
+
+    // Check if the app is currently pinned
+    let is_pinned = config.borrow().pinned_apps.iter().any(|a| a.command == app.exec);
+
+    let action_btn = if is_pinned {
+        gtk4::Button::with_label("Unpin from Dock")
+    } else {
+        gtk4::Button::with_label("Pin to Dock")
+    };
+    action_btn.add_css_class("menu-item-btn");
+
+    let popover_c = popover.clone();
+    let config_c = config.clone();
+    let app_c = app.clone();
+    let on_pinned_changed_c = on_pinned_changed.clone();
+
+    action_btn.connect_clicked(move |_| {
+        popover_c.popdown();
+        let mut cfg = config_c.borrow_mut();
+        if is_pinned {
+            cfg.pinned_apps.retain(|a| a.command != app_c.exec);
+        } else {
+            cfg.pinned_apps.push(PinnedApp {
+                name: app_c.name.clone(),
+                icon: app_c.icon.clone().unwrap_or_else(|| "application-x-executable".to_string()),
+                command: app_c.exec.clone(),
+                args: vec![],
+            });
+        }
+        let _ = save_dock_config(&cfg);
+        // Trigger grid reload to update pin/unpin visual state
+        on_pinned_changed_c();
+    });
+
+    menu_box.append(&action_btn);
+    popover.set_child(Some(&menu_box));
+
+    let gesture = gtk4::GestureClick::builder().button(3).build();
+    let popover_c2 = popover.clone();
+    gesture.connect_released(move |_, _, _, _| {
+        popover_c2.popup();
+    });
+    btn.add_controller(gesture);
 
     btn
 }

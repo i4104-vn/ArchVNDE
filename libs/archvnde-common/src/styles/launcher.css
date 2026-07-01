@@ -1,56 +1,74 @@
 /* ================================================================
-   APPLICATION LAUNCHER — Premium Glassmorphism & Micro-animations
+   APPLICATION LAUNCHER — Glassmorphism
    ================================================================ */
 
-.launcher-window {
-    background-color: transparent;
-    background-image: none;
-}
-
 .launcher-box {
-    background-color: rgba(18, 17, 26, 0.94);
-    background-image: linear-gradient(135deg, rgba(30, 27, 46, 0.94) 0%, rgba(15, 12, 28, 0.98) 100%);
-    border: 1px solid rgba(99, 102, 241, 0.15);
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
-    border-left: 1px solid rgba(255, 255, 255, 0.10);
-    border-radius: 28px;
-    color: #ffffff;
+    background-color: rgba(20, 20, 22, 0.92);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(20, 20, 22, 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-left: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 24px;
+    color: rgba(255, 255, 255, 0.95);
     padding: 24px;
     overflow: hidden;
-    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.65),
-                inset 0 1px 1px rgba(255, 255, 255, 0.08);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 /* Search bar styling */
 .launcher-search entry {
-    background-color: rgba(255, 255, 255, 0.03);
+    background-color: rgba(255, 255, 255, 0.05);
     background-image: none;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
     color: #ffffff;
-    padding: 12px 18px;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+    padding: 10px 16px;
+    font-size: 14px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
 }
 
 .launcher-search entry:focus {
-    background-color: rgba(255, 255, 255, 0.06);
-    border-color: rgba(99, 102, 241, 0.55);
-    box-shadow: 0 0 14px rgba(99, 102, 241, 0.3),
-                inset 0 1px 2px rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    background-color: rgba(255, 255, 255, 0.08);
     background-image: none;
 }
 
-/* Scrolled window settings */
-scrolledwindow {
-    background: transparent;
+/* App list rows */
+.launcher-list {
+    background-color: transparent;
+    background-image: none;
 }
 
-/* Grid layout inside the launcher */
+.launcher-list row {
+    background-color: transparent;
+    background-image: none;
+    padding: 10px 14px;
+    border-radius: 12px;
+    margin: 3px 0;
+    color: rgba(255, 255, 255, 0.80);
+}
+
+.launcher-list row:hover {
+    background-color: rgba(255, 255, 255, 0.07);
+    background-image: none;
+    color: #ffffff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.launcher-list row:selected {
+    background-color: rgba(255, 255, 255, 0.12);
+    background-image: none;
+    color: #ffffff;
+    border-radius: 12px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Windows 11 Start Menu Grid Layout */
 .launcher-grid {
-    padding: 8px;
+    padding: 10px;
 }
 
 /* Individual Grid App Button */
@@ -58,123 +76,71 @@ button.launcher-grid-item {
     background-color: transparent;
     background-image: none;
     border: none;
-    border-radius: 18px;
-    padding: 14px 6px;
-    transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
-    color: rgba(255, 255, 255, 0.78);
-    min-width: 84px;
+    border-radius: 12px;
+    padding: 12px 6px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    color: rgba(255, 255, 255, 0.85);
+    min-width: 80px;
 }
 
 button.launcher-grid-item:hover {
-    background-color: rgba(255, 255, 255, 0.07);
+    background-color: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     color: #ffffff;
-    transform: scale(1.08) translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
 }
 
 button.launcher-grid-item:active {
     background-color: rgba(255, 255, 255, 0.12);
-    transform: scale(1.0) translateY(0);
+    transform: translateY(0);
 }
 
 /* Ellipsized small labels */
 .launcher-grid-label {
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 500;
     text-align: center;
-    margin-top: 6px;
-    color: rgba(255, 255, 255, 0.85);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-button.launcher-grid-item:hover .launcher-grid-label {
-    color: #ffffff;
+    margin-top: 4px;
 }
 
 /* Footer layout */
 .launcher-footer-separator {
-    background-color: rgba(255, 255, 255, 0.06);
-    margin: 12px 0 4px 0;
+    background-color: rgba(255, 255, 255, 0.08);
+    margin: 8px 0;
 }
 
 .launcher-footer-box {
-    padding: 8px 12px;
-    background-color: rgba(255, 255, 255, 0.01);
-    border: 1px solid rgba(255, 255, 255, 0.02);
-    border-radius: 18px;
+    padding: 6px 12px;
+    background-color: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
 }
 
 .launcher-profile-label {
     font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.3px;
+    font-weight: 600;
     color: rgba(255, 255, 255, 0.9);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 /* Power button styling */
 button.launcher-power-btn {
-    background-color: rgba(255, 255, 255, 0.03);
-    background-image: none;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    padding: 8px;
-    transition: all 200ms ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-button.launcher-power-btn:hover {
-    background-color: rgba(239, 68, 68, 0.15);
-    border-color: rgba(239, 68, 68, 0.35);
-    box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
-}
-
-/* Empty state / error / no results styling */
-.launcher-no-results {
-    color: rgba(255, 255, 255, 0.45);
-    font-size: 13px;
-    font-weight: 600;
-    margin: 48px 0;
-}
-
-/* Popover Menu Customization for Launcher */
-popover {
-    background-color: transparent;
-    padding: 0;
-    margin: 0;
-    box-shadow: none;
-    border: none;
-}
-
-popover > contents {
-    background-color: rgba(18, 17, 26, 0.95);
-    background-image: linear-gradient(180deg, rgba(30, 27, 46, 0.98) 0%, rgba(15, 12, 28, 0.94) 100%);
-    border: 1px solid rgba(99, 102, 241, 0.20);
-    border-radius: 16px;
-    padding: 6px;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
-}
-
-.launcher-menu-box {
-    padding: 0;
-}
-
-button.launcher-menu-item-btn {
     background-color: transparent;
     background-image: none;
     border: none;
     border-radius: 8px;
-    color: #ffffff;
-    padding: 8px 16px;
-    font-size: 12px;
-    font-weight: 600;
-    box-shadow: none;
-    min-height: 28px;
-    transition: all 150ms ease;
+    padding: 8px;
+    transition: all 0.15s ease;
 }
 
-button.launcher-menu-item-btn:hover {
-    background-color: rgba(99, 102, 241, 0.20);
-    color: #818cf8;
+button.launcher-power-btn:hover {
+    background-color: rgba(255, 85, 85, 0.15);
+    box-shadow: 0 2px 8px rgba(255, 85, 85, 0.2);
+}
+
+/* Empty state / error / no results styling */
+.launcher-no-results {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 13px;
+    font-weight: 500;
+    margin: 40px 0;
 }
 

@@ -3,6 +3,8 @@ name = "archvnde-launcher"
 version = "0.1.0"
 edition = "2021"
 
+
+
 [dependencies]
 archvnde-common = { path = "../archvnde-common" }
 archvnde-animation = { path = "../archvnde-animation" }

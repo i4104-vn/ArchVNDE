@@ -1,5 +1,6 @@
 mod widgets;
 
+
 use gtk4::prelude::*;
 use gtk4_layer_shell::{Edge, Layer, LayerShell};
 use widgets::clock::create_clock_widget;

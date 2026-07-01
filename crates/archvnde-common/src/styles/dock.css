@@ -89,3 +89,41 @@ button.menu-item-btn:hover {
 button.dock-add-btn:hover {
     background-color: rgba(16, 185, 129, 0.20);
 }
+
+/* Custom popover styling for Dock Edit Icon */
+.dock-edit-popover {
+    padding: 10px;
+}
+.dock-edit-label {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 11px;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+.dock-edit-entry entry {
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #ffffff;
+    padding: 6px 10px;
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+/* Styling for "+" pin app popover */
+.dock-pin-popover-box {
+    padding: 8px;
+}
+.dock-pin-search entry {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #ffffff;
+    padding: 6px 12px;
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+.dock-pin-list {
+    background-color: transparent;
+}
+
