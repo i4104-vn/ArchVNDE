@@ -1,6 +1,22 @@
 use gtk4::prelude::*;
 use gtk4_layer_shell::{KeyboardMode, Layer, Edge, LayerShell};
 
+fn has_battery() -> bool {
+    let power_dir = std::path::Path::new("/sys/class/power_supply");
+    if !power_dir.exists() { return false; }
+    if let Ok(entries) = std::fs::read_dir(power_dir) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if let Ok(kind) = std::fs::read_to_string(path.join("type")) {
+                if kind.trim() == "Battery" {
+                    return true;
+                }
+            }
+        }
+    }
+    false
+}
+
 pub fn build_status_indicators_ui() -> (gtk4::Box, gtk4::Button, gtk4::Label) {
     let status_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
     status_box.add_css_class("status-indicators-box");
@@ -15,12 +31,15 @@ pub fn build_status_indicators_ui() -> (gtk4::Box, gtk4::Button, gtk4::Label) {
     let vol_icon = archvnde_common::icon::get_icon("volume", 14);
     vol_icon.add_css_class("status-icon");
     
-    let bat_icon = archvnde_common::icon::get_icon("battery", 14);
-    bat_icon.add_css_class("status-icon");
-
     inner_layout.append(&net_icon);
     inner_layout.append(&vol_icon);
-    inner_layout.append(&bat_icon);
+
+    if has_battery() {
+        let bat_icon = archvnde_common::icon::get_icon("battery", 14);
+        bat_icon.add_css_class("status-icon");
+        inner_layout.append(&bat_icon);
+    }
+
     status_button.set_child(Some(&inner_layout));
 
     let separator = gtk4::Label::new(Some("│"));
