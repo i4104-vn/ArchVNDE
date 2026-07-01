@@ -3,10 +3,10 @@ use archvnde_common::desktop::DesktopApp;
 use crate::widgets::item::create_app_button;
 
 pub fn build_apps_list(apps: &[DesktopApp]) -> (gtk4::Box, Vec<gtk4::Button>) {
-    let icons_row = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+    let icons_row = gtk4::Box::new(gtk4::Orientation::Horizontal, 16);
     icons_row.add_css_class("switcher-list-row");
     icons_row.set_halign(gtk4::Align::Center);
-    icons_row.set_valign(gtk4::Align::Fill);
+    icons_row.set_valign(gtk4::Align::Center);
 
     let mut item_buttons = Vec::new();
 
