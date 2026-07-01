@@ -67,6 +67,9 @@ pub fn start_player_polling_loop(
             notif_icon.add_css_class("notch-album-art");
             art_container.append(&notif_icon);
 
+            // Clear cached art URL so album art is restored when notification expires
+            *last_art_url.borrow_mut() = String::new();
+
             // Slide down the sub-island notification badge underneath the capsule
             if !was_custom_active.get() {
                 was_custom_active.set(true);

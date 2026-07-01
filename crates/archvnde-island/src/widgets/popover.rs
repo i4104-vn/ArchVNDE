@@ -13,7 +13,8 @@ pub fn create_media_popover(
 ) {
     let popover = gtk4::Popover::new();
     popover.set_parent(notch_capsule);
-    popover.set_has_arrow(true);
+    popover.set_has_arrow(false);
+    popover.set_offset(0, 10);
     popover.add_css_class("media-popover");
 
     let popover_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
@@ -32,12 +33,18 @@ pub fn create_media_popover(
 
     // Cover Art Container
     let popover_art_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-    popover_art_container.set_valign(gtk4::Align::Center);
-    popover_art_container.set_halign(gtk4::Align::Center);
+    popover_art_container.set_valign(gtk4::Align::Fill);
+    popover_art_container.set_halign(gtk4::Align::Fill);
+    popover_art_container.set_hexpand(true);
+    popover_art_container.set_vexpand(true);
     
-    let default_popover_art = archvnde_common::icon::get_icon_colored("music", 64, "#3b82f6");
+    let default_popover_art = archvnde_common::icon::get_icon_colored("music", 120, "#3b82f6");
     default_popover_art.add_css_class("media-popover-art");
-    default_popover_art.set_size_request(160, 160);
+    default_popover_art.set_size_request(240, 240);
+    default_popover_art.set_hexpand(true);
+    default_popover_art.set_vexpand(true);
+    default_popover_art.set_halign(gtk4::Align::Fill);
+    default_popover_art.set_valign(gtk4::Align::Fill);
     popover_art_container.append(&default_popover_art);
     popover_box.append(&popover_art_container);
 
@@ -102,14 +109,68 @@ pub fn create_media_popover(
     // Toggle popover on notch_capsule click
     let click_gesture = gtk4::GestureClick::new();
     let popover_clone = popover.clone();
+    let popover_box_clone = popover_box.clone();
+    
+    let is_animating = std::rc::Rc::new(std::cell::Cell::new(false));
+    let is_animating_clone = is_animating.clone();
+
     click_gesture.connect_pressed(move |_, _, _, _| {
+        if is_animating_clone.get() {
+            return;
+        }
         if popover_clone.is_visible() {
-            popover_clone.popdown();
+            let p_clone = popover_clone.clone();
+            let is_animating_cb = is_animating_clone.clone();
+            is_animating_cb.set(true);
+            
+<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
+            archvnde_common::animation::css_zoom_out_cb(
+                popover_box_clone.upcast_ref(),
+                250,
+=======
+            archvnde_common::animation::slide_out_cb(
+                popover_box_clone.upcast_ref(),
+                archvnde_common::animation::SlideDirection::Up,
+                15,
+                400,
+>>>>>>> 897d46c (style: add player popover offset and implement slide animations):libs/archvnde-island/src/widgets/popover.rs
+                move || {
+                    p_clone.popdown();
+                    is_animating_cb.set(false);
+                }
+            );
         } else {
             popover_clone.popup();
         }
     });
     notch_capsule.add_controller(click_gesture);
+
+    // Genie-in when the popover maps (opens)
+    let popover_box_clone2 = popover_box.clone();
+    let notch_capsule_clone = notch_capsule.clone();
+    popover.connect_map(move |_| {
+<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
+        archvnde_common::animation::css_zoom_in(
+=======
+        notch_capsule_clone.add_css_class("popover-open");
+<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
+        archvnde_common::animation::genie_in(
+>>>>>>> 63e642f (style: remove player popover arrow and disable island hover scale when popover is open):libs/archvnde-island/src/widgets/popover.rs
+            popover_box_clone2.upcast_ref(),
+=======
+        archvnde_common::animation::slide_in(
+            popover_box_clone2.upcast_ref(),
+            archvnde_common::animation::SlideDirection::Down,
+            15,
+            400,
+>>>>>>> 897d46c (style: add player popover offset and implement slide animations):libs/archvnde-island/src/widgets/popover.rs
+        );
+    });
+
+    let notch_capsule_clone2 = notch_capsule.clone();
+    popover.connect_unmap(move |_| {
+        notch_capsule_clone2.remove_css_class("popover-open");
+    });
 
     (
         popover,

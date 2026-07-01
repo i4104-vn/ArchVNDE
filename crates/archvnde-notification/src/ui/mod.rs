@@ -17,6 +17,7 @@ impl NotificationWindow {
         window.init_layer_shell();
 
         window.set_layer(Layer::Overlay);
+        window.set_blur_allowed(true);
         window.set_anchor(Edge::Top, true);
         window.set_anchor(Edge::Right, true);
         window.set_margin(Edge::Top, 15);
@@ -25,6 +26,7 @@ impl NotificationWindow {
         window.add_css_class("notification-card");
 
         let box_layout = gtk4::Box::new(gtk4::Orientation::Horizontal, 12);
+        box_layout.add_css_class("notification-box");
         box_layout.set_margin_start(12);
         box_layout.set_margin_end(12);
         box_layout.set_margin_top(12);

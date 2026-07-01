@@ -38,28 +38,12 @@ pub fn get_archvnde_config_dir() -> PathBuf {
 
 const DEFAULT_CSS: &str = r#"/* ArchVNDE Glassmorphism GTK4 Theme */
 
-@define-color bg-glass-dark rgba(10, 15, 28, 0.75);
-@define-color bg-glass-sidebar rgba(12, 16, 25, 0.45);
-@define-color bg-card-active rgba(255, 255, 255, 0.95);
-@define-color bg-card-inactive rgba(39, 45, 62, 0.6);
-
-@define-color color-accent #1f6feb;
-@define-color color-accent-hover #3b82f6;
-
-@define-color btn-close #ff5f56;
-@define-color btn-minimize #ffbd2e;
-@define-color btn-maximize #27c93f;
-
-@define-color text-primary rgba(255, 255, 255, 0.95);
-@define-color text-secondary rgba(160, 174, 192, 0.9);
-@define-color text-active-dark #121620;
-
 * {
     font-family: 'Outfit', 'Inter', sans-serif;
 }
 
 /* General Window Transparency (Critical for custom shells) */
-window, window decoration, window .background {
+window, window.background, .panel-window, .quick-settings-window, .launcher-window, .notification-card {
     background: transparent !important;
     background-color: transparent !important;
     box-shadow: none !important;
@@ -68,133 +52,124 @@ window, window decoration, window .background {
 
 /* Panel Status Bar Styles */
 .panel-box {
-    background-color: @bg-glass-dark;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 20px !important;
-    color: @text-primary;
-    margin: 8px 16px 0 16px !important;
-    padding: 4px 20px !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
+    background-color: rgba(19, 24, 36, 0.15) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+    margin: 0px !important;
+    padding: 0px 15px !important;
+    min-height: 40px !important;
+    border-radius: 0px !important;
 }
 
 .panel-title {
-    font-weight: 800;
-    color: #3b82f6;
-    font-size: 1.15em;
-    letter-spacing: 0.5px;
+    font-weight: bold;
+    color: #1f6feb !important;
+    font-size: 1.1em;
 }
 
 .workspace-box {
-    margin-left: 18px;
+    margin-left: 10px;
 }
 
 .workspace-button {
-    background-color: rgba(255, 255, 255, 0.06) !important;
+    background-color: rgba(39, 45, 62, 0.6) !important;
     background-image: none !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 14px !important;
-    color: rgba(255, 255, 255, 0.8) !important;
-    padding: 4px 14px !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 8px !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+    padding: 2px 12px !important;
     font-size: 0.85em;
-    font-weight: 600;
-    margin-right: 6px;
+    font-weight: bold;
+    margin-right: 5px;
     box-shadow: none !important;
     transition: all 0.2s ease-in-out;
 }
 
 .workspace-button:hover {
-    background-color: rgba(255, 255, 255, 0.12) !important;
-    border-color: rgba(255, 255, 255, 0.16) !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
     color: #ffffff !important;
 }
 
 .workspace-button.active {
-    background-image: linear-gradient(135deg, #1f6feb 0%, #3b82f6 100%) !important;
+    background-color: #1f6feb !important;
+    background-image: none !important;
     border-color: #3b82f6 !important;
     color: #ffffff !important;
-    box-shadow: 0 0 10px rgba(31, 111, 235, 0.5) !important;
+    box-shadow: 0 0 8px rgba(31, 111, 235, 0.4) !important;
 }
 
 .panel-clock {
-    font-weight: 600;
-    font-size: 0.9em;
-    color: rgba(255, 255, 255, 0.9);
-    letter-spacing: 0.5px;
+    font-weight: bold;
+    font-size: 0.95em;
+    color: rgba(255, 255, 255, 0.95) !important;
 }
 
 .panel-settings-btn {
-    background-color: rgba(255, 255, 255, 0.06) !important;
+    background-color: rgba(39, 45, 62, 0.6) !important;
     background-image: none !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 14px !important;
-    color: rgba(255, 255, 255, 0.8) !important;
-    padding: 4px 16px !important;
-    font-weight: 600;
-    font-size: 0.85em;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 8px !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+    padding: 2px 14px !important;
+    font-weight: bold;
     box-shadow: none !important;
     transition: all 0.2s ease-in-out;
 }
 
 .panel-settings-btn:hover {
-    background-color: rgba(255, 255, 255, 0.12) !important;
-    border-color: rgba(255, 255, 255, 0.16) !important;
-    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Quick Settings Styles */
 .quick-settings-box {
-    background-color: rgba(12, 16, 25, 0.9) !important;
-    border: 1px solid rgba(255, 255, 255, 0.09) !important;
-    border-radius: 20px !important;
-    color: @text-primary;
-    padding: 24px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4) !important;
+    background-color: rgba(19, 24, 36, 0.75) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 16px !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+    padding: 20px !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
 }
 
 .quick-settings-title {
-    font-weight: 700;
-    color: #3b82f6;
-    font-size: 1.3em;
-    margin-bottom: 15px;
+    font-weight: bold;
+    color: #1f6feb !important;
+    font-size: 1.2em;
+    margin-bottom: 10px;
 }
 
 .quick-tile {
-    background-color: rgba(255, 255, 255, 0.05) !important;
+    background-color: rgba(39, 45, 62, 0.6) !important;
     background-image: none !important;
-    border: 1px solid rgba(255, 255, 255, 0.06) !important;
-    border-radius: 14px !important;
-    color: rgba(255, 255, 255, 0.8) !important;
-    padding: 14px 18px !important;
-    font-weight: 600;
-    font-size: 0.95em;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 12px !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+    padding: 10px !important;
+    font-weight: bold;
     box-shadow: none !important;
     transition: all 0.2s ease-in-out;
 }
 
 .quick-tile:hover {
     background-color: rgba(255, 255, 255, 0.1) !important;
-    border-color: rgba(255, 255, 255, 0.12) !important;
-    color: #ffffff !important;
 }
 
 .quick-tile.active {
-    background-image: linear-gradient(135deg, #1f6feb 0%, #3b82f6 100%) !important;
-    color: #ffffff !important;
-    border-color: #3b82f6 !important;
-    box-shadow: 0 4px 15px rgba(31, 111, 235, 0.4) !important;
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    background-image: none !important;
+    color: #121620 !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2) !important;
 }
 
 /* Capsule Sliders for Volume & Brightness */
 scale trough {
-    min-height: 10px;
-    border-radius: 5px;
-    background-color: rgba(255, 255, 255, 0.08) !important;
+    min-height: 12px;
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.1) !important;
     border: none;
 }
 
 scale progress {
-    min-height: 10px;
-    border-radius: 5px;
     background-image: linear-gradient(to right, #1f6feb, #3b82f6) !important;
 }
 
@@ -213,72 +188,12 @@ scale slider:hover {
     transform: scale(1.2);
 }
 
-.workspace-box {
-    margin-left: 10px;
-}
-
-.workspace-button {
-    background-color: @bg-card-inactive;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 6px;
-    color: @text-primary;
-    padding: 2px 8px;
-    font-size: 0.85em;
-    font-weight: bold;
-    transition: all 0.2s ease-in-out;
-}
-
-.workspace-button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-.workspace-button.active {
-    background-color: @color-accent;
-    border-color: @color-accent-hover;
-    color: @text-primary;
-}
-
-/* Quick Settings Styles */
-.quick-settings-window {
-    background-color: @bg-glass-dark;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    color: @text-primary;
-}
-
-.quick-settings-title {
-    font-weight: bold;
-    color: @color-accent;
-    font-size: 1.2em;
-}
-
-.quick-tile {
-    background-color: @bg-card-inactive;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    color: @text-primary;
-    padding: 10px;
-    transition: all 0.2s ease-in-out;
-}
-
-.quick-tile:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-.quick-tile.active {
-    background-color: @bg-card-active;
-    color: @text-active-dark;
-    border-color: #ffffff;
-}
-
-
-
 /* Launcher Styles */
 .launcher-box {
     background-color: rgba(12, 16, 25, 0.9) !important;
     border: 1px solid rgba(255, 255, 255, 0.09) !important;
     border-radius: 24px !important;
-    color: @text-primary;
+    color: rgba(255, 255, 255, 0.95) !important;
     padding: 24px;
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4) !important;
 }
@@ -328,7 +243,7 @@ scale slider:hover {
     background-color: rgba(12, 16, 25, 0.92) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 18px !important;
-    color: @text-primary;
+    color: rgba(255, 255, 255, 0.95) !important;
     padding: 16px 20px !important;
     box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4) !important;
 }
@@ -383,7 +298,7 @@ pub fn init_theme() {
         gtk4::style_context_add_provider_for_display(
             &display,
             &provider,
-            gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION,
+            gtk4::STYLE_PROVIDER_PRIORITY_USER,
         );
         println!("Successfully registered glassmorphism stylesheet with GTK Display.");
     } else {
