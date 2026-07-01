@@ -1,13 +1,16 @@
+//! Individual switcher card layout component.
+//! Renders active application thumbnail previews or falls back to system application icons.
+
 use gtk4::prelude::*;
 use archvnde_common::desktop::DesktopApp;
 
+/// Creates a card button displaying a window preview screenshot or a placeholder icon.
 pub fn create_app_button(app_item: &DesktopApp) -> gtk4::Button {
     let btn = gtk4::Button::new();
     btn.add_css_class("switcher-item-btn");
 
     let app_icon_str = app_item.icon.as_deref().unwrap_or("application-x-executable");
 
-    // Check if we have a cached screenshot for this app
     let mut screenshot_path: Option<String> = None;
     if let Some(ref app_id) = app_item.app_id {
         let path = format!("/tmp/archvnde-switcher-cache/{}.png", app_id);
@@ -25,8 +28,6 @@ pub fn create_app_button(app_item: &DesktopApp) -> gtk4::Button {
     let preview_width = 320;
     let preview_height = 240;
 
-    // Set screenshot as CSS background-image — clips naturally to the button's
-    // skewed + border-radius shape via overflow:hidden, no counter-skew needed.
     if let Some(ref path) = screenshot_path {
         let css_provider = gtk4::CssProvider::new();
         let css = format!(
@@ -45,7 +46,6 @@ pub fn create_app_button(app_item: &DesktopApp) -> gtk4::Button {
 
     let overlay = gtk4::Overlay::new();
 
-    // Spacer to give the button its size, or placeholder when no screenshot
     let base_widget: gtk4::Widget = if screenshot_path.is_some() {
         let spacer = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
         spacer.set_size_request(preview_width, preview_height);
@@ -55,7 +55,6 @@ pub fn create_app_button(app_item: &DesktopApp) -> gtk4::Button {
     };
     overlay.set_child(Some(&base_widget));
 
-    // 1. App Icon (top-left)
     let icon_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
     icon_container.add_css_class("switcher-item-icon-container");
     icon_container.set_valign(gtk4::Align::Start);
@@ -72,7 +71,6 @@ pub fn create_app_button(app_item: &DesktopApp) -> gtk4::Button {
     icon_container.append(&icon_widget);
     overlay.add_overlay(&icon_container);
 
-    // 2. Title Label (bottom-center)
     let title_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
     title_container.add_css_class("switcher-item-title-container");
     title_container.set_valign(gtk4::Align::End);
@@ -93,6 +91,7 @@ pub fn create_app_button(app_item: &DesktopApp) -> gtk4::Button {
     btn
 }
 
+/// Creates a fallback placeholder widget displaying a centered application icon.
 fn create_placeholder_preview(app_icon_str: &str, width: i32, height: i32) -> gtk4::Widget {
     let placeholder_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
     placeholder_box.add_css_class("switcher-item-placeholder");
@@ -112,3 +111,4 @@ fn create_placeholder_preview(app_icon_str: &str, width: i32, height: i32) -> gt
     placeholder_box.append(&icon_widget);
     placeholder_box.upcast()
 }
+

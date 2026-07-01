@@ -1,6 +1,5 @@
 pub mod item;
 pub mod popovers;
-pub mod monitor;
 
 use gtk4::prelude::*;
 use gtk4_layer_shell::{Edge, Layer, LayerShell};
@@ -80,10 +79,7 @@ pub fn build_dock_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     dock_box.add_css_class("dock-box");
 
     let config = Rc::new(RefCell::new(load_dock_config()));
-    rebuild_dock_content(&dock_box, config.clone());
-
-    // Monitor changes to dock.toml to reload config and update UI in real-time
-    monitor::start_dock_config_monitor(dock_box.clone(), config.clone());
+    rebuild_dock_content(&dock_box, config);
 
     window.set_child(Some(&dock_box));
 

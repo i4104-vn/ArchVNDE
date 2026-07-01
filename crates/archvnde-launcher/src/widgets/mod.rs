@@ -1,93 +1,105 @@
 pub mod app_row;
-pub mod grid;
 pub mod footer;
+pub mod file_search;
+pub mod search;
 
 use crate::core::find_desktop_apps;
 use gtk4::prelude::*;
-use gtk4_layer_shell::{Edge, KeyboardMode, Layer};
+use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
 use std::rc::Rc;
 use std::cell::RefCell;
-use archvnde_common::config::load_dock_config;
-use grid::populate_grid;
 use footer::create_launcher_footer;
+use app_row::create_list_app_widget;
+use search::populate_search_results;
 
 pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     let window = gtk4::ApplicationWindow::new(app);
     
-    // Use the unified layout helper from archvnde_common
     archvnde_common::window::init_layer_window(
         &window,
         Layer::Overlay,
-        KeyboardMode::Exclusive,
-        -1, // no exclusive zone needed for overlay launcher popups
+        KeyboardMode::OnDemand,
+        -1,
         &[
-            (Edge::Top, false),
-            (Edge::Bottom, true),
-            (Edge::Left, false),
+            (Edge::Top, true),
+            (Edge::Bottom, false),
+            (Edge::Left, true),
             (Edge::Right, false),
         ],
-        84, // margin bottom
+        -1,
     );
+    window.set_margin(Edge::Top, 50);
+    window.set_margin(Edge::Left, 12);
 
-    window.set_default_size(450, 550);
+    window.set_default_size(780, 560);
     window.add_css_class("launcher-window");
 
     let box_layout = gtk4::Box::new(gtk4::Orientation::Vertical, 12);
     box_layout.add_css_class("launcher-box");
-    box_layout.set_margin_start(16);
-    box_layout.set_margin_end(16);
-    box_layout.set_margin_top(16);
-    box_layout.set_margin_bottom(16);
 
     let search_entry = gtk4::Entry::new();
-    search_entry.set_placeholder_text(Some("Search apps, settings..."));
+    search_entry.set_placeholder_text(Some("Tìm ứng dụng hoặc tệp tin..."));
     search_entry.add_css_class("launcher-search");
+    search_entry.set_margin_top(16);
+    search_entry.set_margin_start(16);
+    search_entry.set_margin_end(16);
 
-    let scrolled_window = gtk4::ScrolledWindow::new();
-    scrolled_window.set_vexpand(true);
+    // Horizontal split box for two columns
+    let columns_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 12);
+    columns_box.add_css_class("launcher-columns-box");
+    columns_box.set_vexpand(true);
 
-    let config = Rc::new(RefCell::new(load_dock_config()));
+    // Left column: scrollable all apps list (always shows all apps)
+    let left_scroll = gtk4::ScrolledWindow::new();
+    left_scroll.add_css_class("launcher-left-column");
+    left_scroll.set_size_request(280, -1);
+    left_scroll.set_policy(gtk4::PolicyType::Never, gtk4::PolicyType::Automatic);
+
+    let left_list_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
+
     let apps = find_desktop_apps();
     let apps_rc = Rc::new(apps);
 
+    for app in apps_rc.iter() {
+        let btn = create_list_app_widget(app, &window);
+        left_list_box.append(&btn);
+    }
+    left_scroll.set_child(Some(&left_list_box));
+
+    // Right column: dynamic search results
+    let right_scroll = gtk4::ScrolledWindow::new();
+    right_scroll.add_css_class("launcher-right-column");
+    right_scroll.set_hexpand(true);
+    right_scroll.set_policy(gtk4::PolicyType::Never, gtk4::PolicyType::Automatic);
+
     let current_query = Rc::new(RefCell::new(String::new()));
-    let populate_grid_ref = Rc::new(RefCell::new(None));
-    let populate_grid_ref_c = populate_grid_ref.clone();
 
     let populate_impl = {
         let current_query = current_query.clone();
         let apps_rc = apps_rc.clone();
-        let scrolled_window = scrolled_window.clone();
+        let right_scroll = right_scroll.clone();
         let window = window.clone();
-        let config = config.clone();
-        let populate_grid_ref = populate_grid_ref.clone();
 
         move || {
-            populate_grid(
-                &scrolled_window,
-                &window,
-                &apps_rc,
+            populate_search_results(
+                &right_scroll,
                 &current_query.borrow(),
-                config.clone(),
-                populate_grid_ref.clone(),
+                &apps_rc,
+                &window,
             );
         }
     };
 
-    *populate_grid_ref_c.borrow_mut() = Some(Rc::new(populate_impl) as Rc<dyn Fn()>);
+    let populate_impl_rc = Rc::new(populate_impl);
 
     // Initial populate
-    if let Some(ref f) = *populate_grid_ref.borrow() {
-        f();
-    }
+    populate_impl_rc();
 
     let current_query_search = current_query.clone();
-    let populate_grid_search = populate_grid_ref.clone();
+    let populate_grid_search = populate_impl_rc.clone();
     search_entry.connect_changed(move |entry| {
         *current_query_search.borrow_mut() = entry.text().to_string();
-        if let Some(ref f) = *populate_grid_search.borrow() {
-            f();
-        }
+        populate_grid_search();
     });
 
     let is_animating = Rc::new(std::cell::Cell::new(false));
@@ -101,13 +113,12 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
         is_animating_clone.set(true);
         let win_cb = win_clone_close.clone();
         let box_layout_cb = box_layout_clone_close.clone();
-        let w = box_layout_cb.width().max(450);
-        let h = box_layout_cb.height().max(550);
-        archvnde_common::animation::genie_out(
+        archvnde_common::animation::slide_out_cb(
             box_layout_cb.upcast_ref(),
-            w,
-            h,
+            archvnde_common::animation::SlideDirection::Up,
+            40,
             200,
+            false,
             move || {
                 win_cb.destroy();
             }
@@ -134,20 +145,35 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     window.add_controller(key_controller);
 
     box_layout.append(&search_entry);
-    box_layout.append(&scrolled_window);
+    
+    columns_box.append(&left_scroll);
+    columns_box.append(&right_scroll);
+    columns_box.set_margin_start(16);
+    columns_box.set_margin_end(16);
+    box_layout.append(&columns_box);
 
-    // Separator above footer
     let footer_sep = gtk4::Separator::new(gtk4::Orientation::Horizontal);
     footer_sep.add_css_class("launcher-footer-separator");
+    footer_sep.set_margin_start(16);
+    footer_sep.set_margin_end(16);
     box_layout.append(&footer_sep);
 
-    // Footer section
     let footer = create_launcher_footer();
+    footer.set_margin_start(16);
+    footer.set_margin_end(16);
+    footer.set_margin_bottom(16);
     box_layout.append(&footer);
 
     window.set_child(Some(&box_layout));
 
-    archvnde_common::animation::genie_in(box_layout.upcast_ref(), 450, 550, 240);
+    archvnde_common::animation::slide_in(
+        box_layout.upcast_ref(),
+        archvnde_common::animation::SlideDirection::Down,
+        40,
+        250,
+    );
+
+    search_entry.grab_focus();
 
     window
 }

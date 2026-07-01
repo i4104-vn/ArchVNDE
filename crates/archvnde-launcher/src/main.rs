@@ -1,8 +1,5 @@
 mod core;
-pub mod models;
 mod widgets;
-
-
 
 use gtk4::prelude::*;
 use widgets::build_launcher_ui;
@@ -16,6 +13,15 @@ fn main() {
     );
 
     application.connect_activate(|app| {
+        // Toggle behavior: if window is already open, close it and return
+        let windows = app.windows();
+        if !windows.is_empty() {
+            for win in windows {
+                win.close();
+            }
+            return;
+        }
+
         // Initialize style provider
         archvnde_common::init_theme();
 

@@ -1,20 +1,29 @@
+//! Parser for desktop entry specifications (`.desktop` files) and system launcher caching.
+
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex, OnceLock};
 
+/// Information model of a parsed desktop entry application.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DesktopApp {
+    /// Friendly user-facing name of the application.
     pub name: String,
+    /// Absolute or path executable execute command.
     pub exec: String,
+    /// System icon theme name or filepath.
     pub icon: Option<String>,
+    /// Unique Wayland application ID if this app is currently running.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub app_id: Option<String>,
+    /// Active window title string if this app is currently running.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub window_title: Option<String>,
 }
 
+/// Cache block structure stored in local cache file.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DesktopCache {
     pub system_mtime_secs: u64,
@@ -40,6 +49,7 @@ fn get_dir_mtime(path: &Path) -> u64 {
         .unwrap_or(0)
 }
 
+/// Force-scans the system applications directories and updates both the memory and disk caches.
 pub fn refresh_desktop_apps_cache() -> Vec<DesktopApp> {
     let apps = scan_desktop_apps_from_filesystem();
     
@@ -58,7 +68,6 @@ pub fn refresh_desktop_apps_cache() -> Vec<DesktopApp> {
         apps: apps.clone(),
     };
 
-    // Save to file cache
     if let Some(cache_path) = get_cache_file_path() {
         if let Some(parent) = cache_path.parent() {
             let _ = std::fs::create_dir_all(parent);
@@ -68,7 +77,6 @@ pub fn refresh_desktop_apps_cache() -> Vec<DesktopApp> {
         }
     }
     
-    // Save to in-memory cache
     let cache = get_cache();
     if let Ok(mut lock) = cache.lock() {
         *lock = Some(cache_data);
@@ -111,6 +119,7 @@ fn scan_desktop_apps_from_filesystem() -> Vec<DesktopApp> {
     apps
 }
 
+/// Retrieves list of system applications, querying memory or disk cache, or scanning path directories if necessary.
 pub fn find_desktop_apps() -> Vec<DesktopApp> {
     let system_mtime = get_dir_mtime(Path::new("/usr/share/applications"));
     let local_path = dirs::data_dir()
@@ -123,7 +132,6 @@ pub fn find_desktop_apps() -> Vec<DesktopApp> {
 
     let cache = get_cache();
     
-    // 1. Check in-memory cache
     if let Ok(lock) = cache.lock() {
         if let Some(ref cache_data) = *lock {
             if cache_data.system_mtime_secs == system_mtime && cache_data.local_mtime_secs == local_mtime {
@@ -132,13 +140,11 @@ pub fn find_desktop_apps() -> Vec<DesktopApp> {
         }
     }
     
-    // 2. Try loading from file cache
     if let Some(cache_path) = get_cache_file_path() {
         if cache_path.exists() {
             if let Ok(file) = File::open(&cache_path) {
                 if let Ok(cache_data) = serde_json::from_reader::<_, DesktopCache>(file) {
                     if cache_data.system_mtime_secs == system_mtime && cache_data.local_mtime_secs == local_mtime {
-                        // Update in-memory cache
                         if let Ok(mut lock) = cache.lock() {
                             *lock = Some(cache_data.clone());
                         }
@@ -149,7 +155,6 @@ pub fn find_desktop_apps() -> Vec<DesktopApp> {
         }
     }
     
-    // 3. Fallback: scan filesystem synchronously (and update caches)
     refresh_desktop_apps_cache()
 }
 
@@ -212,3 +217,26 @@ fn parse_desktop_file(path: &Path) -> Option<DesktopApp> {
         _ => None,
     }
 }
+<<<<<<< HEAD:libs/archvnde-common/src/desktop.rs
+=======
+
+/// Generates a unique hash string representing a specific Wayland window based on its app_id and title.
+pub fn get_window_hash(app_id: &str, title: &str) -> String {
+    use std::hash::{Hash, Hasher};
+    let mut hasher = std::collections::hash_map::DefaultHasher::new();
+    app_id.hash(&mut hasher);
+    title.hash(&mut hasher);
+    format!("{:x}", hasher.finish())
+}
+
+impl DesktopApp {
+    /// Returns the unique window preview cache key hash of this application.
+    pub fn get_screenshot_hash(&self) -> Option<String> {
+        let app_id = self.app_id.as_ref()?;
+        let title = self.window_title.as_deref().unwrap_or("");
+        Some(get_window_hash(app_id, title))
+    }
+}
+
+
+>>>>>>> 52145a1 (refactor: clean up comments and add i18n support):libs/archvnde-common/src/core/desktop.rs

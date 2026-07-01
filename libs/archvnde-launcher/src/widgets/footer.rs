@@ -1,6 +1,20 @@
+//! UI layout renderer for the launcher footer row.
+
 use gtk4::prelude::*;
 
+<<<<<<< HEAD:libs/archvnde-launcher/src/widgets/footer.rs
 pub fn create_launcher_footer() -> gtk4::Box {
+=======
+/// Builds a horizontal bar containing user profile details, spacing, and a power popover trigger.
+pub fn build_footer_layout() -> (
+    gtk4::Box,
+    gtk4::Button,
+    gtk4::Popover,
+    gtk4::Button,
+    gtk4::Button,
+    gtk4::Button,
+) {
+>>>>>>> 52145a1 (refactor: clean up comments and add i18n support):libs/archvnde-launcher/src/widgets/footer/render.rs
     let footer_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 10);
     footer_box.add_css_class("launcher-footer-box");
 
@@ -25,6 +39,7 @@ pub fn create_launcher_footer() -> gtk4::Box {
     let power_menu = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
     power_menu.add_css_class("dock-menu-box");
 
+<<<<<<< HEAD:libs/archvnde-launcher/src/widgets/footer.rs
     let shutdown_btn = gtk4::Button::with_label("Shut Down");
     shutdown_btn.add_css_class("menu-item-btn");
     shutdown_btn.connect_clicked(|_| {
@@ -42,6 +57,16 @@ pub fn create_launcher_footer() -> gtk4::Box {
     suspend_btn.connect_clicked(|_| {
         let _ = std::process::Command::new("systemctl").arg("suspend").spawn();
     });
+=======
+    let shutdown_btn = gtk4::Button::with_label(&archvnde_common::i18n::t("launcher.shutdown"));
+    shutdown_btn.add_css_class("launcher-menu-item-btn");
+
+    let reboot_btn = gtk4::Button::with_label(&archvnde_common::i18n::t("launcher.restart"));
+    reboot_btn.add_css_class("launcher-menu-item-btn");
+
+    let suspend_btn = gtk4::Button::with_label(&archvnde_common::i18n::t("launcher.suspend"));
+    suspend_btn.add_css_class("launcher-menu-item-btn");
+>>>>>>> 52145a1 (refactor: clean up comments and add i18n support):libs/archvnde-launcher/src/widgets/footer/render.rs
 
     power_menu.append(&shutdown_btn);
     power_menu.append(&reboot_btn);
@@ -61,3 +86,4 @@ pub fn create_launcher_footer() -> gtk4::Box {
 
     footer_box
 }
+

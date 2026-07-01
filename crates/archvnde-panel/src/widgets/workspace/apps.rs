@@ -1,6 +1,6 @@
 use archvnde_common::desktop::{DesktopApp, find_desktop_apps};
 
-/// Lists all running windows matched against desktop entries
+/// Lists all running windows matched against desktop entries.
 pub fn get_running_windows() -> Vec<DesktopApp> {
     let desktop_apps = find_desktop_apps();
     let mut running = Vec::new();
@@ -99,10 +99,9 @@ pub fn get_running_windows() -> Vec<DesktopApp> {
     running
 }
 
-/// Focuses a window using wlrctl
+/// Focuses a window using wlrctl.
 pub fn focus_window(app_id: &str, title: &str) {
     println!("Focusing window: {} - {}", app_id, title);
-    // 1. Try to focus using the exact window title
     let status = std::process::Command::new("wlrctl")
         .args(&["window", "focus", &format!("title:{}", title)])
         .status();
@@ -111,16 +110,14 @@ pub fn focus_window(app_id: &str, title: &str) {
             return;
         }
     }
-    // 2. Fallback to app_id focus
     let _ = std::process::Command::new("wlrctl")
         .args(&["window", "focus", app_id])
         .status();
 }
 
-/// Closes a window using wlrctl
+/// Closes a window using wlrctl.
 pub fn close_window(app_id: &str, title: &str) {
     println!("Closing window: {} - {}", app_id, title);
-    // 1. Try to close using the exact window title
     let status = std::process::Command::new("wlrctl")
         .args(&["window", "close", &format!("title:{}", title)])
         .status();
@@ -129,7 +126,6 @@ pub fn close_window(app_id: &str, title: &str) {
             return;
         }
     }
-    // 2. Fallback to app_id close
     let _ = std::process::Command::new("wlrctl")
         .args(&["window", "close", app_id])
         .status();
