@@ -39,7 +39,7 @@
 
 .notch-album-art {
     border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .notch-visualizer {
@@ -48,15 +48,15 @@
 
 .visualizer-bar {
     background-color: #3498db;
-    background-image: linear-gradient(180deg, #93c5fd 0%, #007aff 100%);
+    background-image: linear-gradient(180deg, #3498db 0%, #007aff 100%);
     border-radius: 9999px;
     transition: all 100ms ease;
 }
 
 .island-badge {
-    background-color: rgb(14, 14, 18);
+    background-color: rgba(255, 255, 255, 0.98);
     background-image: none;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(0, 0, 0, 0.08);
     border-top: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: 16px;
     padding: 8px 14px;
@@ -79,7 +79,7 @@
 
 .panel-notch.active-music:not(.popover-open):hover {
     transform: scale(1.04);
-    background-color: rgba(24, 24, 30, 0.96);
+    background-color: rgba(255, 255, 255, 1.0);
     box-shadow: none;
 }
 
@@ -146,7 +146,7 @@ popover.media-popover>contents {
 .media-control-btn {
     background-color: rgba(0, 0, 0, 0.05);
     background-image: none;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
     border-radius: 50%;
     color: #1c1c1e;
     padding: 8px;
@@ -158,7 +158,7 @@ popover.media-popover>contents {
 
 .media-control-btn:hover {
     background-color: rgba(0, 0, 0, 0.08);
-    border-color: rgba(255, 255, 255, 0.18);
+    border-color: rgba(0, 0, 0, 0.10);
     box-shadow: none;
 }
 
@@ -176,7 +176,7 @@ scale.media-timeline-scale trough {
 
 scale.media-timeline-scale trough highlight {
     border-radius: 2px;
-    background-color: #1c1c1e;
+    background-color: #007aff;
     background-image: none;
     min-height: 4px;
 }
@@ -186,7 +186,7 @@ scale.media-timeline-scale trough slider {
     min-height: 10px;
     margin: -3px;
     border-radius: 5px;
-    background-color: #1c1c1e;
+    background-color: #007aff;
     box-shadow: none;
     border: none;
     opacity: 0;
