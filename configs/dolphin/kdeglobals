@@ -1,0 +1,54 @@
+[General]
+ColorScheme=ArchVNDE
+Name=ArchVNDE
+fixed=JetBrainsMono Nerd Font,10,-1,5,50,0,0,0,0,0
+font=Inter,11,-1,5,50,0,0,0,0,0
+menuFont=Inter,11,-1,5,50,0,0,0,0,0
+smallestReadableFont=Inter,9,-1,5,50,0,0,0,0,0
+taskbarFont=Inter,11,-1,5,50,0,0,0,0,0
+toolBarFont=Inter,10,-1,5,50,0,0,0,0,0
+
+[Icons]
+Theme=Papirus-Dark
+
+[KDE]
+ColorScheme=ArchVNDE
+LookAndFeelPackage=
+SingleClick=true
+contrast=4
+widgetStyle=kvantum-dark
+
+[KFileDialog Settings]
+Allow Expansion=false
+Automatically select filename extension=true
+Breadcrumb Navigation=true
+Decoration position=2
+LocationCombo Completionmode=5
+PathCombo Completionmode=5
+Show Bookmarks=false
+Show Full Path=true
+Show Preview=false
+Show Speedbar=true
+Show hidden files=false
+Sort by=Name
+Sort directories first=true
+Sort reversed=false
+Speedbar Width=140
+View Style=Simple
+
+[Sounds]
+# Silence KDE system sounds for a minimal experience
+CompletionMode=1
+
+[WM]
+# Window manager colors to match ArchVNDE panel aesthetics
+activeBackground=20,20,26
+activeBlend=20,20,26
+activeForeground=232,232,245
+activeFrame=32,32,44
+inactiveBackground=16,16,22
+inactiveBlend=16,16,22
+inactiveForeground=110,110,135
+inactiveFrame=24,24,34
+activeTitleBar=20,20,26
+inactiveTitleBar=16,16,22

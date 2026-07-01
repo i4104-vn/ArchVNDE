@@ -1,0 +1,17 @@
+[package]
+name = "archvnde-panel"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+archvnde-common = { path = "../archvnde-common" }
+archvnde-animation = { path = "../archvnde-animation" }
+archvnde-icon = { path = "../archvnde-icon" }
+
+# GUI & Layer Shell
+gtk4 = { version = "0.9", features = ["v4_10"] }
+gtk4-layer-shell = "0.4.0"
+
+# Async & utilities
+tokio = { version = "1.0", features = ["full"] }
+tracing = "0.1"

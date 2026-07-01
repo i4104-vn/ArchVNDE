@@ -1,0 +1,121 @@
+/* ArchVNDE - Dolphin Custom Stylesheet */
+/* This QSS styles Dolphin to match the exact premium rounded card aesthetic from the mockup */
+
+/* 1. Global View styling */
+QListView, QTreeView, QTableView {
+    background-color: #212121;
+    color: #e3e3e3;
+    border: none;
+    outline: none;
+}
+
+/* 2. Folder grid items (rounded cards) */
+QListView::item {
+    background-color: #2b2b2b;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 14px;
+    padding: 16px;
+    margin: 8px;
+    color: #e3e3e3;
+    font-weight: 600;
+    font-family: "Inter", "sans-serif";
+}
+
+QListView::item:hover {
+    background-color: #363636;
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+QListView::item:selected {
+    background-color: #007cff;
+    color: #ffffff;
+    border-color: #0088ff;
+}
+
+/* 3. Sidebar (Places panel) styling */
+KFilePlacesView {
+    background-color: #1a1a1a;
+    border-right: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+KFilePlacesView::item {
+    padding: 8px 12px;
+    margin: 4px 8px;
+    border-radius: 10px;
+    color: #b0b0b0;
+    font-weight: 500;
+}
+
+KFilePlacesView::item:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+}
+
+/* Active selection pill (e.g. "Computer" in the mockup) */
+KFilePlacesView::item:selected {
+    background-color: #007cff;
+    color: #ffffff;
+}
+
+/* 4. Disk progress bars (slim and colorful) */
+QProgressBar {
+    border: none;
+    background-color: rgba(255, 255, 255, 0.08);
+    height: 6px;
+    border-radius: 3px;
+    text-align: right;
+}
+
+QProgressBar::chunk {
+    border-radius: 3px;
+    background-color: #007cff;
+}
+
+/* Custom coloring for different disk partitions if matched */
+QProgressBar[text="System Disk"]::chunk {
+    background-color: #00d2ff;
+}
+
+QProgressBar[text="Data Disk"]::chunk {
+    background-color: #ffcc00;
+}
+
+/* 5. Header and title text labels */
+QLabel#myDirectoriesHeader, QLabel#disksHeader {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    margin: 16px 8px 8px 8px;
+}
+
+/* 6. Toolbar & Search bar styling */
+QToolBar {
+    background-color: #1a1a1a;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    padding: 6px;
+    spacing: 8px;
+}
+
+QToolButton {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 8px;
+    padding: 4px 8px;
+    color: #ffffff;
+}
+
+QToolButton:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+QToolButton:checked {
+    background-color: #007cff;
+}
+
+/* 7. Status bar */
+QStatusBar {
+    background-color: #1a1a1a;
+    color: #8c8c8c;
+    font-size: 11px;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
