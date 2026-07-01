@@ -11,7 +11,7 @@ use widgets::popover;
 use widgets::notification;
 use player_loop::start_player_polling_loop;
 
-/// Creates the macOS style dropdown island in the panel center containing a music player.
+/// Creates the dropdown island in the panel center containing a music player.
 pub fn create_system_island() -> gtk4::Box {
     let container_vbox = gtk4::Box::new(gtk4::Orientation::Vertical, 8);
     container_vbox.set_valign(gtk4::Align::Start);

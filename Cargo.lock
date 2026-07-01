@@ -35,24 +35,6 @@ dependencies = [
  "glib",
  "gtk4",
  "gtk4-layer-shell",
- "serde",
- "toml 0.8.23",
-]
-
-[[package]]
-name = "archvnde-island"
-version = "0.1.0"
-dependencies = [
- "archvnde-common",
- "chrono",
- "gdk-pixbuf",
- "gdk4",
- "glib",
- "gtk4",
- "gtk4-layer-shell",
- "tokio",
- "tracing",
- "zbus",
 ]
 
 [[package]]
@@ -80,14 +62,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "archvnde-notification"
+version = "0.1.0"
+dependencies = [
+ "archvnde-common",
+ "glib",
+ "gtk4",
+ "gtk4-layer-shell",
+ "tokio",
+ "tracing",
+ "zbus",
+]
+
+[[package]]
 name = "archvnde-panel"
 version = "0.1.0"
 dependencies = [
  "archvnde-common",
- "archvnde-island",
  "chrono",
- "gdk-pixbuf",
- "gdk4",
  "glib",
  "gtk4",
  "gtk4-layer-shell",

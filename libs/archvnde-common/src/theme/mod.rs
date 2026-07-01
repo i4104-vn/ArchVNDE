@@ -1,113 +1,69 @@
+use std::fs;
+use crate::core::config::get_archvnde_config_dir;
 
-const DARK_CSS: &str = concat!(
-    include_str!("styles/dark/panel.css"), "\n",
-    include_str!("styles/dark/workspaces.css"), "\n",
-    include_str!("styles/dark/clock.css"), "\n",
-    include_str!("styles/dark/status.css"), "\n",
-    include_str!("styles/dark/system_island.css"), "\n",
-    include_str!("styles/dark/sys_monitor.css"), "\n",
-    include_str!("styles/dark/tray.css"), "\n",
-    include_str!("styles/dark/taskbar.css"), "\n",
-    include_str!("styles/dark/button.css"), "\n",
-    include_str!("styles/dark/control_center.css"), "\n",
-    include_str!("styles/dark/launcher.css"), "\n",
-    include_str!("styles/dark/notification.css"), "\n",
-    include_str!("styles/dark/calendar.css"), "\n",
-    include_str!("styles/dark/power.css"), "\n",
-    include_str!("styles/dark/menu.css"), "\n",
-    include_str!("styles/dark/switcher.css"), "\n",
-    include_str!("styles/dark/screenshot.css"), "\n",
-    include_str!("styles/dark/lock.css")
+const DEFAULT_CSS: &str = concat!(
+    include_str!("styles/bar.css"),
+    "\n",
+    include_str!("styles/button.css"),
+    "\n",
+    include_str!("styles/control_center.css"),
+    "\n",
+    include_str!("styles/launcher.css"),
+    "\n",
+    include_str!("styles/notification.css"),
+    "\n",
+    include_str!("styles/calendar.css"),
+    "\n",
+    include_str!("styles/power.css"),
+    "\n",
+    include_str!("styles/menu.css"),
+    "\n",
+    include_str!("styles/switcher.css")
 );
 
-const LIGHT_CSS: &str = concat!(
-    include_str!("styles/light/panel.css"), "\n",
-    include_str!("styles/light/workspaces.css"), "\n",
-    include_str!("styles/light/clock.css"), "\n",
-    include_str!("styles/light/status.css"), "\n",
-    include_str!("styles/light/system_island.css"), "\n",
-    include_str!("styles/light/sys_monitor.css"), "\n",
-    include_str!("styles/light/tray.css"), "\n",
-    include_str!("styles/light/taskbar.css"), "\n",
-    include_str!("styles/light/button.css"), "\n",
-    include_str!("styles/light/control_center.css"), "\n",
-    include_str!("styles/light/launcher.css"), "\n",
-    include_str!("styles/light/notification.css"), "\n",
-    include_str!("styles/light/calendar.css"), "\n",
-    include_str!("styles/light/power.css"), "\n",
-    include_str!("styles/light/menu.css"), "\n",
-    include_str!("styles/light/switcher.css"), "\n",
-    include_str!("styles/light/screenshot.css"), "\n",
-    include_str!("styles/light/lock.css")
-);
-
-thread_local! {
-    static CSS_PROVIDER: gtk4::CssProvider = gtk4::CssProvider::new();
-}
-
-/// Initializes the GtkCssProvider, registers it with the GdkDisplay,
-/// and dynamically loads either the dark or light stylesheet folder.
+/// Initializes the user configuration directory, writes the default
+/// Glassmorphism stylesheet if missing, and registers it with GTK.
 pub fn init_theme() {
-    // Sync the GTK in-process dark-mode flag from gsettings once at startup.
-    // This ensures all crates (screenshot, switcher, lock, etc.) that are
-    // launched as separate binaries start with the correct theme, since GTK's
-    // default is always `false` for a freshly spawned process.
-    if let Some(settings) = gtk4::Settings::default() {
-        if let Ok(output) = std::process::Command::new("gsettings")
-            .args(&["get", "org.gnome.desktop.interface", "color-scheme"])
-            .output()
-        {
-            let stdout = String::from_utf8_lossy(&output.stdout);
-            let value = stdout.trim().trim_matches('\'');
-            // Only override if gsettings has an explicit preference set
-            if value == "prefer-dark" {
-                settings.set_gtk_application_prefer_dark_theme(true);
-            } else if value == "prefer-light" {
-                settings.set_gtk_application_prefer_dark_theme(false);
-            }
+    let config_dir = get_archvnde_config_dir();
+    if !config_dir.exists() {
+        if let Err(e) = fs::create_dir_all(&config_dir) {
+            eprintln!("Failed to create config directory: {}", e);
+            return;
         }
     }
 
-    CSS_PROVIDER.with(|provider| {
-        thread_local! {
-            static REGISTERED: std::cell::Cell<bool> = std::cell::Cell::new(false);
-        }
+    let css_path = config_dir.join("style.css");
+    // Always write the latest default CSS stylesheet to ensure style updates are applied immediately
+    if let Err(e) = fs::write(&css_path, DEFAULT_CSS) {
+        eprintln!("Failed to write default stylesheet: {}", e);
+        return;
+    }
+    println!("Updated glassmorphism stylesheet at {:?}", css_path);
 
-        let is_registered = REGISTERED.with(|r| r.get());
-        if !is_registered {
-            if let Some(display) = gtk4::gdk::Display::default() {
-                gtk4::style_context_add_provider_for_display(
-                    &display,
-                    provider,
-                    gtk4::STYLE_PROVIDER_PRIORITY_USER,
-                );
-                REGISTERED.with(|r| r.set(true));
-                println!("Successfully registered glassmorphism stylesheet with GTK Display.");
-            }
-        }
-
-        // Load correct theme according to GTK dark mode preference
-        if let Some(settings) = gtk4::Settings::default() {
-            let is_dark = crate::icon::is_dark_mode();
-            let css = if is_dark { DARK_CSS } else { LIGHT_CSS };
-            let cleaned_css = css.replace("\r", "");
-            provider.load_from_data(&cleaned_css);
-
-            // Connect a notify handler to dynamically switch stylesheet contents on-the-fly
-            let provider_clone = provider.clone();
-            settings.connect_gtk_application_prefer_dark_theme_notify(move |_s| {
-                let is_dark = crate::icon::is_dark_mode();
-                let css = if is_dark { DARK_CSS } else { LIGHT_CSS };
-                let cleaned_css = css.replace("\r", "");
-                provider_clone.load_from_data(&cleaned_css);
-                println!("Dynamic theme re-loaded (is_dark = {}).", is_dark);
-            });
-        } else {
-            // Fallback to dark if settings not available
-            let cleaned_css = DARK_CSS.replace("\r", "");
-            provider.load_from_data(&cleaned_css);
-        }
+    // Load CSS into GTK
+    let provider = gtk4::CssProvider::new();
+    
+    // Connect to parsing-error to catch and print any CSS syntax errors to stderr
+    provider.connect_parsing_error(|_provider, section, error| {
+        eprintln!(
+            "GTK CSS Parsing Error: {} in section {:?}",
+            error.message(),
+            section
+        );
     });
-}
 
-pub fn apply_theme_class(_window: &gtk4::ApplicationWindow) { }
+    provider.load_from_path(css_path);
+
+    if let Some(display) = gtk4::gdk::Display::default() {
+        gtk4::style_context_add_provider_for_display(
+            &display,
+            &provider,
+            gtk4::STYLE_PROVIDER_PRIORITY_USER,
+        );
+        println!("Successfully registered glassmorphism stylesheet with GTK Display.");
+    } else {
+        eprintln!("Failed to get default GDK display, theme styling might not apply.");
+    }
+
+
+}

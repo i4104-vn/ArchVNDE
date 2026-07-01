@@ -1,10 +1,22 @@
 /* Grouped Taskbar Styles */
 .taskbar-parent-box {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
     background-color: rgb(20, 20, 26);
     border: 1px solid rgba(255, 255, 255, 0.10);
     border-top: 1px solid rgba(255, 255, 255, 0.20);
+=======
+    background-color:rgba(28, 28, 30, 0.72);
+    border:1px solid rgba(0, 0, 0, 0.08);
+    border-top:1px solid rgba(0, 0, 0, 0.06);
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/taskbar.css
+=======
+    background-color: rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+>>>>>>> de6144c (style(theme): correct background and text contrast regex in light theme):libs/archvnde-common/src/theme/styles/light/taskbar.css
     border-radius: 9999px;
-    padding: 3px 8px;
+    padding: 3px 6px;
     min-height: 24px;
     box-shadow: none;
 }
@@ -15,19 +27,34 @@
 }
 
 button.taskbar-app-btn {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
     background-color: rgb(20, 20, 26);
     background-image: none;
     border: none;
-    border-radius: 6px;
-    padding: 2px;
+=======
+    background-color:rgba(28, 28, 30, 0.72);
+    background-image:none;
+    border:none;
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/taskbar.css
+=======
+    background-color: rgba(0, 0, 0, 0.04);
+    background-image: none;
+    border: none;
+>>>>>>> de6144c (style(theme): correct background and text contrast regex in light theme):libs/archvnde-common/src/theme/styles/light/taskbar.css
+    border-radius: 5px;
+    padding: 5px;
     margin: 0 1px;
-    min-width: 22px;
-    min-height: 22px;
+    min-width: 18px;
+    min-height: 18px;
+    -gtk-icon-size: 14px;
     transition: all 200ms ease;
     box-shadow: none;
 }
 
 button.taskbar-app-btn:hover {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
     background-color: rgba(36, 35, 35, 0.85);
     border-bottom: 2px solid #3b82f6;
 }
@@ -44,6 +71,32 @@ button.taskbar-app-btn.active:hover {
 
 popover.taskbar-popover {
     background-color: rgb(20, 20, 26);
+=======
+    background-color:rgba(0, 0, 0, 0.08);
+    border-bottom:2px solid #007aff;
+=======
+    background-color: rgba(0, 0, 0, 0.08);
+    border-bottom: 2px solid #007aff;
+>>>>>>> de6144c (style(theme): correct background and text contrast regex in light theme):libs/archvnde-common/src/theme/styles/light/taskbar.css
+}
+
+button.taskbar-app-btn.active {
+    background-color: rgba(0, 0, 0, 0.08);
+    border-bottom: 2px solid #007aff;
+}
+
+button.taskbar-app-btn.active:hover {
+    background-color: rgba(0, 0, 0, 0.12);
+    border-bottom: 2px solid #3498db;
+}
+
+popover.taskbar-popover {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
+    background-color:rgba(28, 28, 30, 0.72);
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/taskbar.css
+=======
+    background-color: rgba(0, 0, 0, 0.04);
+>>>>>>> de6144c (style(theme): correct background and text contrast regex in light theme):libs/archvnde-common/src/theme/styles/light/taskbar.css
     padding: 0;
     margin: 0;
     border: none;
@@ -51,13 +104,23 @@ popover.taskbar-popover {
 }
 
 popover.taskbar-popover>contents {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
     background-color: #14141c !important;
     background-image: none !important;
+=======
+    background-color:rgba(0, 0, 0, 0.45) !important;
+    background-image:none !important;
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/taskbar.css
+=======
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    background-image: none !important;
+>>>>>>> de6144c (style(theme): correct background and text contrast regex in light theme):libs/archvnde-common/src/theme/styles/light/taskbar.css
     -gtk-background-blur: none !important;
-    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border: none !important;
     border-radius: 12px !important;
     padding: 8px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
+    box-shadow: none !important;
     min-width: 200px !important;
     max-width: 200px !important;
     opacity: 1.0 !important;
@@ -66,7 +129,7 @@ popover.taskbar-popover>contents {
 .taskbar-previews-header-label {
     font-size: 12px;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.95);
+    color: rgba(28, 28, 30, 0.95);
     margin: 10px;
 }
 
@@ -90,13 +153,21 @@ button.taskbar-preview-list-btn {
 }
 
 button.taskbar-preview-list-btn:hover {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
     background-color: rgba(36, 35, 35, 0.85);
+=======
+    background-color:rgba(0, 0, 0, 0.08);
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/taskbar.css
+=======
+    background-color: rgba(0, 0, 0, 0.08);
+>>>>>>> de6144c (style(theme): correct background and text contrast regex in light theme):libs/archvnde-common/src/theme/styles/light/taskbar.css
 }
 
 .taskbar-preview-title {
     font-size: 12px;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.95);
+    color: rgba(28, 28, 30, 0.95);
     text-shadow: none;
     margin: 0;
 }
@@ -144,7 +215,15 @@ button.taskbar-preview-list-kill-btn:hover {
 
 /* Taskbar Popover action elements (Close all, launch new) */
 .taskbar-preview-separator {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
     background-color: rgba(255, 255, 255, 0.12);
+=======
+    background-color:rgba(0, 0, 0, 0.09);
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/taskbar.css
+=======
+    background-color: rgba(0, 0, 0, 0.08);
+>>>>>>> de6144c (style(theme): correct background and text contrast regex in light theme):libs/archvnde-common/src/theme/styles/light/taskbar.css
     margin: 6px 4px;
     min-height: 1px;
 }
@@ -166,7 +245,15 @@ button.taskbar-preview-action-btn {
 }
 
 button.taskbar-preview-action-btn:hover {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
     background-color: rgba(255, 255, 255, 0.08);
+=======
+    background-color:rgba(0, 0, 0, 0.06);
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/taskbar.css
+=======
+    background-color: rgba(255, 255, 255, 0.08);
+>>>>>>> de6144c (style(theme): correct background and text contrast regex in light theme):libs/archvnde-common/src/theme/styles/light/taskbar.css
 }
 
 .taskbar-preview-action-label {

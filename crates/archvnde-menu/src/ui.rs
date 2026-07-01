@@ -1,31 +1,8 @@
 use gtk4::prelude::*;
-use gio::prelude::*;
 use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
 use std::cell::Cell;
 use std::rc::Rc;
 use std::process::Command;
-
-pub fn close_menu_animated(
-    window: &gtk4::ApplicationWindow,
-    menu_box: &gtk4::Box,
-    action: Option<std::rc::Rc<dyn Fn()>>,
-) {
-    let win = window.clone();
-    let w = menu_box.width().max(220);
-    let h = menu_box.height().max(240);
-    archvnde_common::animation::genie_out(
-        menu_box.upcast_ref(),
-        w,
-        h,
-        150,
-        move || {
-            if let Some(act) = action {
-                act();
-            }
-            win.close();
-        }
-    );
-}
 
 pub fn build_menu_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     let window = gtk4::ApplicationWindow::new(app);
@@ -74,29 +51,7 @@ pub fn build_menu_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
         // Fallback to monitor geometry if window has not been allocated size yet (<= 1.0)
         if win_width <= 1.0 || win_height <= 1.0 {
             if let Some(display) = gtk4::gdk::Display::default() {
-                let monitors = display.monitors();
-                let mut found_monitor = None;
-                let x_i = x as i32;
-                let y_i = y as i32;
-                for i in 0..monitors.n_items() {
-                    if let Some(item) = monitors.item(i) {
-                        if let Ok(monitor) = item.downcast::<gtk4::gdk::Monitor>() {
-                            let geometry = monitor.geometry();
-                            if x_i >= geometry.x()
-                                && x_i < geometry.x() + geometry.width()
-                                && y_i >= geometry.y()
-                                && y_i < geometry.y() + geometry.height()
-                            {
-                                found_monitor = Some(monitor);
-                                break;
-                            }
-                        }
-                    }
-                }
-                let monitor = found_monitor.or_else(|| {
-                    monitors.item(0).and_then(|item| item.downcast::<gtk4::gdk::Monitor>().ok())
-                });
-                if let Some(monitor) = monitor {
+                if let Some(monitor) = display.monitor_at_point(x as i32, y as i32) {
                     let geometry = monitor.geometry();
                     win_width = geometry.width() as f64;
                     win_height = geometry.height() as f64;
@@ -122,11 +77,11 @@ pub fn build_menu_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
         fixed_layout_clone.put(&menu_box_clone, pos_x, pos_y);
         menu_box_clone.set_opacity(1.0);
 
-        // Apply genie-in animation from center/tiny size for macOS Genie style
-        archvnde_common::animation::genie_in(
+        // Apply slide-in animation from top/down for polished entrance
+        archvnde_common::animation::slide_in(
             menu_box_clone.upcast_ref(),
-            220,
-            240,
+            archvnde_common::animation::SlideDirection::Down,
+            10,
             180,
         );
     };
@@ -154,7 +109,7 @@ pub fn build_menu_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
             .unwrap_or(false);
 
         if !inside_menu {
-            close_menu_animated(&window_clone2, &menu_box_clone2, None);
+            window_clone2.close();
         }
     });
     window.add_controller(click_gesture);
@@ -162,10 +117,9 @@ pub fn build_menu_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     // Close on Escape key press
     let key_controller = gtk4::EventControllerKey::new();
     let window_clone3 = window.clone();
-    let menu_box_clone3 = menu_box.clone();
     key_controller.connect_key_pressed(move |_, key, _, _| {
         if key == gtk4::gdk::Key::Escape {
-            close_menu_animated(&window_clone3, &menu_box_clone3, None);
+            window_clone3.close();
             gtk4::glib::Propagation::Proceed
         } else {
             gtk4::glib::Propagation::Stop
@@ -177,7 +131,7 @@ pub fn build_menu_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     let add_menu_item = {
         let menu_box = menu_box.clone();
         let window = window.clone();
-        move |label_text: &str, icon_name: &str, action: std::rc::Rc<dyn Fn()>| {
+        move |label_text: &str, icon_name: &str, action: Box<dyn Fn() + 'static>| {
             let btn = gtk4::Button::new();
             btn.add_css_class("menu-item");
 
@@ -194,10 +148,9 @@ pub fn build_menu_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
             btn.set_child(Some(&item_layout));
 
             let win = window.clone();
-            let mb = menu_box.clone();
-            let act = action.clone();
             btn.connect_clicked(move |_| {
-                close_menu_animated(&win, &mb, Some(act.clone()));
+                action();
+                win.close();
             });
 
             menu_box.append(&btn);
@@ -208,7 +161,7 @@ pub fn build_menu_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     add_menu_item(
         "Terminal",
         "terminal",
-        std::rc::Rc::new(|| {
+        Box::new(|| {
             let _ = Command::new("foot").spawn().or_else(|_| Command::new("alacritty").spawn());
         }),
     );
@@ -216,7 +169,7 @@ pub fn build_menu_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     add_menu_item(
         "File Manager",
         "folder",
-        std::rc::Rc::new(|| {
+        Box::new(|| {
             let _ = Command::new("pcmanfm").spawn().or_else(|_| Command::new("thunar").spawn());
         }),
     );
@@ -226,7 +179,7 @@ pub fn build_menu_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     add_menu_item(
         "Change Wallpaper",
         "display",
-        std::rc::Rc::new(move || {
+        Box::new(move || {
             let dialog = gtk4::FileDialog::new();
             dialog.set_title("Select Wallpaper Image");
             
@@ -253,7 +206,7 @@ pub fn build_menu_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     add_menu_item(
         "Reconfigure Shell",
         "restart",
-        std::rc::Rc::new(|| {
+        Box::new(|| {
             let _ = Command::new("labwc").arg("--reconfigure").spawn();
         }),
     );
@@ -266,7 +219,7 @@ pub fn build_menu_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     add_menu_item(
         "Exit Shell",
         "logout",
-        std::rc::Rc::new(|| {
+        Box::new(|| {
             let _ = Command::new("labwc").arg("--exit").spawn();
         }),
     );

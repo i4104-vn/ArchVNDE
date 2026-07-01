@@ -1,7 +1,25 @@
 use std::fs;
 use crate::config::get_archvnde_config_dir;
 
+<<<<<<< HEAD:libs/archvnde-common/src/theme.rs
 const DEFAULT_CSS: &str = include_str!("style.css");
+=======
+const DEFAULT_CSS: &str = concat!(
+    include_str!("styles/bar.css"),
+    "\n",
+    include_str!("styles/button.css"),
+    "\n",
+    include_str!("styles/quick_settings.css"),
+    "\n",
+    include_str!("styles/launcher.css"),
+    "\n",
+    include_str!("styles/notification.css"),
+    "\n",
+    include_str!("styles/calendar.css"),
+    "\n",
+    include_str!("styles/power.css")
+);
+>>>>>>> ac26910 (style: split panel.css into separate stylesheets for each component):crates/archvnde-common/src/theme.rs
 
 /// Initializes the user configuration directory, writes the default
 /// Glassmorphism stylesheet if missing, and registers it with GTK.
