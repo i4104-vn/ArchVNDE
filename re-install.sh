@@ -2,7 +2,6 @@
 
 # Exit immediately if a command exits with a non-zero status
 set -e
-export GSK_RENDERER=cairo
 git pull origin
 
 echo "============================================="
@@ -41,12 +40,10 @@ cp target/release/archvnde-panel "$LOCAL_BIN/archvnde-panel"
 cp target/release/archvnde-menu "$LOCAL_BIN/archvnde-menu"
 cp target/release/archvnde-switcher "$LOCAL_BIN/archvnde-switcher"
 
-# 7. Write/update labwc configuration files if they do not exist
+# 7. Write/update labwc configuration files
+echo "Updating labwc configuration files..."
 mkdir -p "$HOME/.config/labwc"
-
-if [ ! -f "$HOME/.config/labwc/autostart" ]; then
-    echo "Creating default labwc autostart..."
-    cat << 'EOF' > "$HOME/.config/labwc/autostart"
+cat << 'EOF' > "$HOME/.config/labwc/autostart"
 #!/bin/bash
 # Autostart configuration for labwc with ArchVNDE shell
 
@@ -60,14 +57,9 @@ awww img wallpaper.png &
 # Start ArchVNDE status panel
 ~/.local/bin/archvnde-panel &
 EOF
-    chmod +x "$HOME/.config/labwc/autostart"
-else
-    echo "labwc autostart already exists, skipping..."
-fi
+chmod +x "$HOME/.config/labwc/autostart"
 
-if [ ! -f "$HOME/.config/labwc/rc.xml" ]; then
-    echo "Creating default labwc rc.xml..."
-    cat << 'EOF' > "$HOME/.config/labwc/rc.xml"
+cat << 'EOF' > "$HOME/.config/labwc/rc.xml"
 <?xml version="1.0" encoding="UTF-8"?>
 <labwc_config>
   <keyboard>
@@ -75,10 +67,6 @@ if [ ! -f "$HOME/.config/labwc/rc.xml" ]; then
     <!-- Override Alt-Tab with custom archvnde-switcher -->
     <keybind key="A-Tab">
       <action name="Execute" command="~/.local/bin/archvnde-switcher" />
-    </keybind>
-    <!-- Take screenshot with Win+Shift+S -->
-    <keybind key="W-S-s">
-      <action name="Execute" command="~/.local/bin/archvnde-screenshot" />
     </keybind>
   </keyboard>
   <mouse>
@@ -92,9 +80,6 @@ if [ ! -f "$HOME/.config/labwc/rc.xml" ]; then
   </mouse>
 </labwc_config>
 EOF
-else
-    echo "labwc rc.xml already exists, skipping..."
-fi
 
 # 8. Reload configuration and restart panel
 echo "Reloading labwc configuration and starting panel..."

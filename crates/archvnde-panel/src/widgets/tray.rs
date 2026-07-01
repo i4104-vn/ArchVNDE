@@ -26,7 +26,7 @@ pub fn create_tray_widget(window: &gtk4::ApplicationWindow) -> gtk4::Box {
 
     // Poll D-Bus registered tray items every 2 seconds.
     // Rebuild if the service list OR any icon name has changed.
-    gtk4::glib::timeout_add_local(std::time::Duration::from_secs(1), move || {
+    gtk4::glib::timeout_add_local(std::time::Duration::from_secs(2), move || {
         let current_items = archvnde_tray::get_tray_items();
         let current_snapshot: Vec<TraySnapshot> = current_items
             .iter()

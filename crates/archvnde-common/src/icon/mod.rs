@@ -57,7 +57,9 @@ pub fn get_icon_from_svg(svg_content: &str, size: i32) -> gtk4::Image {
     match pixbuf {
         Ok(pb) => {
             let texture = Texture::for_pixbuf(&pb);
-            gtk4::Image::from_paintable(Some(&texture))
+            let img = gtk4::Image::from_paintable(Some(&texture));
+            img.set_pixel_size(size);
+            img
         }
         Err(_) => {
             gtk4::Image::from_icon_name("image-missing")

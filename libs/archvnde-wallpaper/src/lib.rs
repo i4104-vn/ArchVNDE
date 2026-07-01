@@ -1,6 +1,5 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use std::fs;
 
 /// Checks if a command binary exists in the system's PATH.
 fn has_binary(name: &str) -> bool {

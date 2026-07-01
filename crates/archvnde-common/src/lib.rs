@@ -36,7 +36,9 @@ pub fn get_archvnde_config_dir() -> PathBuf {
         .join("archvnde")
 }
 
-const DEFAULT_CSS: &str = r#"/* ArchVNDE Glassmorphism GTK4 Theme */
+const DEFAULT_CSS: &str = r#"@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ArchVNDE Glassmorphism GTK4 Theme */
 
 @define-color bg-glass-dark rgba(10, 15, 28, 0.75);
 @define-color bg-glass-sidebar rgba(12, 16, 25, 0.45);
@@ -307,16 +309,6 @@ pub fn init_theme() {
 
     // Load CSS into GTK
     let provider = gtk4::CssProvider::new();
-    
-    // Connect to parsing-error to catch and print any CSS syntax errors to stderr
-    provider.connect_parsing_error(|_provider, section, error| {
-        eprintln!(
-            "GTK CSS Parsing Error: {} in section {:?}",
-            error.message(),
-            section
-        );
-    });
-
     provider.load_from_path(css_path);
 
     if let Some(display) = gtk4::gdk::Display::default() {

@@ -6,102 +6,10 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use widgets::panel::create_status_indicators;
 use widgets::workspace::create_workspace_switcher;
-use widgets::sys_monitor::create_sys_monitor_widget;
-use widgets::tray::create_tray_widget;
 use archvnde_island::create_system_island;
 
 fn main() {
     println!("Starting ArchVNDE Panel...");
-
-    // Initialize D-Bus StatusNotifierWatcher system tray listener daemon
-    archvnde_tray::spawn_watcher_service();
-
-    // Spawn a background thread to refresh desktop apps cache asynchronously on startup
-    std::thread::spawn(|| {
-        println!("Background thread refreshing desktop apps cache...");
-        archvnde_common::refresh_desktop_apps_cache();
-        println!("Background desktop apps cache refresh complete.");
-    });
-
-    // Spawn background thread to track focused app and capture screenshots
-    std::thread::spawn(|| {
-        use std::process::Command;
-        use std::time::{Instant, Duration};
-        use std::fs;
-
-        let cache_dir = "/tmp/archvnde-switcher-cache";
-        let _ = fs::create_dir_all(cache_dir);
-
-        let mut current_focused_app: Option<String> = None;
-        let mut focus_start = Instant::now();
-        let mut screenshot_taken = false;
-
-        loop {
-            std::thread::sleep(Duration::from_millis(500));
-
-            // Run wlrctl to get the currently focused window
-            let output = Command::new("wlrctl")
-                .args(&["window", "list", "state:focused"])
-                .output();
-
-            let active_app = if let Ok(out) = output {
-                let stdout = String::from_utf8_lossy(&out.stdout);
-                if let Some(line) = stdout.lines().next() {
-                    if let Some(pos) = line.find(':') {
-                        let app_id = line[..pos].trim().to_string();
-                        if !app_id.is_empty() {
-                            Some(app_id)
-                        } else {
-                            None
-                        }
-                    } else {
-                        None
-                    }
-                } else {
-                    None
-                }
-            } else {
-                None
-            };
-
-            // Ignore the switcher itself if it gets focused
-            let is_switcher = active_app.as_ref().map(|s| s == "archvnde-switcher" || s == "org.archvnde.switcher").unwrap_or(false);
-            if is_switcher {
-                continue;
-            }
-
-            if active_app != current_focused_app {
-                // User switched away from current_focused_app
-                if let Some(ref old_app) = current_focused_app {
-                    if screenshot_taken {
-                        // Copy the temp screenshot to the old app's cache file
-                        let temp_file = format!("{}/temp_active.png", cache_dir);
-                        let dest_file = format!("{}/{}.png", cache_dir, old_app);
-                        let _ = fs::copy(&temp_file, &dest_file);
-                    }
-                }
-
-                // Reset for the new active app
-                current_focused_app = active_app;
-                focus_start = Instant::now();
-                screenshot_taken = false;
-            } else if current_focused_app.is_some() && !screenshot_taken {
-                // If they have stayed in the same app for >= 5 seconds, take a screenshot
-                if focus_start.elapsed() >= Duration::from_secs(5) {
-                    let temp_file = format!("{}/temp_active.png", cache_dir);
-                    // Run grim to capture the screen
-                    let status = Command::new("grim")
-                        .arg(&temp_file)
-                        .status();
-                    if let Ok(s) = status {
-                        if s.success() {
-                            screenshot_taken = true;
-                        }
-                    }
-                }
-            }
-        }
-    });
 
     let application = gtk4::Application::new(
         Some("org.archvnde.panel"),
@@ -115,9 +23,8 @@ fn main() {
         let window = gtk4::ApplicationWindow::new(app);
 
         // Define shared window states for mutual exclusivity
-        let control_center_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>> = Rc::new(RefCell::new(None));
-        let calendar_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>> = Rc::new(RefCell::new(None));
-        let launcher_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>> = Rc::new(RefCell::new(None));
+        let quick_settings_window = Rc::new(RefCell::new(None));
+        let calendar_window = Rc::new(RefCell::new(None));
 
         // Initialize layer shell properties on the window
         window.init_layer_shell();
@@ -126,17 +33,12 @@ fn main() {
         window.set_layer(Layer::Top);
 
         // Set exclusive zone so other maximized windows don't overlap it
-        window.set_exclusive_zone(44);
+        window.set_exclusive_zone(36);
 
         // Anchor it to the top, left, and right edges of the screen
         window.set_anchor(Edge::Top, true);
         window.set_anchor(Edge::Left, true);
         window.set_anchor(Edge::Right, true);
-
-        // Float the bar 6px from the top edge
-        window.set_margin(Edge::Top, 6);
-        window.set_margin(Edge::Left, 8);
-        window.set_margin(Edge::Right, 8);
 
         // Set default height of the panel
         window.set_default_size(0, 36);
@@ -153,33 +55,8 @@ fn main() {
         logo_btn.add_css_class("panel-logo-btn");
         let logo_icon = archvnde_common::icon::get_icon("logo", 16);
         logo_btn.set_child(Some(&logo_icon));
-        
-        let lw_clone = launcher_window.clone();
-        let ccw_clone = control_center_window.clone();
-        let cw_clone = calendar_window.clone();
-        let app_clone = app.clone();
-        logo_btn.connect_clicked(move |_| {
-            // Close other windows safely by releasing RefCell borrows first
-            let cc_win = { ccw_clone.borrow().clone() };
-            if let Some(win) = cc_win {
-                win.close();
-            }
-
-            let cal_win = { cw_clone.borrow().clone() };
-            if let Some(win) = cal_win {
-                win.close();
-            }
-            
-            let existing = { lw_clone.borrow().clone() };
-            if let Some(win) = existing {
-                win.close();
-            } else {
-                let l_win = archvnde_launcher::widgets::build_launcher_ui(&app_clone, lw_clone.clone());
-                l_win.present();
-                if let Ok(mut borrow) = lw_clone.try_borrow_mut() {
-                    *borrow = Some(l_win);
-                }
-            }
+        logo_btn.connect_clicked(|_| {
+            let _ = std::process::Command::new("archvnde-launcher").spawn();
         });
 
         // 2. Workspace Switcher
@@ -195,13 +72,9 @@ fn main() {
         // 3. Unified Status and Clock Capsule
         let status_indicators = create_status_indicators(
             app,
-            control_center_window.clone(),
+            quick_settings_window.clone(),
             calendar_window.clone(),
-            launcher_window.clone(),
         );
-
-        let sys_monitor = create_sys_monitor_widget();
-        let tray_widget = create_tray_widget(&window);
 
         // Left-aligned section: Workspaces capsule (now containing logo + separator + dots)
         let left_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
@@ -209,12 +82,6 @@ fn main() {
         left_box.set_halign(gtk4::Align::Start);
         left_box.set_valign(gtk4::Align::Center);
         left_box.append(&workspace_box);
-
-        let left_wrapper = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
-        left_wrapper.set_valign(gtk4::Align::Start);
-        left_wrapper.set_size_request(-1, 35);
-        left_wrapper.append(&left_box);
-
         // Center-aligned section: Clean placeholder center space with interactive notch
         let center_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
         center_box.set_hexpand(true);
@@ -229,19 +96,12 @@ fn main() {
         right_box.set_hexpand(true);
         right_box.set_halign(gtk4::Align::End);
         right_box.set_valign(gtk4::Align::Center);
-        right_box.append(&tray_widget);
-        right_box.append(&sys_monitor);
         right_box.append(&status_indicators);
 
-        let right_wrapper = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
-        right_wrapper.set_valign(gtk4::Align::Start);
-        right_wrapper.set_size_request(-1, 35);
-        right_wrapper.append(&right_box);
-
         // Assemble columns into the main panel box using CenterBox
-        box_layout.set_start_widget(Some(&left_wrapper));
+        box_layout.set_start_widget(Some(&left_box));
         box_layout.set_center_widget(Some(&center_box));
-        box_layout.set_end_widget(Some(&right_wrapper));
+        box_layout.set_end_widget(Some(&right_box));
 
         window.set_child(Some(&box_layout));
 

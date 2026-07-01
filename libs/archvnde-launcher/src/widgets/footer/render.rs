@@ -1,11 +1,5 @@
-//! UI layout renderer for the launcher footer row.
-
 use gtk4::prelude::*;
 
-<<<<<<< HEAD:libs/archvnde-launcher/src/widgets/footer.rs
-pub fn create_launcher_footer() -> gtk4::Box {
-=======
-/// Builds a horizontal bar containing user profile details, spacing, and a power popover trigger.
 pub fn build_footer_layout() -> (
     gtk4::Box,
     gtk4::Button,
@@ -14,7 +8,6 @@ pub fn build_footer_layout() -> (
     gtk4::Button,
     gtk4::Button,
 ) {
->>>>>>> 52145a1 (refactor: clean up comments and add i18n support):libs/archvnde-launcher/src/widgets/footer/render.rs
     let footer_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 10);
     footer_box.add_css_class("launcher-footer-box");
 
@@ -37,46 +30,21 @@ pub fn build_footer_layout() -> (
     power_popover.set_has_arrow(true);
 
     let power_menu = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
-    power_menu.add_css_class("dock-menu-box");
+    power_menu.add_css_class("launcher-menu-box");
 
-<<<<<<< HEAD:libs/archvnde-launcher/src/widgets/footer.rs
     let shutdown_btn = gtk4::Button::with_label("Shut Down");
-    shutdown_btn.add_css_class("menu-item-btn");
-    shutdown_btn.connect_clicked(|_| {
-        let _ = std::process::Command::new("systemctl").arg("poweroff").spawn();
-    });
-
-    let reboot_btn = gtk4::Button::with_label("Restart");
-    reboot_btn.add_css_class("menu-item-btn");
-    reboot_btn.connect_clicked(|_| {
-        let _ = std::process::Command::new("systemctl").arg("reboot").spawn();
-    });
-
-    let suspend_btn = gtk4::Button::with_label("Suspend");
-    suspend_btn.add_css_class("menu-item-btn");
-    suspend_btn.connect_clicked(|_| {
-        let _ = std::process::Command::new("systemctl").arg("suspend").spawn();
-    });
-=======
-    let shutdown_btn = gtk4::Button::with_label(&archvnde_common::i18n::t("launcher.shutdown"));
     shutdown_btn.add_css_class("launcher-menu-item-btn");
 
-    let reboot_btn = gtk4::Button::with_label(&archvnde_common::i18n::t("launcher.restart"));
+    let reboot_btn = gtk4::Button::with_label("Restart");
     reboot_btn.add_css_class("launcher-menu-item-btn");
 
-    let suspend_btn = gtk4::Button::with_label(&archvnde_common::i18n::t("launcher.suspend"));
+    let suspend_btn = gtk4::Button::with_label("Suspend");
     suspend_btn.add_css_class("launcher-menu-item-btn");
->>>>>>> 52145a1 (refactor: clean up comments and add i18n support):libs/archvnde-launcher/src/widgets/footer/render.rs
 
     power_menu.append(&shutdown_btn);
     power_menu.append(&reboot_btn);
     power_menu.append(&suspend_btn);
     power_popover.set_child(Some(&power_menu));
-
-    let power_popover_clone = power_popover.clone();
-    power_btn.connect_clicked(move |_| {
-        power_popover_clone.popup();
-    });
 
     footer_box.append(&profile_box);
     let spacer = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
@@ -84,6 +52,12 @@ pub fn build_footer_layout() -> (
     footer_box.append(&spacer);
     footer_box.append(&power_btn);
 
-    footer_box
+    (
+        footer_box,
+        power_btn,
+        power_popover,
+        shutdown_btn,
+        reboot_btn,
+        suspend_btn,
+    )
 }
-

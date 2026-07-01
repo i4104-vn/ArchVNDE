@@ -194,8 +194,8 @@ button.panel-clock-btn:hover {
 
 .notch-content {
     opacity: 1.0;
-    min-width: 180px; /* 200px target minus 2 * 10px padding */
-    min-height: 16px; /* 22px target minus 2 * 3px padding */
+    min-width: 0;
+    min-height: 0;
 }
 
 .notch-player-text {
@@ -279,16 +279,6 @@ popover.media-popover > contents {
     padding: 0;
     min-width: 240px;
     max-width: 260px;
-    transform: scale(0.0);
-    transform-origin: top center;
-    opacity: 0;
-    transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
-                opacity 200ms ease;
-}
-
-.media-popover-box.genie-visible {
-    transform: scale(1);
-    opacity: 1;
 }
 
 .media-popover-header {

@@ -1,9 +1,6 @@
-//! UI layout renderer for launcher application rows and grids.
-
 use crate::models::DesktopApp;
 use gtk4::prelude::*;
 
-/// Builds a grid item button widget displaying an application icon and truncated label.
 pub fn build_grid_app_ui(app: &DesktopApp) -> (gtk4::Button, gtk4::Box, gtk4::Label) {
     let btn = gtk4::Button::new();
     btn.add_css_class("launcher-grid-item");
@@ -32,7 +29,6 @@ pub fn build_grid_app_ui(app: &DesktopApp) -> (gtk4::Button, gtk4::Box, gtk4::La
     (btn, content_box, name_label)
 }
 
-/// Builds a horizontal list row item button widget displaying an application icon and label.
 pub fn build_list_app_ui(app: &DesktopApp) -> (gtk4::Button, gtk4::Box, gtk4::Label) {
     let btn = gtk4::Button::new();
     btn.add_css_class("launcher-list-item");
@@ -61,4 +57,3 @@ pub fn build_list_app_ui(app: &DesktopApp) -> (gtk4::Button, gtk4::Box, gtk4::La
 
     (btn, content_box, name_label)
 }
-

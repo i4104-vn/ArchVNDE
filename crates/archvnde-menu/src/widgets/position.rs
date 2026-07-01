@@ -67,7 +67,7 @@ pub fn position_and_animate_menu(
         menu_box.upcast_ref(),
         220,
         240,
-        180,
+        450,
     );
 }
 

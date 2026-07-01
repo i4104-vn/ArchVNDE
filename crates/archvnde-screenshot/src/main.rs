@@ -3,9 +3,10 @@ use std::env;
 
 mod capture;
 mod widgets;
+mod render;
 
 use capture::{capture_screen_to_temp, get_screenshot_save_path};
-use widgets::editor::build_editor_ui;
+use render::build_editor_ui;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -16,8 +17,12 @@ fn main() {
             let save_path = get_screenshot_save_path();
             if std::fs::copy(&temp_path, &save_path).is_ok() {
                 println!("Full screenshot saved to: {:?}", save_path);
+                let notif_title = archvnde_common::i18n::t("screenshot.full_saved_title");
+                let notif_msg = archvnde_common::i18n::t("screenshot.saved_msg")
+                    .replace("{}", &format!("{:?}", save_path));
+                
                 let _ = std::process::Command::new("notify-send")
-                    .args(&["-i", "image-x-generic", "Đã chụp toàn màn hình", &format!("Đã lưu tại {:?}", save_path)])
+                    .args(&["-i", "image-x-generic", &notif_title, &notif_msg])
                     .spawn();
             }
             let _ = std::fs::remove_file(temp_path);

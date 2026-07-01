@@ -1,5 +1,3 @@
-//! UI renderer and event handlers for the switcher overlay window.
-
 use gtk4::prelude::*;
 use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
 use std::cell::RefCell;
@@ -11,8 +9,6 @@ use crate::apps::activate_app;
 use crate::history::save_history;
 use crate::widgets::list::build_apps_list;
 
-/// Builds and runs the Alt-Tab overlay switcher window.
-/// Listens to key release events (specifically Alt release) or socket messages to commit selection.
 pub fn build_switcher_ui(app: &gtk4::Application, apps: Vec<DesktopApp>) {
     archvnde_common::init_theme();
 
@@ -22,7 +18,7 @@ pub fn build_switcher_ui(app: &gtk4::Application, apps: Vec<DesktopApp>) {
     window.set_layer(Layer::Overlay);
     window.set_keyboard_mode(KeyboardMode::Exclusive);
 
-    // Setup window geometry: stretch horizontally across the screen
+    // Center vertically, stretch horizontally across the screen
     window.set_anchor(Edge::Top, false);
     window.set_anchor(Edge::Bottom, false);
     window.set_anchor(Edge::Left, true);
@@ -115,7 +111,8 @@ pub fn build_switcher_ui(app: &gtk4::Application, apps: Vec<DesktopApp>) {
             let next = (idx + 1) % apps_len;
             update_sel_socket(next);
 
-            // Reset grace period on each "next" signal to prevent premature close during rapid Alt+Tab cycling
+            // Reset grace period on each "next" signal to prevent
+            // premature close during rapid Alt+Tab cycling
             *alt_check_socket.borrow_mut() = false;
             let alt_re_enable = alt_check_socket.clone();
             gtk4::glib::timeout_add_local_once(std::time::Duration::from_millis(300), move || {
@@ -134,6 +131,7 @@ pub fn build_switcher_ui(app: &gtk4::Application, apps: Vec<DesktopApp>) {
             let idx = *current_index.borrow();
             if idx < apps.len() {
                 let app_item = apps[idx].clone();
+                println!("Activating: {}", app_item.name);
                 save_history(app_item.window_title.as_deref().unwrap_or(&app_item.name));
                 activate_app(&app_item);
             }
@@ -144,7 +142,7 @@ pub fn build_switcher_ui(app: &gtk4::Application, apps: Vec<DesktopApp>) {
         })
     };
 
-    // Keyboard navigation handlers
+    // Keyboard navigation
     let key_controller = gtk4::EventControllerKey::new();
     key_controller.set_propagation_phase(gtk4::PropagationPhase::Capture);
     let current_idx_key = current_index.clone();
@@ -178,10 +176,10 @@ pub fn build_switcher_ui(app: &gtk4::Application, apps: Vec<DesktopApp>) {
         }
     });
 
-    // Track state to prevent double-firing activation
+    // Track whether we've already activated to prevent double-fire
     let closed = Rc::new(RefCell::new(false));
 
-    // Handle key releases to detect when Alt is lifted
+    // On key release: check both specific Alt key symbols AND modifier state.
     let do_activate_release = do_activate.clone();
     let alt_check_release = alt_check_enabled.clone();
     let closed_release = closed.clone();
@@ -197,7 +195,7 @@ pub fn build_switcher_ui(app: &gtk4::Application, apps: Vec<DesktopApp>) {
         );
         let alt_held = modifiers.contains(gtk4::gdk::ModifierType::ALT_MASK);
 
-        // Commit selection if the Alt modifier is released
+        // Activate if: the released key IS Alt, OR Alt is no longer held
         if is_alt_key || !alt_held {
             *closed_release.borrow_mut() = true;
             do_activate_release();
@@ -211,7 +209,7 @@ pub fn build_switcher_ui(app: &gtk4::Application, apps: Vec<DesktopApp>) {
         item_buttons[0].grab_focus();
     }
 
-    // Fallback: poll keyboard modifier state to catch edge cases
+    // Fallback: poll keyboard modifier state every 50ms.
     let do_activate_poll = do_activate.clone();
     let alt_check_poll = alt_check_enabled.clone();
     let closed_poll = closed.clone();
@@ -223,6 +221,7 @@ pub fn build_switcher_ui(app: &gtk4::Application, apps: Vec<DesktopApp>) {
             return gtk4::glib::ControlFlow::Continue;
         }
 
+        // Check the actual keyboard modifier state via GDK seat
         if let Some(display) = gtk4::gdk::Display::default() {
             if let Some(seat) = display.default_seat() {
                 if let Some(keyboard) = seat.keyboard() {

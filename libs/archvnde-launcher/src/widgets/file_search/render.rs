@@ -1,9 +1,6 @@
-//! UI layout renderer for file search result list rows.
-
 use gtk4::prelude::*;
 use std::path::Path;
 
-/// Constructs a horizontal list item representing a found file with an appropriate type icon.
 pub fn build_file_row_ui(path: &Path) -> (gtk4::Button, gtk4::Box, gtk4::Label) {
     let btn = gtk4::Button::new();
     btn.add_css_class("launcher-file-item");
@@ -47,4 +44,3 @@ pub fn build_file_row_ui(path: &Path) -> (gtk4::Button, gtk4::Box, gtk4::Label) 
     
     (btn, content_box, name_label)
 }
-

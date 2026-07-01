@@ -20,8 +20,13 @@ fn create_toggle_tile(
     main_box.set_margin_top(6);
     main_box.set_margin_bottom(6);
 
-    // Load SVG icon from archvnde-icon crate
-    let icon_widget = archvnde_icon::get_icon(icon_name, 16);
+    // Load SVG icon from archvnde-icon crate with state-specific color
+    let initial_color = if is_active && active_class == "active-light" {
+        "#161a26"
+    } else {
+        "#ffffff"
+    };
+    let icon_widget = archvnde_icon::get_icon_colored(icon_name, 16, initial_color);
     icon_widget.add_css_class("tile-icon");
     main_box.append(&icon_widget);
 
@@ -47,11 +52,25 @@ fn create_toggle_tile(
     btn.set_child(Some(&main_box));
 
     let act_class = active_class.to_string();
+    let icon_name_str = icon_name.to_string();
+    let icon_widget_clone = icon_widget.clone();
     btn.connect_clicked(move |b| {
-        if b.has_css_class(&act_class) {
+        let is_now_active = if b.has_css_class(&act_class) {
             b.remove_css_class(&act_class);
+            false
         } else {
             b.add_css_class(&act_class);
+            true
+        };
+
+        let color = if is_now_active && act_class == "active-light" {
+            "#161a26"
+        } else {
+            "#ffffff"
+        };
+        let new_img = archvnde_icon::get_icon_colored(&icon_name_str, 16, color);
+        if let Some(paintable) = new_img.paintable() {
+            icon_widget_clone.set_paintable(Some(&paintable));
         }
     });
 
@@ -60,8 +79,8 @@ fn create_toggle_tile(
 
 pub fn create_quick_settings_grid() -> gtk4::Grid {
     let grid = gtk4::Grid::new();
-    grid.set_row_spacing(8);
-    grid.set_column_spacing(8);
+    grid.set_row_spacing(6);
+    grid.set_column_spacing(6);
     grid.set_row_homogeneous(true);
     grid.set_column_homogeneous(true);
 

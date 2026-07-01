@@ -38,6 +38,10 @@ labwc --reconfigure || true
 
 # 7. Start the panel and redirect stdout/stderr to log file
 echo "Starting archvnde-panel..."
+killall dunst || true
+killall mako || true
+killall fnott || true
+killall xfce4-notifyd || true
 ~/.local/bin/archvnde-panel > "$LOG_DIR/panel.log" 2>&1 &
 
 echo "============================================="

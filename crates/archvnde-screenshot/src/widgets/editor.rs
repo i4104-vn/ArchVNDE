@@ -1,5 +1,3 @@
-//! UI layout and drawing canvas handler for the screenshot crop/annotation editor window.
-
 use gtk4::prelude::*;
 use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
 use std::cell::RefCell;
@@ -10,7 +8,6 @@ use crate::capture::{
     draw_pixelated_rect, trigger_save, trigger_copy
 };
 
-/// Draws the background image, crop selection window shadow, and annotation marks (strokes, boxes, blur).
 fn draw_editor_canvas(cr: &cairo::Context, s: &EditorState, width: f64, height: f64) {
     // 1. Draw Background Screenshot
     cr.set_source_pixbuf(&s.bg_pixbuf, 0.0, 0.0);
@@ -108,7 +105,6 @@ fn draw_editor_canvas(cr: &cairo::Context, s: &EditorState, width: f64, height: 
     }
 }
 
-/// Creates a Popover widget containing a color palette grid to select the active pen/shape color.
 fn create_color_popover(
     parent: &gtk4::Button,
     state: Rc<RefCell<EditorState>>,
@@ -170,8 +166,6 @@ fn create_color_popover(
     popover
 }
 
-/// Sets up pointer/mouse drag gestures on the canvas to handle regional selection,
-/// free-hand strokes, drawing boxes, and eraser/blur selection.
 fn setup_editor_gestures(
     drawing_area: &gtk4::DrawingArea,
     state: Rc<RefCell<EditorState>>,
@@ -347,8 +341,6 @@ fn setup_editor_gestures(
     drawing_area.add_controller(drag_gesture);
 }
 
-/// Sets up keyboard event controllers to handle global shortcuts like Escape (cancel),
-/// Return (copy to clipboard), and Ctrl+S (save to file).
 fn setup_editor_keys(
     window: &gtk4::ApplicationWindow,
     state: Rc<RefCell<EditorState>>,
@@ -387,8 +379,6 @@ fn setup_editor_keys(
     window.add_controller(key_controller);
 }
 
-/// Constructs the screenshot editor window, maps its overlay design,
-/// initializes the canvas, and builds the editing toolbars.
 pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::ApplicationWindow {
     let pixbuf = match gdk_pixbuf::Pixbuf::from_file(temp_path) {
         Ok(pb) => pb,

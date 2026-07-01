@@ -25,20 +25,22 @@ pub fn build_launcher_ui(
         -1,
         &[
             (Edge::Top, true),
-            (Edge::Bottom, false),
+            (Edge::Bottom, true),
             (Edge::Left, true),
-            (Edge::Right, false),
+            (Edge::Right, true),
         ],
         -1,
     );
-    window.set_margin(Edge::Top, 50);
-    window.set_margin(Edge::Left, 12);
 
-    window.set_default_size(780, 560);
     window.add_css_class("launcher-window");
 
     let box_layout = gtk4::Box::new(gtk4::Orientation::Vertical, 12);
     box_layout.add_css_class("launcher-box");
+    box_layout.set_halign(gtk4::Align::Start);
+    box_layout.set_valign(gtk4::Align::Start);
+    box_layout.set_size_request(780, 560);
+    box_layout.set_margin_top(6);
+    box_layout.set_margin_start(12);
 
     let search_entry = gtk4::Entry::new();
     search_entry.set_placeholder_text(Some("Tìm ứng dụng hoặc tệp tin..."));
@@ -112,7 +114,7 @@ pub fn build_launcher_ui(
     let lw_inner = launcher_window.clone();
     window.connect_close_request(move |_| {
         if is_animating_clone.get() {
-            return gtk4::glib::Propagation::Proceed;
+            return gtk4::glib::Propagation::Stop;
         }
         is_animating_clone.set(true);
         if let Ok(mut borrow) = lw_inner.try_borrow_mut() {
@@ -124,7 +126,7 @@ pub fn build_launcher_ui(
             box_layout_cb.upcast_ref(),
             archvnde_common::animation::SlideDirection::Up,
             40,
-            200,
+            450,
             false,
             move || {
                 win_cb.destroy();
@@ -132,6 +134,21 @@ pub fn build_launcher_ui(
         );
         gtk4::glib::Propagation::Stop
     });
+
+    // Dismiss when clicking outside the launcher box area
+    let click_gesture = gtk4::GestureClick::new();
+    let box_layout_c = box_layout.clone();
+    let window_c = window.clone();
+    click_gesture.connect_pressed(move |_, _, x, y| {
+        let picked = window_c.pick(x, y, gtk4::PickFlags::DEFAULT);
+        let inside = picked
+            .map(|w| w.is_ancestor(&box_layout_c) || w == box_layout_c)
+            .unwrap_or(false);
+        if !inside {
+            window_c.close();
+        }
+    });
+    window.add_controller(click_gesture);
 
     window.connect_is_active_notify(|win| {
         if !win.is_active() {
@@ -177,7 +194,7 @@ pub fn build_launcher_ui(
         box_layout.upcast_ref(),
         archvnde_common::animation::SlideDirection::Down,
         40,
-        250,
+        450,
     );
 
     search_entry.grab_focus();
