@@ -1,6 +1,5 @@
 use gdk4::Texture;
 use gdk_pixbuf::Pixbuf;
-use gio::prelude::*;
 
 pub const DARK_ACTIVITY_SVG: &str = include_str!("assets/dark/activity.svg");
 pub const LIGHT_ACTIVITY_SVG: &str = include_str!("assets/light/activity.svg");
@@ -107,118 +106,127 @@ pub fn get_icon_from_svg(svg_content: &str, size: i32) -> gtk4::Image {
     }
 }
 
-/// Whether dark mode is currently active.
-///
-/// Reads the GTK in-process setting which is:
-/// - Synced from `gsettings color-scheme` once at startup by `init_theme()`
-/// - Updated in-process immediately when the user toggles via `set_gtk_application_prefer_dark_theme()`
-///
-/// This is a pure in-memory read — fast enough to call per icon render.
-pub fn is_dark_mode() -> bool {
-    gtk4::Settings::default()
-        .map(|s| s.is_gtk_application_prefer_dark_theme())
-        .unwrap_or(false)
-}
+/// Helper function to retrieve an SVG icon widget by name with a custom stroke color.
+pub fn get_icon_colored(name: &str, size: i32, color_hex: &str) -> gtk4::Image {
+    let is_dark = if let Some(settings) = gtk4::Settings::default() {
+        settings.is_gtk_application_prefer_dark_theme()
+    } else {
+        true
+    };
 
-/// Helper function to retrieve an SVG icon widget by name. Relies on the active theme.
-pub fn get_icon_colored(name: &str, size: i32, _color_hex: &str) -> gtk4::Image {
-    get_icon(name, size)
-}
-
-/// Helper function to retrieve an SVG icon widget by name. Defaults to white in dark mode and dark gray in light mode.
-pub fn get_icon(name: &str, size: i32) -> gtk4::Image {
-    let is_dark = is_dark_mode();
-    let use_light_folder = !is_dark;
-
-    let svg = match (name, use_light_folder) {
-        ("activity", false) => Some(DARK_ACTIVITY_SVG),
-        ("activity", true) => Some(LIGHT_ACTIVITY_SVG),
-        ("airplane", false) => Some(DARK_AIRPLANE_SVG),
-        ("airplane", true) => Some(LIGHT_AIRPLANE_SVG),
-        ("battery", false) => Some(DARK_BATTERY_SVG),
-        ("battery", true) => Some(LIGHT_BATTERY_SVG),
-        ("bell", false) => Some(DARK_BELL_SVG),
-        ("bell", true) => Some(LIGHT_BELL_SVG),
-        ("bell-off", false) => Some(DARK_BELL_OFF_SVG),
-        ("bell-off", true) => Some(LIGHT_BELL_OFF_SVG),
-        ("bluetooth", false) => Some(DARK_BLUETOOTH_SVG),
-        ("bluetooth", true) => Some(LIGHT_BLUETOOTH_SVG),
-        ("brightness", false) => Some(DARK_BRIGHTNESS_SVG),
-        ("brightness", true) => Some(LIGHT_BRIGHTNESS_SVG),
-        ("caffeine", false) => Some(DARK_CAFFEINE_SVG),
-        ("caffeine", true) => Some(LIGHT_CAFFEINE_SVG),
-        ("camera", false) => Some(DARK_CAMERA_SVG),
-        ("camera", true) => Some(LIGHT_CAMERA_SVG),
-        ("clock", false) => Some(DARK_CLOCK_SVG),
-        ("clock", true) => Some(LIGHT_CLOCK_SVG),
-        ("dark-mode", false) => Some(DARK_DARK_MODE_SVG),
-        ("dark-mode", true) => Some(LIGHT_DARK_MODE_SVG),
-        ("display", false) => Some(DARK_DISPLAY_SVG),
-        ("display", true) => Some(LIGHT_DISPLAY_SVG),
-        ("download", false) => Some(DARK_DOWNLOAD_SVG),
-        ("download", true) => Some(LIGHT_DOWNLOAD_SVG),
-        ("ethernet", false) => Some(DARK_ETHERNET_SVG),
-        ("ethernet", true) => Some(LIGHT_ETHERNET_SVG),
-        ("folder", false) => Some(DARK_FOLDER_SVG),
-        ("folder", true) => Some(LIGHT_FOLDER_SVG),
-        ("gsconnect", false) => Some(DARK_GSCONNECT_SVG),
-        ("gsconnect", true) => Some(LIGHT_GSCONNECT_SVG),
-        ("info", false) => Some(DARK_INFO_SVG),
-        ("info", true) => Some(LIGHT_INFO_SVG),
-        ("lock", false) => Some(DARK_LOCK_SVG),
-        ("lock", true) => Some(LIGHT_LOCK_SVG),
-        ("logo", false) => Some(DARK_LOGO_SVG),
-        ("logo", true) => Some(LIGHT_LOGO_SVG),
-        ("logout", false) => Some(DARK_LOGOUT_SVG),
-        ("logout", true) => Some(LIGHT_LOGOUT_SVG),
-        ("microphone", false) => Some(DARK_MICROPHONE_SVG),
-        ("microphone", true) => Some(LIGHT_MICROPHONE_SVG),
-        ("music", false) => Some(DARK_MUSIC_SVG),
-        ("music", true) => Some(LIGHT_MUSIC_SVG),
-        ("night-light", false) => Some(DARK_NIGHT_LIGHT_SVG),
-        ("night-light", true) => Some(LIGHT_NIGHT_LIGHT_SVG),
-        ("performance", false) => Some(DARK_PERFORMANCE_SVG),
-        ("performance", true) => Some(LIGHT_PERFORMANCE_SVG),
-        ("plus", false) => Some(DARK_PLUS_SVG),
-        ("plus", true) => Some(LIGHT_PLUS_SVG),
-        ("power", false) => Some(DARK_POWER_SVG),
-        ("power", true) => Some(LIGHT_POWER_SVG),
-        ("privacy", false) => Some(DARK_PRIVACY_SVG),
-        ("privacy", true) => Some(LIGHT_PRIVACY_SVG),
-        ("restart", false) => Some(DARK_RESTART_SVG),
-        ("restart", true) => Some(LIGHT_RESTART_SVG),
-        ("search", false) => Some(DARK_SEARCH_SVG),
-        ("search", true) => Some(LIGHT_SEARCH_SVG),
-        ("server", false) => Some(DARK_SERVER_SVG),
-        ("server", true) => Some(LIGHT_SERVER_SVG),
-        ("settings", false) => Some(DARK_SETTINGS_SVG),
-        ("settings", true) => Some(LIGHT_SETTINGS_SVG),
-        ("shield", false) => Some(DARK_SHIELD_SVG),
-        ("shield", true) => Some(LIGHT_SHIELD_SVG),
-        ("terminal", false) => Some(DARK_TERMINAL_SVG),
-        ("terminal", true) => Some(LIGHT_TERMINAL_SVG),
-        ("text", false) => Some(DARK_TEXT_SVG),
-        ("text", true) => Some(LIGHT_TEXT_SVG),
-        ("trash", false) => Some(DARK_TRASH_SVG),
-        ("trash", true) => Some(LIGHT_TRASH_SVG),
-        ("unlock", false) => Some(DARK_UNLOCK_SVG),
-        ("unlock", true) => Some(LIGHT_UNLOCK_SVG),
-        ("user", false) => Some(DARK_USER_SVG),
-        ("user", true) => Some(LIGHT_USER_SVG),
-        ("volume", false) => Some(DARK_VOLUME_SVG),
-        ("volume", true) => Some(LIGHT_VOLUME_SVG),
-        ("wifi", false) => Some(DARK_WIFI_SVG),
-        ("wifi", true) => Some(LIGHT_WIFI_SVG),
+    let svg = match (name, is_dark) {
+        ("activity", true) => Some(DARK_ACTIVITY_SVG),
+        ("activity", false) => Some(LIGHT_ACTIVITY_SVG),
+        ("airplane", true) => Some(DARK_AIRPLANE_SVG),
+        ("airplane", false) => Some(LIGHT_AIRPLANE_SVG),
+        ("battery", true) => Some(DARK_BATTERY_SVG),
+        ("battery", false) => Some(LIGHT_BATTERY_SVG),
+        ("bell", true) => Some(DARK_BELL_SVG),
+        ("bell", false) => Some(LIGHT_BELL_SVG),
+        ("bell-off", true) => Some(DARK_BELL_OFF_SVG),
+        ("bell-off", false) => Some(LIGHT_BELL_OFF_SVG),
+        ("bluetooth", true) => Some(DARK_BLUETOOTH_SVG),
+        ("bluetooth", false) => Some(LIGHT_BLUETOOTH_SVG),
+        ("brightness", true) => Some(DARK_BRIGHTNESS_SVG),
+        ("brightness", false) => Some(LIGHT_BRIGHTNESS_SVG),
+        ("caffeine", true) => Some(DARK_CAFFEINE_SVG),
+        ("caffeine", false) => Some(LIGHT_CAFFEINE_SVG),
+        ("camera", true) => Some(DARK_CAMERA_SVG),
+        ("camera", false) => Some(LIGHT_CAMERA_SVG),
+        ("clock", true) => Some(DARK_CLOCK_SVG),
+        ("clock", false) => Some(LIGHT_CLOCK_SVG),
+        ("dark-mode", true) => Some(DARK_DARK_MODE_SVG),
+        ("dark-mode", false) => Some(LIGHT_DARK_MODE_SVG),
+        ("display", true) => Some(DARK_DISPLAY_SVG),
+        ("display", false) => Some(LIGHT_DISPLAY_SVG),
+        ("download", true) => Some(DARK_DOWNLOAD_SVG),
+        ("download", false) => Some(LIGHT_DOWNLOAD_SVG),
+        ("ethernet", true) => Some(DARK_ETHERNET_SVG),
+        ("ethernet", false) => Some(LIGHT_ETHERNET_SVG),
+        ("folder", true) => Some(DARK_FOLDER_SVG),
+        ("folder", false) => Some(LIGHT_FOLDER_SVG),
+        ("gsconnect", true) => Some(DARK_GSCONNECT_SVG),
+        ("gsconnect", false) => Some(LIGHT_GSCONNECT_SVG),
+        ("info", true) => Some(DARK_INFO_SVG),
+        ("info", false) => Some(LIGHT_INFO_SVG),
+        ("lock", true) => Some(DARK_LOCK_SVG),
+        ("lock", false) => Some(LIGHT_LOCK_SVG),
+        ("logo", true) => Some(DARK_LOGO_SVG),
+        ("logo", false) => Some(LIGHT_LOGO_SVG),
+        ("logout", true) => Some(DARK_LOGOUT_SVG),
+        ("logout", false) => Some(LIGHT_LOGOUT_SVG),
+        ("microphone", true) => Some(DARK_MICROPHONE_SVG),
+        ("microphone", false) => Some(LIGHT_MICROPHONE_SVG),
+        ("music", true) => Some(DARK_MUSIC_SVG),
+        ("music", false) => Some(LIGHT_MUSIC_SVG),
+        ("night-light", true) => Some(DARK_NIGHT_LIGHT_SVG),
+        ("night-light", false) => Some(LIGHT_NIGHT_LIGHT_SVG),
+        ("performance", true) => Some(DARK_PERFORMANCE_SVG),
+        ("performance", false) => Some(LIGHT_PERFORMANCE_SVG),
+        ("plus", true) => Some(DARK_PLUS_SVG),
+        ("plus", false) => Some(LIGHT_PLUS_SVG),
+        ("power", true) => Some(DARK_POWER_SVG),
+        ("power", false) => Some(LIGHT_POWER_SVG),
+        ("privacy", true) => Some(DARK_PRIVACY_SVG),
+        ("privacy", false) => Some(LIGHT_PRIVACY_SVG),
+        ("restart", true) => Some(DARK_RESTART_SVG),
+        ("restart", false) => Some(LIGHT_RESTART_SVG),
+        ("search", true) => Some(DARK_SEARCH_SVG),
+        ("search", false) => Some(LIGHT_SEARCH_SVG),
+        ("server", true) => Some(DARK_SERVER_SVG),
+        ("server", false) => Some(LIGHT_SERVER_SVG),
+        ("settings", true) => Some(DARK_SETTINGS_SVG),
+        ("settings", false) => Some(LIGHT_SETTINGS_SVG),
+        ("shield", true) => Some(DARK_SHIELD_SVG),
+        ("shield", false) => Some(LIGHT_SHIELD_SVG),
+        ("terminal", true) => Some(DARK_TERMINAL_SVG),
+        ("terminal", false) => Some(LIGHT_TERMINAL_SVG),
+        ("text", true) => Some(DARK_TEXT_SVG),
+        ("text", false) => Some(LIGHT_TEXT_SVG),
+        ("trash", true) => Some(DARK_TRASH_SVG),
+        ("trash", false) => Some(LIGHT_TRASH_SVG),
+        ("unlock", true) => Some(DARK_UNLOCK_SVG),
+        ("unlock", false) => Some(LIGHT_UNLOCK_SVG),
+        ("user", true) => Some(DARK_USER_SVG),
+        ("user", false) => Some(LIGHT_USER_SVG),
+        ("volume", true) => Some(DARK_VOLUME_SVG),
+        ("volume", false) => Some(LIGHT_VOLUME_SVG),
+        ("wifi", true) => Some(DARK_WIFI_SVG),
+        ("wifi", false) => Some(LIGHT_WIFI_SVG),
         _ => None,
     };
 
+    let resolved_color = if !is_dark {
+        let clean = color_hex.trim().to_lowercase();
+        if clean.starts_with("rgba(255, 255, 255,") || clean.starts_with("rgba(255,255,255,") {
+            let alpha = clean.split(',').last().unwrap_or("1.0)").trim().replace(")", "");
+            format!("rgba(28, 28, 30, {})", alpha)
+        } else {
+            color_hex.to_string()
+        }
+    } else {
+        color_hex.to_string()
+    };
+
     if let Some(svg_content) = svg {
-        get_icon_from_svg(svg_content, size)
+        let colored_svg = svg_content.replace("currentColor", &resolved_color);
+        get_icon_from_svg(&colored_svg, size)
     } else {
         let img = get_system_or_file_icon(name, "image-missing");
         img.set_pixel_size(size);
         img
     }
+}
+
+/// Helper function to retrieve an SVG icon widget by name. Defaults to white in dark mode and dark gray in light mode.
+pub fn get_icon(name: &str, size: i32) -> gtk4::Image {
+    let is_dark = if let Some(settings) = gtk4::Settings::default() {
+        settings.is_gtk_application_prefer_dark_theme()
+    } else {
+        true
+    };
+    let color = if is_dark { "#ffffff" } else { "#1c1c1e" };
+    get_icon_colored(name, size, color)
 }
 
 /// Loads a system icon by name or from a local absolute file path, with robust theme validation and desktop resolution.
