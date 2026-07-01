@@ -186,6 +186,7 @@ fn create_quick_settings_window(
     use gtk4_layer_shell::{KeyboardMode, Layer, Edge};
 
     let q_win = gtk4::ApplicationWindow::new(app);
+    archvnde_common::apply_theme_class(&q_win);
     q_win.init_layer_shell();
     q_win.set_layer(Layer::Overlay);
     q_win.set_keyboard_mode(KeyboardMode::OnDemand);

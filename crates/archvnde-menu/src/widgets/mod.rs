@@ -35,6 +35,7 @@ pub fn close_menu_animated(
 
 pub fn build_menu_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     let window = gtk4::ApplicationWindow::new(app);
+    archvnde_common::apply_theme_class(&window);
     
     // Use unified window init helper from archvnde_common
     archvnde_common::window::init_layer_window(

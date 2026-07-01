@@ -17,6 +17,7 @@ pub fn build_launcher_ui(
     launcher_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
 ) -> gtk4::ApplicationWindow {
     let window = gtk4::ApplicationWindow::new(app);
+    archvnde_common::apply_theme_class(&window);
     
     archvnde_common::window::init_layer_window(
         &window,

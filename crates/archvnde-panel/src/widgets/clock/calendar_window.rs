@@ -9,6 +9,7 @@ pub fn show_calendar_window(
     cw_clone: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
 ) -> gtk4::ApplicationWindow {
     let c_win = gtk4::ApplicationWindow::new(app);
+    archvnde_common::apply_theme_class(&c_win);
     c_win.init_layer_shell();
     c_win.set_layer(Layer::Overlay);
     c_win.set_keyboard_mode(KeyboardMode::OnDemand);

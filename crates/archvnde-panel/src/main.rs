@@ -172,6 +172,7 @@ fn main() {
         archvnde_common::init_theme();
 
         let window = gtk4::ApplicationWindow::new(app);
+        archvnde_common::apply_theme_class(&window);
 
         // Define shared window states for mutual exclusivity
         let control_center_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>> = Rc::new(RefCell::new(None));
