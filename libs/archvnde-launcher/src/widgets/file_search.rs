@@ -97,23 +97,6 @@ pub fn create_file_row(path: &Path, window: &gtk4::ApplicationWindow) -> gtk4::B
             eprintln!("Failed to open file {}: {}", path_str, e);
         }
         
-        if let Some(child) = win_to_close.child() {
-            if let Ok(box_layout) = child.downcast::<gtk4::Box>() {
-                let win = win_to_close.clone();
-                let w = box_layout.width().max(780);
-                let h = box_layout.height().max(560);
-                archvnde_common::animation::genie_out(
-                    box_layout.upcast_ref(),
-                    w,
-                    h,
-                    200,
-                    move || {
-                        win.close();
-                    }
-                );
-                return;
-            }
-        }
         win_to_close.close();
     });
     

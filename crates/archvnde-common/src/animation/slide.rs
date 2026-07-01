@@ -48,8 +48,13 @@ pub fn slide_in(widget: &gtk4::Widget, direction: SlideDirection, distance_px: i
             return glib::ControlFlow::Break;
         }
 
+<<<<<<< HEAD:crates/archvnde-common/src/animation/slide.rs
         let t = elapsed.as_secs_f64() / dur.as_secs_f64();
         let eased = easing::ease_out_back(t);
+=======
+        let t = elapsed_us as f64 / dur_us as f64;
+        let eased = easing::ease_out_cubic(t);
+>>>>>>> fff5272 (style: modern launcher redesign, gentle animations, close on focus loss (OnDemand keyboard mode), logo click toggle):libs/archvnde-common/src/animation/slide.rs
 
         w.set_opacity(eased.min(1.0).max(0.0));
         match direction {
