@@ -10,6 +10,85 @@ use std::rc::Rc;
 use toggle_grid::create_control_center_grid;
 use sliders::create_slider_row;
 use power_actions::create_header_row;
+use std::collections::HashMap;
+
+fn get_current_volume() -> f64 {
+    if let Ok(output) = std::process::Command::new("wpctl")
+        .args(&["get-volume", "@DEFAULT_AUDIO_SINK@"])
+        .output()
+    {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        if let Some(vol_str) = stdout.split_whitespace().nth(1) {
+            if let Ok(vol) = vol_str.parse::<f64>() {
+                return vol * 100.0;
+            }
+        }
+    }
+    if let Ok(output) = std::process::Command::new("pactl")
+        .args(&["get-sink-volume", "@DEFAULT_SINK@"])
+        .output()
+    {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        if let Some(pos) = stdout.find('%') {
+            let start = stdout[..pos].rfind(' ').unwrap_or(0);
+            if let Ok(vol) = stdout[start..pos].trim().parse::<f64>() {
+                return vol;
+            }
+        }
+    }
+    80.0
+}
+
+fn set_volume(val: f64) {
+    let percent = val as i32;
+    let _ = std::process::Command::new("wpctl")
+        .args(&["set-volume", "@DEFAULT_AUDIO_SINK@", &format!("{}%", percent)])
+        .spawn();
+    let _ = std::process::Command::new("pactl")
+        .args(&["set-sink-volume", "@DEFAULT_SINK@", &format!("{}%", percent)])
+        .spawn();
+    let _ = std::process::Command::new("amixer")
+        .args(&["set", "Master", &format!("{}%", percent)])
+        .spawn();
+}
+
+fn get_current_brightness() -> f64 {
+    if let Ok(output) = std::process::Command::new("brightnessctl")
+        .args(&["-m"])
+        .output()
+    {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        if let Some(line) = stdout.lines().next() {
+            let parts: Vec<&str> = line.split(',').collect();
+            if parts.len() >= 4 {
+                let pct_str = parts[3].trim_end_matches('%');
+                if let Ok(pct) = pct_str.parse::<f64>() {
+                    return pct;
+                }
+            }
+        }
+    }
+    if let Ok(output) = std::process::Command::new("light")
+        .args(&["-G"])
+        .output()
+    {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        if let Ok(pct) = stdout.trim().parse::<f64>() {
+            return pct;
+        }
+    }
+    60.0
+}
+
+fn set_brightness(val: f64) {
+    let percent = val as i32;
+    let _ = std::process::Command::new("brightnessctl")
+        .args(&["set", &format!("{}%", percent)])
+        .spawn();
+    let _ = std::process::Command::new("light")
+        .args(&["-S", &percent.to_string()])
+        .spawn();
+}
 
 /// Creates a unified status indicators capsule containing (1) status details button and (2) clock button.
 /// Clicking the status button toggles Control Center; clicking the clock button toggles Calendar.
@@ -184,13 +263,39 @@ fn create_control_center_window(
     main_box.append(&create_header_row());
     main_box.append(&create_control_center_grid());
 
-    main_box.append(&create_slider_row("volume", 80.0, |val| {
-        println!("Volume changed: {}%", val as i32);
-    }));
+    let motion_controller = gtk4::EventControllerMotion::new();
+    main_box.add_controller(motion_controller.clone());
 
-    main_box.append(&create_slider_row("brightness", 60.0, |val| {
-        println!("Brightness changed: {}%", val as i32);
-    }));
+    let popover_active = Rc::new(std::cell::Cell::new(false));
+    let popover_active_clone = popover_active.clone();
+    let q_win_weak = q_win.downgrade();
+    let motion_c = motion_controller.clone();
+    let on_popover_toggled = Rc::new(move |is_open: bool| {
+        popover_active_clone.set(is_open);
+        if !is_open {
+            if !motion_c.contains_pointer() {
+                if let Some(win) = q_win_weak.upgrade() {
+                    win.close();
+                }
+            }
+        }
+    });
+
+    let initial_volume = get_current_volume();
+    main_box.append(&create_slider_row(
+        "volume",
+        initial_volume,
+        Some(on_popover_toggled),
+        |val| { set_volume(val); }
+    ));
+
+    let initial_brightness = get_current_brightness();
+    main_box.append(&create_slider_row(
+        "brightness",
+        initial_brightness,
+        None,
+        |val| { set_brightness(val); }
+    ));
 
     let disk_box = create_disk_list_box();
     main_box.append(&disk_box);
@@ -212,8 +317,9 @@ fn create_control_center_window(
     });
     q_win.add_controller(click_gesture);
 
-    q_win.connect_is_active_notify(|win| {
-        if !win.is_active() {
+    let popover_active_for_notify = popover_active.clone();
+    q_win.connect_is_active_notify(move |win| {
+        if !win.is_active() && !popover_active_for_notify.get() {
             win.close();
         }
     });
@@ -236,7 +342,7 @@ fn create_control_center_window(
             main_box_clone.upcast_ref(),
             360,
             480,
-            400,
+            450,
             move || {
                 q_win_cb.destroy();
             }
@@ -245,7 +351,7 @@ fn create_control_center_window(
     });
 
     q_win.present();
-    archvnde_common::animation::genie_in(main_box.upcast_ref(), 360, 480, 400);
+    archvnde_common::animation::genie_in(main_box.upcast_ref(), 360, 480, 450);
 
     q_win
 }
@@ -260,10 +366,35 @@ struct DiskInfo {
     mount_point: String,
 }
 
+fn get_parent_drive(filesystem: &str) -> String {
+    if filesystem.starts_with("/dev/sd") {
+        if filesystem.len() >= 8 {
+            return filesystem[0..8].to_string();
+        }
+    } else if filesystem.starts_with("/dev/nvme") {
+        if let Some(p_idx) = filesystem.rfind('p') {
+            if p_idx > 9 {
+                return filesystem[0..p_idx].to_string();
+            }
+        }
+    }
+    filesystem.to_string()
+}
+
+fn format_size(kb: u64) -> String {
+    let gb = kb as f64 / 1024.0 / 1024.0;
+    if gb >= 1000.0 {
+        format!("{:.1} TB", gb / 1024.0)
+    } else {
+        format!("{:.1} GB", gb)
+    }
+}
+
 fn get_disk_list() -> Vec<DiskInfo> {
-    let mut list = Vec::new();
+    let mut drive_map: HashMap<String, (u64, u64, u64)> = HashMap::new();
+    let mut seen_partitions = std::collections::HashSet::new();
+
     let output = std::process::Command::new("df")
-        .arg("-h")
         .output();
     
     if let Ok(out) = output {
@@ -273,25 +404,40 @@ fn get_disk_list() -> Vec<DiskInfo> {
             if parts.len() >= 6 {
                 let filesystem = parts[0];
                 if filesystem.starts_with("/dev/") {
-                    let size = parts[1].to_string();
-                    let used = parts[2].to_string();
-                    let avail = parts[3].to_string();
-                    let pcent_str = parts[4].trim_end_matches('%');
-                    let percent = pcent_str.parse::<f64>().unwrap_or(0.0);
-                    let mount_point = parts[5].to_string();
-                    
-                    list.push(DiskInfo {
-                        filesystem: filesystem.to_string(),
-                        size,
-                        used,
-                        avail,
-                        percent,
-                        mount_point,
-                    });
+                    if !seen_partitions.insert(filesystem.to_string()) {
+                        continue;
+                    }
+
+                    let total_kb = parts[1].parse::<u64>().unwrap_or(0);
+                    let used_kb = parts[2].parse::<u64>().unwrap_or(0);
+                    let avail_kb = parts[3].parse::<u64>().unwrap_or(0);
+
+                    let parent = get_parent_drive(filesystem);
+                    let entry = drive_map.entry(parent).or_insert((0, 0, 0));
+                    entry.0 += total_kb;
+                    entry.1 += used_kb;
+                    entry.2 += avail_kb;
                 }
             }
         }
     }
+
+    let mut list = Vec::new();
+    for (drive, (total, used, avail)) in drive_map {
+        if total > 0 {
+            let percent = (used as f64 / total as f64) * 100.0;
+            list.push(DiskInfo {
+                filesystem: drive.clone(),
+                size: format_size(total),
+                used: format_size(used),
+                avail: format_size(avail),
+                percent,
+                mount_point: drive,
+            });
+        }
+    }
+
+    list.sort_by(|a, b| a.filesystem.cmp(&b.filesystem));
     list
 }
 
@@ -301,7 +447,7 @@ fn create_disk_list_box() -> gtk4::Box {
 
     let title_row = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
     let disk_icon = archvnde_common::icon::get_icon_colored("server", 12, "#10b981");
-    let title_label = gtk4::Label::new(Some("Storage Usage"));
+    let title_label = gtk4::Label::new(Some(&archvnde_common::i18n::t("panel.storage_usage")));
     title_label.add_css_class("control-slider-title");
     
     title_row.append(&disk_icon);
@@ -312,7 +458,7 @@ fn create_disk_list_box() -> gtk4::Box {
     
     let disks = get_disk_list();
     if disks.is_empty() {
-        let no_disks = gtk4::Label::new(Some("No physical storage found"));
+        let no_disks = gtk4::Label::new(Some(&archvnde_common::i18n::t("panel.no_storage")));
         no_disks.add_css_class("tile-subtitle");
         list_container.append(&no_disks);
     } else {
