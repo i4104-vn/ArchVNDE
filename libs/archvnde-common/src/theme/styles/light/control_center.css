@@ -145,7 +145,7 @@ scale trough highlight {
     min-height: 6px;
 }
 
-scale trough slider {
+scale slider {
     min-width: 14px;
     min-height: 14px;
     margin: -4px;
@@ -155,7 +155,7 @@ scale trough slider {
     border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-scale trough slider:hover {
+scale slider:hover {
     box-shadow: none;
     background-color: #f0f4ff;
 }

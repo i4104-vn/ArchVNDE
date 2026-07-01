@@ -181,7 +181,7 @@ scale.media-timeline-scale trough highlight {
     min-height: 4px;
 }
 
-scale.media-timeline-scale trough slider {
+scale.media-timeline-scale slider {
     min-width: 10px;
     min-height: 10px;
     margin: -3px;
@@ -193,7 +193,7 @@ scale.media-timeline-scale trough slider {
     transition: opacity 150ms ease;
 }
 
-scale.media-timeline-scale:hover trough slider {
+scale.media-timeline-scale:hover slider {
     opacity: 1;
 }
 
