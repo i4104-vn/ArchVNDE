@@ -3,15 +3,20 @@ use gtk4_layer_shell::{KeyboardMode, Layer, Edge, LayerShell};
 
 pub fn build_status_indicators_ui() -> (gtk4::Box, gtk4::Button, gtk4::Label) {
     let status_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
-    status_box.add_css_class("indicators-capsule");
+    status_box.add_css_class("status-indicators-box");
 
     let status_button = gtk4::Button::new();
-    status_button.add_css_class("status-btn");
+    status_button.add_css_class("panel-status-btn");
 
     let inner_layout = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
-    let net_icon = archvnde_common::icon::get_icon("network", 14);
+    let net_icon = archvnde_common::icon::get_icon("wifi", 14);
+    net_icon.add_css_class("status-icon");
+    
     let vol_icon = archvnde_common::icon::get_icon("volume", 14);
+    vol_icon.add_css_class("status-icon");
+    
     let bat_icon = archvnde_common::icon::get_icon("battery", 14);
+    bat_icon.add_css_class("status-icon");
 
     inner_layout.append(&net_icon);
     inner_layout.append(&vol_icon);
