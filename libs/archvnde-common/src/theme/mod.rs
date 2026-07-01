@@ -72,15 +72,15 @@ pub fn init_theme() {
 
         // Load correct theme according to GTK dark mode preference
         if let Some(settings) = gtk4::Settings::default() {
-            let is_dark = settings.is_gtk_application_prefer_dark_theme();
+            let is_dark = crate::icon::is_dark_mode();
             let css = if is_dark { DARK_CSS } else { LIGHT_CSS };
             let cleaned_css = css.replace("\r", "");
             provider.load_from_data(&cleaned_css);
 
             // Connect a notify handler to dynamically switch stylesheet contents on-the-fly
             let provider_clone = provider.clone();
-            settings.connect_gtk_application_prefer_dark_theme_notify(move |s| {
-                let is_dark = s.is_gtk_application_prefer_dark_theme();
+            settings.connect_gtk_application_prefer_dark_theme_notify(move |_s| {
+                let is_dark = crate::icon::is_dark_mode();
                 let css = if is_dark { DARK_CSS } else { LIGHT_CSS };
                 let cleaned_css = css.replace("\r", "");
                 provider_clone.load_from_data(&cleaned_css);
