@@ -16,12 +16,7 @@ name = "archvnde-common"
 version = "0.1.0"
 dependencies = [
  "dirs",
- "gdk-pixbuf",
- "gdk4",
- "gio",
- "glib",
  "gtk4",
- "gtk4-layer-shell",
  "serde",
  "toml 0.8.23",
  "tracing",
@@ -37,31 +32,6 @@ dependencies = [
  "gtk4-layer-shell",
  "tokio",
  "tracing",
-]
-
-[[package]]
-name = "archvnde-lock"
-version = "0.1.0"
-dependencies = [
- "archvnde-common",
- "chrono",
- "gio",
- "glib",
- "gtk4",
- "gtk4-layer-shell",
- "libc",
-]
-
-[[package]]
-name = "archvnde-menu"
-version = "0.1.0"
-dependencies = [
- "archvnde-common",
- "archvnde-wallpaper",
- "gio",
- "glib",
- "gtk4",
- "gtk4-layer-shell",
 ]
 
 [[package]]
@@ -83,20 +53,11 @@ version = "0.1.0"
 dependencies = [
  "archvnde-common",
  "chrono",
- "gdk-pixbuf",
- "gdk4",
  "glib",
  "gtk4",
  "gtk4-layer-shell",
  "tokio",
  "tracing",
-]
-
-[[package]]
-name = "archvnde-wallpaper"
-version = "0.1.0"
-dependencies = [
- "dirs",
 ]
 
 [[package]]

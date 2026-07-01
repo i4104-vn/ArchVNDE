@@ -38,103 +38,31 @@ fn attach_unpin_popover(
     popover.set_parent(btn);
     popover.set_has_arrow(true);
 
-    let container_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
-    popover.set_child(Some(&container_box));
-
-    // 1. Main menu view
     let menu_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
     menu_box.add_css_class("dock-menu-box");
 
     let unpin_btn = gtk4::Button::with_label("Unpin from Dock");
     unpin_btn.add_css_class("menu-item-btn");
-    let popover_c = popover.clone();
-    let config_c = config.clone();
-    let app_info_c = app_info.clone();
-    let db_c = dock_box_clone.clone();
+
+    let popover_clone = popover.clone();
+    let config_clone = config.clone();
+    let app_info_clone = app_info.clone();
+    let dock_box_clone2 = dock_box_clone.clone();
     unpin_btn.connect_clicked(move |_| {
-        popover_c.popdown();
-        let mut cfg = config_c.borrow_mut();
-        cfg.pinned_apps.retain(|a| a.command != app_info_c.command);
+        popover_clone.popdown();
+        let mut cfg = config_clone.borrow_mut();
+        cfg.pinned_apps.retain(|a| a.command != app_info_clone.command);
         let _ = save_dock_config(&cfg);
-        rebuild_dock_content(&db_c, config_c.clone());
+        
+        rebuild_dock_content(&dock_box_clone2, config_clone.clone());
     });
+
     menu_box.append(&unpin_btn);
+    popover.set_child(Some(&menu_box));
 
-    let change_icon_btn = gtk4::Button::with_label("Change Icon...");
-    change_icon_btn.add_css_class("menu-item-btn");
-    menu_box.append(&change_icon_btn);
-
-    container_box.append(&menu_box);
-
-    // 2. Edit View
-    let edit_box = gtk4::Box::new(gtk4::Orientation::Vertical, 6);
-    edit_box.add_css_class("dock-edit-popover");
-
-    let edit_label = gtk4::Label::new(Some("Icon Name or Path:"));
-    edit_label.add_css_class("dock-edit-label");
-    edit_label.set_halign(gtk4::Align::Start);
-    edit_box.append(&edit_label);
-
-    let entry = gtk4::Entry::new();
-    entry.add_css_class("dock-edit-entry");
-    entry.set_text(&app_info.icon);
-    edit_box.append(&entry);
-
-    let actions_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
-    let cancel_btn = gtk4::Button::with_label("Cancel");
-    cancel_btn.add_css_class("menu-item-btn");
-    let save_btn = gtk4::Button::with_label("Save");
-    save_btn.add_css_class("menu-item-btn");
-    actions_box.append(&cancel_btn);
-    let spacer = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-    spacer.set_hexpand(true);
-    actions_box.append(&spacer);
-    actions_box.append(&save_btn);
-    edit_box.append(&actions_box);
-
-    // Navigation Wiring
-    let container_box_c = container_box.clone();
-    let menu_box_c = menu_box.clone();
-    let edit_box_c = edit_box.clone();
-    change_icon_btn.connect_clicked(move |_| {
-        container_box_c.remove(&menu_box_c);
-        container_box_c.append(&edit_box_c);
-    });
-
-    let popover_c2 = popover.clone();
-    cancel_btn.connect_clicked(move |_| {
-        popover_c2.popdown();
-    });
-
-    let popover_c3 = popover.clone();
-    let config_c3 = config.clone();
-    let app_info_c3 = app_info.clone();
-    let db_c3 = dock_box_clone.clone();
-    save_btn.connect_clicked(move |_| {
-        popover_c3.popdown();
-        let new_icon = entry.text().to_string();
-        let mut cfg = config_c3.borrow_mut();
-        if let Some(app) = cfg.pinned_apps.iter_mut().find(|a| a.command == app_info_c3.command) {
-            app.icon = new_icon;
-            let _ = save_dock_config(&cfg);
-            rebuild_dock_content(&db_c3, config_c3.clone());
-        }
-    });
-
-    // Right Click Controller
     let gesture = gtk4::GestureClick::builder().button(3).build();
     let popover_clone2 = popover.clone();
-    let container_box_c3 = container_box.clone();
-    let menu_box_c3 = menu_box.clone();
-    let edit_box_c3 = edit_box.clone();
     gesture.connect_released(move |_, _, _, _| {
-        // Reset to main menu
-        if edit_box_c3.parent().is_some() {
-            container_box_c3.remove(&edit_box_c3);
-        }
-        if menu_box_c3.parent().is_none() {
-            container_box_c3.append(&menu_box_c3);
-        }
         popover_clone2.popup();
     });
     btn.add_controller(gesture);
@@ -156,139 +84,106 @@ fn create_pin_app_button(
     popover.set_parent(&btn);
     popover.set_has_arrow(true);
 
-    let popover_box = gtk4::Box::new(gtk4::Orientation::Vertical, 6);
-    popover_box.add_css_class("dock-pin-popover-box");
-    popover_box.set_size_request(260, 320);
+    let menu_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
+    menu_box.add_css_class("dock-menu-box");
 
-    let search_entry = gtk4::Entry::new();
-    search_entry.set_placeholder_text(Some("Search system apps..."));
-    search_entry.add_css_class("dock-pin-search");
+    let available_apps = vec![
+        PinnedApp {
+            name: "Terminal (Foot)".to_string(),
+            icon: "terminal".to_string(),
+            command: "foot".to_string(),
+            args: vec![],
+        },
+        PinnedApp {
+            name: "Terminal (Alacritty)".to_string(),
+            icon: "terminal".to_string(),
+            command: "alacritty".to_string(),
+            args: vec![],
+        },
+        PinnedApp {
+            name: "Files (PCManFM)".to_string(),
+            icon: "folder".to_string(),
+            command: "pcmanfm".to_string(),
+            args: vec![],
+        },
+        PinnedApp {
+            name: "Files (Thunar)".to_string(),
+            icon: "folder".to_string(),
+            command: "thunar".to_string(),
+            args: vec![],
+        },
+        PinnedApp {
+            name: "Web Browser (Firefox)".to_string(),
+            icon: "search".to_string(),
+            command: "firefox".to_string(),
+            args: vec![],
+        },
+        PinnedApp {
+            name: "Web Browser (Chromium)".to_string(),
+            icon: "search".to_string(),
+            command: "chromium".to_string(),
+            args: vec![],
+        },
+        PinnedApp {
+            name: "Music Player (Amberol)".to_string(),
+            icon: "music".to_string(),
+            command: "amberol".to_string(),
+            args: vec![],
+        },
+        PinnedApp {
+            name: "System Settings".to_string(),
+            icon: "settings".to_string(),
+            command: "gnome-control-center".to_string(),
+            args: vec![],
+        },
+    ];
 
-<<<<<<< HEAD:crates/archvnde-dock/src/ui.rs
     let popover_clone = popover.clone();
     let config_clone = config.clone();
     let dock_box_clone = dock_box.clone();
+    let menu_box_clone = menu_box.clone();
 
     btn.connect_clicked(move |_| {
         // Clear old menu items
-        while let Some(child) = menu_box.first_child() {
-            menu_box.remove(&child);
+        while let Some(child) = menu_box_clone.first_child() {
+            menu_box_clone.remove(&child);
         }
-=======
-    let scrolled = gtk4::ScrolledWindow::new();
-    scrolled.set_vexpand(true);
 
-    let list_box = gtk4::ListBox::new();
-    list_box.add_css_class("dock-pin-list");
-    scrolled.set_child(Some(&list_box));
->>>>>>> 9861cf1 (refactor: restructure workspace directories, modularize widgets, and implement macOS dock and Win11 launcher):crates/archvnde-dock/src/widgets/popovers.rs
+        let current_pinned_commands: Vec<String> = config_clone.borrow().pinned_apps.iter().map(|a| a.command.clone()).collect();
+        let mut count = 0;
 
-    popover_box.append(&search_entry);
-    popover_box.append(&scrolled);
-    popover.set_child(Some(&popover_box));
-
-    let all_apps = archvnde_common::desktop::find_desktop_apps();
-
-    let populate_list = {
-        let list_box = list_box.clone();
-        let config_clone = config.clone();
-        let dock_box_clone = dock_box.clone();
-        let popover_clone = popover.clone();
-        move |query: &str| {
-            while let Some(child) = list_box.first_child() {
-                list_box.remove(&child);
-            }
-
-            let current_pinned_commands: Vec<String> = config_clone
-                .borrow()
-                .pinned_apps
-                .iter()
-                .map(|a| a.command.clone())
-                .collect();
-
-            let query_lower = query.to_lowercase();
-            let mut count = 0;
-            for app in &all_apps {
-                if current_pinned_commands.contains(&app.exec) {
-                    continue;
-                }
-                if !query_lower.is_empty() && !app.name.to_lowercase().contains(&query_lower) {
-                    continue;
-                }
-
-                let row_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
-                row_box.set_margin_start(4);
-                row_box.set_margin_end(4);
-                row_box.set_margin_top(4);
-                row_box.set_margin_bottom(4);
-
-                let icon = archvnde_common::icon::get_system_or_file_icon(
-                    app.icon.as_deref().unwrap_or(""),
-                    "application-x-executable",
-                );
-                icon.set_pixel_size(24);
-
-                let label = gtk4::Label::new(Some(&app.name));
-                label.set_ellipsize(gtk4::pango::EllipsizeMode::End);
-
-                row_box.append(&icon);
-                row_box.append(&label);
-
-                let row_btn = gtk4::Button::new();
-                row_btn.add_css_class("menu-item-btn");
-                row_btn.set_child(Some(&row_box));
-
-                let pop_c = popover_clone.clone();
-                let cfg_c = config_clone.clone();
-                let db_c = dock_box_clone.clone();
-                let app_c = app.clone();
-
-                row_btn.connect_clicked(move |_| {
-                    pop_c.popdown();
-                    let mut cfg = cfg_c.borrow_mut();
-                    cfg.pinned_apps.push(archvnde_common::models::PinnedApp {
-                        name: app_c.name.clone(),
-                        icon: app_c.icon.clone().unwrap_or_else(|| "application-x-executable".to_string()),
-                        command: app_c.exec.clone(),
-                        args: vec![],
-                    });
+        for app in &available_apps {
+            if !current_pinned_commands.contains(&app.command) {
+                let app_btn = gtk4::Button::with_label(&app.name);
+                app_btn.add_css_class("menu-item-btn");
+                
+                let pop_clone = popover_clone.clone();
+                let cfg_clone = config_clone.clone();
+                let db_clone = dock_box_clone.clone();
+                let app_clone = app.clone();
+                app_btn.connect_clicked(move |_| {
+                    pop_clone.popdown();
+                    let mut cfg = cfg_clone.borrow_mut();
+                    cfg.pinned_apps.push(app_clone.clone());
                     let _ = save_dock_config(&cfg);
-                    rebuild_dock_content(&db_c, cfg_c.clone());
-                });
-<<<<<<< HEAD:crates/archvnde-dock/src/ui.rs
-                menu_box.append(&app_btn);
-=======
 
-                list_box.append(&row_btn);
->>>>>>> 9861cf1 (refactor: restructure workspace directories, modularize widgets, and implement macOS dock and Win11 launcher):crates/archvnde-dock/src/widgets/popovers.rs
+                    rebuild_dock_content(&db_clone, cfg_clone.clone());
+                });
+                menu_box_clone.append(&app_btn);
                 count += 1;
             }
+        }
 
-<<<<<<< HEAD:crates/archvnde-dock/src/ui.rs
         if count == 0 {
             let label = gtk4::Label::new(Some("All apps pinned"));
             label.add_css_class("menu-item-btn");
-            menu_box.append(&label);
-=======
-            if count == 0 {
-                let label = gtk4::Label::new(Some("No applications found"));
-                label.add_css_class("menu-item-btn");
-                list_box.append(&label);
-            }
->>>>>>> 9861cf1 (refactor: restructure workspace directories, modularize widgets, and implement macOS dock and Win11 launcher):crates/archvnde-dock/src/widgets/popovers.rs
+            menu_box_clone.append(&label);
         }
-    };
 
-    populate_list("");
-
-    let populate_clone = populate_list.clone();
-    search_entry.connect_changed(move |entry| {
-        populate_clone(&entry.text());
+        popover_clone.popup();
     });
 
-    btn.connect_clicked(move |_| {
-        popover.popup();
-    });
+    popover.set_child(Some(&menu_box));
 
     btn
 }

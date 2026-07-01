@@ -1,6 +1,6 @@
 use crate::core::{find_desktop_apps, DesktopApp};
 use gtk4::prelude::*;
-use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
+use gtk4_layer_shell::{Edge, KeyboardInteractivity, Layer, LayerShell};
 use std::process::Command;
 use std::rc::Rc;
 
@@ -9,7 +9,7 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     let window = gtk4::ApplicationWindow::new(app);
     window.init_layer_shell();
     window.set_layer(Layer::Overlay);
-    window.set_keyboard_mode(KeyboardMode::Exclusive);
+    window.set_keyboard_mode(KeyboardInteractivity::Exclusive);
 
     // Center on screen
     window.set_anchor(Edge::Top, false);
@@ -21,7 +21,6 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     window.add_css_class("launcher-window");
 
     let box_layout = gtk4::Box::new(gtk4::Orientation::Vertical, 15);
-    box_layout.add_css_class("launcher-box");
     box_layout.set_margin_start(20);
     box_layout.set_margin_end(20);
     box_layout.set_margin_top(20);
@@ -124,11 +123,11 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     let key_controller = gtk4::EventControllerKey::new();
     let win_clone = window.clone();
     key_controller.connect_key_pressed(move |_, key, _, _| {
-        if key == gtk4::gdk::Key::Escape {
+        if key == gdk4::Key::Escape {
             win_clone.close();
-            gtk4::glib::Propagation::Proceed
+            glib::Propagation::Proceed
         } else {
-            gtk4::glib::Propagation::Stop
+            glib::Propagation::Stop
         }
     });
     window.add_controller(key_controller);
@@ -137,9 +136,6 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     box_layout.append(&search_entry);
     box_layout.append(&scrolled_window);
     window.set_child(Some(&box_layout));
-
-    // Animate inner layout
-    archvnde_animation::slide_in(box_layout.upcast_ref(), archvnde_animation::SlideDirection::Down, 12, 240);
 
     window
 }

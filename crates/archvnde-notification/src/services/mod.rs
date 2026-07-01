@@ -14,7 +14,7 @@ pub enum NotificationMsg {
 }
 
 pub struct NotificationService {
-    sender: glib::Sender<NotificationMsg>,
+    sender: tokio::sync::mpsc::UnboundedSender<NotificationMsg>,
     current_id: std::sync::atomic::AtomicU32,
 }
 
@@ -63,7 +63,7 @@ impl NotificationService {
 }
 
 /// Spawns a background thread running Tokio to serve the org.freedesktop.Notifications DBus daemon.
-pub fn spawn_dbus_listener(tx: glib::Sender<NotificationMsg>) {
+pub fn spawn_dbus_listener(tx: tokio::sync::mpsc::UnboundedSender<NotificationMsg>) {
     thread::spawn(move || {
         let rt = tokio::runtime::Runtime::new().unwrap();
         rt.block_on(async {

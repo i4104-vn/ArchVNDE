@@ -29,7 +29,10 @@ impl NotificationWindow {
         window.add_css_class("notification-card");
 
         let box_layout = gtk4::Box::new(gtk4::Orientation::Horizontal, 12);
-        box_layout.set_margin_all(12);
+        box_layout.set_margin_start(12);
+        box_layout.set_margin_end(12);
+        box_layout.set_margin_top(12);
+        box_layout.set_margin_bottom(12);
 
         // Icon display
         let icon_widget = gtk4::Image::from_icon_name("dialog-information");
@@ -52,7 +55,7 @@ impl NotificationWindow {
         box_layout.append(&text_box);
 
         window.set_child(Some(&box_layout));
-        window.hide();
+        window.set_visible(false);
 
         Self {
             window,
@@ -72,10 +75,10 @@ impl NotificationWindow {
             if icon.starts_with('/') {
                 self.icon_widget.set_from_file(Some(icon));
             } else {
-                self.icon_widget.set_from_icon_name(Some(icon));
+                self.icon_widget.set_icon_name(Some(icon));
             }
         } else {
-            self.icon_widget.set_from_icon_name(Some("dialog-information"));
+            self.icon_widget.set_icon_name(Some("dialog-information"));
         }
     }
 
@@ -86,6 +89,6 @@ impl NotificationWindow {
 
     /// Hides the notification overlay window.
     pub fn hide(&self) {
-        self.window.hide();
+        self.window.set_visible(false);
     }
 }

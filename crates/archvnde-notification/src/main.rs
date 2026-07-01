@@ -9,8 +9,9 @@ use ui::NotificationWindow;
 fn main() {
     println!("Starting ArchVNDE Notification Daemon...");
 
-    // Create a thread-safe GLib channel to send messages from D-Bus thread to GTK thread
-    let (tx, rx) = glib::MainContext::channel::<NotificationMsg>(glib::Priority::default());
+    // Create a thread-safe tokio channel to send messages from D-Bus thread to GTK thread
+    let (tx, rx) = tokio::sync::mpsc::unbounded_channel::<NotificationMsg>();
+    let rx_cell = Rc::new(std::cell::RefCell::new(Some(rx)));
 
     // Spawn the D-Bus daemon thread (from services module)
     spawn_dbus_listener(tx);
@@ -20,6 +21,7 @@ fn main() {
         Default::default(),
     );
 
+    let rx_clone = rx_cell.clone();
     application.connect_activate(move |app| {
         // Initialize style provider
         archvnde_common::init_theme();
@@ -29,44 +31,47 @@ fn main() {
 
         // Connect the message receiver from DBus
         let nw_clone = notif_window.clone();
-        rx.attach(None, move |msg| {
-            match msg {
-                NotificationMsg::New { summary, body, icon, timeout } => {
-                    // Update card layout
-                    nw_clone.update(&summary, &body, &icon);
-                    
-                    // Display overlay card
-                    nw_clone.show();
+        if let Some(mut rx) = rx_clone.borrow_mut().take() {
+            glib::MainContext::default().spawn_local(async move {
+                while let Some(msg) = rx.recv().await {
+                    match msg {
+                        NotificationMsg::New { summary, body, icon, timeout } => {
+                            // Update card layout
+                            nw_clone.update(&summary, &body, &icon);
+                            
+                            // Display overlay card
+                            nw_clone.show();
 
-                    // Cancel existing timer if any (debounce multiple notifications)
-                    if let Some(src_id) = nw_clone.active_timer.borrow_mut().take() {
-                        src_id.remove();
-                    }
+                            // Cancel existing timer if any (debounce multiple notifications)
+                            if let Some(src_id) = nw_clone.active_timer.borrow_mut().take() {
+                                src_id.remove();
+                            }
 
-                    // Calculate timeout duration (default to 5000ms if not specified or negative)
-                    let duration_ms = if timeout > 0 { timeout as u64 } else { 5000 };
+                            // Calculate timeout duration (default to 5000ms if not specified or negative)
+                            let duration_ms = if timeout > 0 { timeout as u64 } else { 5000 };
 
-                    // Start a new hide timer
-                    let nw_hide = nw_clone.clone();
-                    let new_src_id = glib::timeout_add_local(
-                        std::time::Duration::from_millis(duration_ms),
-                        move || {
-                            nw_hide.hide();
-                            *nw_hide.active_timer.borrow_mut() = None;
-                            glib::ControlFlow::Break
+                            // Start a new hide timer
+                            let nw_hide = nw_clone.clone();
+                            let new_src_id = glib::timeout_add_local(
+                                std::time::Duration::from_millis(duration_ms),
+                                move || {
+                                    nw_hide.hide();
+                                    *nw_hide.active_timer.borrow_mut() = None;
+                                    glib::ControlFlow::Break
+                                }
+                            );
+                            *nw_clone.active_timer.borrow_mut() = Some(new_src_id);
                         }
-                    );
-                    *nw_clone.active_timer.borrow_mut() = Some(new_src_id);
-                }
-                NotificationMsg::Close => {
-                    nw_clone.hide();
-                    if let Some(src_id) = nw_clone.active_timer.borrow_mut().take() {
-                        src_id.remove();
+                        NotificationMsg::Close => {
+                            nw_clone.hide();
+                            if let Some(src_id) = nw_clone.active_timer.borrow_mut().take() {
+                                src_id.remove();
+                            }
+                        }
                     }
                 }
-            }
-            glib::ControlFlow::Continue
-        });
+            });
+        }
     });
 
     application.run();

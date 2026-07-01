@@ -2,6 +2,7 @@
 
 # Ensure local bin is in PATH
 export PATH="$HOME/.local/bin:$PATH"
+export GSK_RENDERER=cairo
 
 # Write config files for labwc
 mkdir -p "$HOME/.config/labwc"
@@ -18,10 +19,6 @@ killall mako || true
 killall fnott || true
 killall xfce4-notifyd || true 
 
-# Copy wallpaper to standard config dir
-mkdir -p "$HOME/.config/archvnde"
-cp wallpaper.png "$HOME/.config/archvnde/wallpaper.png"
-
 # Setup default autostart
 cat << 'EOF' > "$AUTOSTART_FILE"
 #!/bin/bash
@@ -32,7 +29,7 @@ awww-daemon &
 sleep 0.5
 
 # Set the default wallpaper
-awww img "$HOME/.config/archvnde/wallpaper.png" &
+awww img wallpaper.png &
 
 # Start ArchVNDE status panel
 archvnde-panel &
@@ -48,11 +45,7 @@ cat << 'EOF' > "$RC_FILE"
     <default />
     <!-- Override Alt-Tab with custom archvnde-switcher -->
     <keybind key="A-Tab">
-      <action name="Execute" command="archvnde-switcher" />
-    </keybind>
-    <!-- Lock screen with Win+L -->
-    <keybind key="W-l">
-      <action name="Execute" command="~/.local/bin/archvnde-lock" />
+      <action name="Execute" command="~/.local/bin/archvnde-switcher" />
     </keybind>
   </keyboard>
   <mouse>
@@ -60,7 +53,7 @@ cat << 'EOF' > "$RC_FILE"
     <!-- Custom context menu for desktop right-click -->
     <context name="Root">
       <mousebind button="Right" action="Press">
-        <action name="Execute" command="archvnde-menu" />
+        <action name="Execute" command="~/.local/bin/archvnde-menu" />
       </mousebind>
     </context>
   </mouse>
