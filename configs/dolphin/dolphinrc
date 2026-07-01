@@ -1,30 +1,28 @@
 [General]
-# Open folders in new tabs instead of new windows
 BrowseThroughArchives=true
 ConfirmClosingMultipleTabs=true
 EditableUrl=false
 GlobalViewProps=false
-HomeUrl=file:///home/
+HomeUrl=computer:/
 RememberOpenedTabs=true
 ShowFullPath=false
-ShowSpaceInfo=true
-ShowZoomSlider=true
+ShowSpaceInfo=false
+ShowZoomSlider=false
 SortingChoice=0
 UseTabForSwitchingSplitView=false
 Version=202
-ViewPropsTimestamp=2026,6,30,0,0,0
+ViewPropsTimestamp=2026,7,1,0,0,0
 
 [KFileDialog Settings]
-Speedbar Width=140
+Speedbar Width=188
 
 [MainWindow]
-# Compact toolbar — no text labels, icon-only
 MenuBar=Disabled
 StatusBar=Enabled
 ToolBar=Enabled
 
 [PlacesPanel]
-IconSize=16
+IconSize=22
 
 [Search]
 Location=0
@@ -32,10 +30,9 @@ SearchFrom=0
 UseIndexing=false
 
 [View]
-# Start with icon view, medium icon size, show hidden files toggle off
 DirectorySorting=0
 HiddenFilesShown=false
-IconSize=48
+IconSize=64
 SortFoldersFirst=true
 UseHeaderColumns=false
 ViewMode=0
@@ -44,5 +41,5 @@ ViewMode=0
 EnabledPlugins=
 
 [Toolbar]
-# Icon-only toolbar for clean look
+IconSize=24
 ToolButtonStyle=0
