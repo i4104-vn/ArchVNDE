@@ -1,6 +1,5 @@
 use gdk4::Texture;
 use gdk_pixbuf::Pixbuf;
-use gio::prelude::*;
 
 pub const WIFI_SVG: &str = include_str!("assets/wifi.svg");
 pub const BLUETOOTH_SVG: &str = include_str!("assets/bluetooth.svg");
@@ -70,21 +69,6 @@ pub fn get_icon_from_svg(svg_content: &str, size: i32) -> gtk4::Image {
 
 /// Robust helper to determine whether dark mode is currently active system-wide.
 pub fn is_dark_mode() -> bool {
-    let res = std::panic::catch_unwind(|| {
-        let settings = gio::Settings::new("org.gnome.desktop.interface");
-        let scheme = settings.string("color-scheme");
-        scheme.as_str().to_string()
-    });
-
-    if let Ok(scheme) = res {
-        if scheme == "prefer-dark" {
-            return true;
-        }
-        if scheme == "prefer-light" {
-            return false;
-        }
-    }
-    
     if let Some(settings) = gtk4::Settings::default() {
         settings.is_gtk_application_prefer_dark_theme()
     } else {
