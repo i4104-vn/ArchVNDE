@@ -115,19 +115,29 @@ pub fn spawn_dbus_listener(tx: tokio::sync::mpsc::UnboundedSender<NotificationMs
                 current_id: std::sync::atomic::AtomicU32::new(1),
             };
             println!("Requesting org.freedesktop.Notifications DBus name...");
-            match zbus::connection::Builder::session()
-                .unwrap()
-                .name("org.freedesktop.Notifications")
+            let conn_result = zbus::connection::Builder::session()
                 .unwrap()
                 .serve_at("/org/freedesktop/Notifications", service)
                 .unwrap()
                 .build()
-                .await
-            {
-                Ok(_conn) => {
-                    println!("Notification D-Bus daemon started successfully. Listening for incoming notifications.");
-                    loop {
-                        tokio::time::sleep(tokio::time::Duration::from_secs(3600)).await;
+                .await;
+
+            match conn_result {
+                Ok(conn) => {
+                    use zbus::fdo::RequestNameFlags;
+                    match conn.request_name_with_flags(
+                        "org.freedesktop.Notifications",
+                        RequestNameFlags::ReplaceExisting | RequestNameFlags::DoNotQueue,
+                    ).await {
+                        Ok(_) => {
+                            println!("Notification D-Bus daemon started successfully. Listening for incoming notifications.");
+                            loop {
+                                tokio::time::sleep(tokio::time::Duration::from_secs(3600)).await;
+                            }
+                        }
+                        Err(e) => {
+                            eprintln!("Failed to acquire notifications DBus name: {}", e);
+                        }
                     }
                 }
                 Err(e) => {
