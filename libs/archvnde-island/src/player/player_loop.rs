@@ -1,3 +1,6 @@
+//! Background scheduling loop managing the Dynamic Island transitions.
+//! Handles switching between playerctl metadata updates and DBus notifications.
+
 use gtk4::prelude::*;
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;

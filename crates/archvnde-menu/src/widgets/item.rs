@@ -1,7 +1,11 @@
+//! UI helper functions to build individual context menu rows.
+
 use gtk4::prelude::*;
 use std::rc::Rc;
 use super::close_menu_animated;
 
+/// Adds a standard hoverable button option row inside the menu container.
+/// Automatically executes the assigned callback after closing the window.
 pub fn add_menu_item(
     window: &gtk4::ApplicationWindow,
     menu_box: &gtk4::Box,
@@ -33,3 +37,4 @@ pub fn add_menu_item(
 
     menu_box.append(&btn);
 }
+

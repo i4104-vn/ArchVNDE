@@ -1,6 +1,9 @@
+//! Directional slide-in / slide-out widget animations.
+
 use gtk4::prelude::*;
 use super::easing;
 
+/// Direction axis for a slide transition.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SlideDirection {
     Down,

@@ -1,5 +1,10 @@
+//! Positioning logic for the context menu window layout.
+
 use gtk4::prelude::*;
 
+/// Places the context menu widget box at the cursor coordinates (x, y).
+/// Adjusts the placement to prevent the menu from clipping outside screen bounds,
+/// and applies a genie slide-in entrance animation.
 pub fn position_and_animate_menu(
     x: f64,
     y: f64,
@@ -65,3 +70,4 @@ pub fn position_and_animate_menu(
         180,
     );
 }
+
