@@ -11,7 +11,16 @@ gtk4 = { version = "0.9", features = ["v4_10"] }
 gtk4-layer-shell = "0.4.0"
 glib = "0.20"
 gio = "0.20"
+<<<<<<< HEAD:crates/archvnde-lock/Cargo.toml
 
 # Systems dependencies
 libc = "0.2"
 chrono = "0.4"
+=======
+dirs = "5.0"
+<<<<<<< HEAD:crates/archvnde-lock/Cargo.toml
+gdk4 = { version = "0.9" }
+gdk-pixbuf = { version = "0.20" }
+>>>>>>> e7c5345 (feat(switcher): add screenshot caching for active windows with 5s delay and display previews in switcher):crates/archvnde-switcher/Cargo.toml
+=======
+>>>>>>> 740ce30 (refactor(switcher): use CSS background-image for screenshot instead of gtk4::Picture):crates/archvnde-switcher/Cargo.toml

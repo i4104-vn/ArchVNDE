@@ -11,6 +11,7 @@ mod widgets;
 
 use apps::{get_running_apps, activate_app};
 use history::save_history;
+use widgets::empty::build_empty_state;
 use widgets::list::build_apps_list;
 
 fn handle_single_instance() -> bool {
@@ -30,12 +31,6 @@ fn main() {
         return;
     }
 
-    // Check if there are running apps. If not, exit immediately.
-    let apps = get_running_apps();
-    if apps.is_empty() {
-        return;
-    }
-
     println!("Starting ArchVNDE Alt-Tab Switcher...");
 
     let application = gtk4::Application::new(
@@ -43,9 +38,7 @@ fn main() {
         Default::default(),
     );
 
-    let apps_clone = apps.clone();
-    application.connect_activate(move |app| {
-        let apps = apps_clone.clone();
+    application.connect_activate(|app| {
         archvnde_common::init_theme();
 
         let window = gtk4::ApplicationWindow::new(app);
@@ -64,6 +57,13 @@ fn main() {
         main_box.add_css_class("switcher-box");
         main_box.set_valign(gtk4::Align::Center);
         main_box.set_halign(gtk4::Align::Fill);
+
+        let apps = get_running_apps();
+
+        if apps.is_empty() {
+            build_empty_state(&main_box, &window);
+            return;
+        }
 
         let (icons_row, item_buttons) = build_apps_list(&apps);
         main_box.append(&icons_row);
@@ -102,12 +102,10 @@ fn main() {
             let apps_click = apps.clone();
             btn.connect_clicked(move |_| {
                 update_sel(i);
-                let app_item = apps_click[i].clone();
+                let app_item = &apps_click[i];
                 save_history(&app_item.name);
+                activate_app(app_item);
                 window_close.close();
-                gtk4::glib::timeout_add_local_once(std::time::Duration::from_millis(50), move || {
-                    activate_app(&app_item);
-                });
             });
         }
 
@@ -163,13 +161,11 @@ fn main() {
                     gtk4::glib::Propagation::Stop
                 }
                 gtk4::gdk::Key::Return | gtk4::gdk::Key::space => {
-                    let app_item = apps_key[idx].clone();
+                    let app_item = &apps_key[idx];
                     println!("Selected App: {}", app_item.name);
                     save_history(&app_item.name);
+                    activate_app(app_item);
                     window_close.close();
-                    gtk4::glib::timeout_add_local_once(std::time::Duration::from_millis(50), move || {
-                        activate_app(&app_item);
-                    });
                     gtk4::glib::Propagation::Stop
                 }
                 gtk4::gdk::Key::Escape => {
@@ -180,69 +176,23 @@ fn main() {
             }
         });
 
+        // Activate and close on Alt release
         let current_idx_release = current_index.clone();
         let apps_release = apps.clone();
         let window_release = window.clone();
         key_controller.connect_key_released(move |_, key, _, _| {
             match key {
-                gtk4::gdk::Key::Alt_L | gtk4::gdk::Key::Alt_R |
-                gtk4::gdk::Key::Meta_L | gtk4::gdk::Key::Meta_R => {
+                gtk4::gdk::Key::Alt_L | gtk4::gdk::Key::Alt_R => {
                     let idx = *current_idx_release.borrow();
                     if idx < apps_release.len() {
-                        let app_item = apps_release[idx].clone();
+                        let app_item = &apps_release[idx];
                         println!("Alt released. Activating: {}", app_item.name);
                         save_history(&app_item.name);
-                        window_release.close();
-                        gtk4::glib::timeout_add_local_once(std::time::Duration::from_millis(50), move || {
-                            activate_app(&app_item);
-                        });
-                    } else {
-                        window_release.close();
+                        activate_app(app_item);
                     }
+                    window_release.close();
                 }
                 _ => {}
-            }
-        });
-
-        // Check if Alt is already released when the window becomes active (e.g. quick tap of Alt-Tab)
-        let current_idx_active = current_index.clone();
-        let apps_active = apps.clone();
-        let window_active = window.clone();
-        window.connect_is_active_notify(move |win| {
-            if win.is_active() {
-                let has_alt = {
-                    if let Some(display) = gtk4::gdk::Display::default() {
-                        if let Some(seat) = display.default_seat() {
-                            if let Some(keyboard) = seat.keyboard() {
-                                let mods = keyboard.modifier_state();
-                                mods.contains(gtk4::gdk::ModifierType::ALT_MASK) ||
-                                mods.contains(gtk4::gdk::ModifierType::META_MASK)
-                            } else {
-                                true
-                            }
-                        } else {
-                            true
-                        }
-                    } else {
-                        true
-                    }
-                };
-
-                if !has_alt {
-                    let idx = *current_idx_active.borrow();
-                    let target_idx = if idx == 0 { initial_idx } else { idx };
-                    if target_idx < apps_active.len() {
-                        let app_item = apps_active[target_idx].clone();
-                        println!("Alt already released on startup. Activating: {}", app_item.name);
-                        save_history(&app_item.name);
-                        window_active.close();
-                        gtk4::glib::timeout_add_local_once(std::time::Duration::from_millis(50), move || {
-                            activate_app(&app_item);
-                        });
-                    } else {
-                        window_active.close();
-                    }
-                }
             }
         });
 

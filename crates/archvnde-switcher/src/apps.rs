@@ -6,102 +6,48 @@ pub fn get_running_apps() -> Vec<DesktopApp> {
     let mut running = Vec::new();
     let mut detected_names = std::collections::HashSet::new();
 
-    // 1. Get running app_ids and titles from `wlrctl toplevel list` (retain original casing!)
-    let mut running_windows = Vec::new();
-    if let Ok(output) = std::process::Command::new("wlrctl").args(&["toplevel", "list"]).output() {
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        for line in stdout.lines() {
-            if let Some(pos) = line.find(':') {
-                let app_id = line[..pos].trim().to_string();
-                let title = line[pos + 1..].trim().to_string();
-                if !app_id.is_empty() {
-                    running_windows.push((app_id, title));
+    // 1. Get all running process names from /proc
+    let mut running_processes = std::collections::HashSet::new();
+    if let Ok(entries) = std::fs::read_dir("/proc") {
+        for entry in entries.flatten() {
+            if let Ok(metadata) = entry.metadata() {
+                if metadata.is_dir() {
+                    let name = entry.file_name();
+                    let name_str = name.to_string_lossy();
+                    if name_str.chars().all(|c| c.is_ascii_digit()) {
+                        let comm_path = entry.path().join("comm");
+                        if let Ok(comm) = std::fs::read_to_string(comm_path) {
+                            let process_name = comm.trim().to_lowercase();
+                            if !process_name.is_empty() {
+                                running_processes.insert(process_name);
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 
-    // 2. Match running windows with desktop entries
-    for (app_id, title) in running_windows {
-        let app_id_lower = app_id.to_lowercase();
-        let title_lower = title.to_lowercase();
-        let mut matched_app = None;
+    // 2. Match running processes with desktop entries
+    for app in desktop_apps {
+        let exec_parts: Vec<&str> = app.exec.split_whitespace().collect();
+        if exec_parts.is_empty() {
+            continue;
+        }
+        let exec_path = std::path::Path::new(exec_parts[0]);
+        let exec_name = exec_path.file_name()
+            .map(|f| f.to_string_lossy().to_lowercase())
+            .unwrap_or_default();
 
-        // Pass 1: Try to match app_id with executable name or desktop file name or app name
-        for app in &desktop_apps {
-            let exec_parts: Vec<&str> = app.exec.split_whitespace().collect();
-            if exec_parts.is_empty() {
-                continue;
-            }
-            let exec_path = std::path::Path::new(exec_parts[0]);
-            let exec_name = exec_path.file_name()
-                .map(|f| f.to_string_lossy().to_lowercase())
-                .unwrap_or_default();
-
-            if exec_name == app_id_lower || app.name.to_lowercase() == app_id_lower {
-                matched_app = Some(app.clone());
-                break;
-            }
+        if exec_name.is_empty() {
+            continue;
         }
 
-        // Pass 2: If no match, try substring matching
-        if matched_app.is_none() {
-            for app in &desktop_apps {
-                let exec_parts: Vec<&str> = app.exec.split_whitespace().collect();
-                if exec_parts.is_empty() {
-                    continue;
-                }
-                let exec_path = std::path::Path::new(exec_parts[0]);
-                let exec_name = exec_path.file_name()
-                    .map(|f| f.to_string_lossy().to_lowercase())
-                    .unwrap_or_default();
-
-                if app_id_lower.contains(&exec_name) || exec_name.contains(&app_id_lower) || 
-                   title_lower.contains(&app.name.to_lowercase()) || app.name.to_lowercase().contains(&app_id_lower) {
-                    matched_app = Some(app.clone());
-                    break;
-                }
-            }
-        }
-
-        // Special fallback for well-known apps (like Navigator -> Firefox)
-        if matched_app.is_none() && (app_id_lower == "navigator" || title_lower.contains("firefox")) {
-            for app in &desktop_apps {
-                if app.name.to_lowercase().contains("firefox") {
-                    matched_app = Some(app.clone());
-                    break;
-                }
-            }
-        }
-
-        if let Some(mut app) = matched_app {
-            app.app_id = Some(app_id.clone()); // Store original case
-            app.window_title = Some(title.clone()); // Store original case
-            let app_key = app.name.clone();
+        if running_processes.contains(&exec_name) {
+            let app_key = exec_name.clone();
             if !detected_names.contains(&app_key) {
                 detected_names.insert(app_key);
                 running.push(app);
-            }
-        } else {
-            // If still no desktop file found, construct a placeholder app so it still shows in Alt-Tab!
-            let app_key = app_id.clone();
-            if !detected_names.contains(&app_key) {
-                detected_names.insert(app_key.clone());
-                
-                // Capitalize app_id for displaying name
-                let mut chars = app_id.chars();
-                let display_name = match chars.next() {
-                    None => String::new(),
-                    Some(f) => f.to_uppercase().collect::<String>() + chars.as_str(),
-                };
-                
-                running.push(DesktopApp {
-                    name: display_name,
-                    exec: app_id.clone(),
-                    icon: Some(app_id.clone()),
-                    app_id: Some(app_id.clone()),
-                    window_title: Some(title.clone()),
-                });
             }
         }
     }
@@ -118,43 +64,6 @@ pub fn get_running_apps() -> Vec<DesktopApp> {
 }
 
 pub fn activate_app(app: &DesktopApp) {
-    // 1. Try to focus using the exact app_id from Wayland if we captured it
-    if let Some(ref app_id) = app.app_id {
-        println!("Activating by app_id: {}", app_id);
-        let _ = std::process::Command::new("wlrctl")
-            .args(&["toplevel", "focus", app_id])
-            .spawn();
-        let _ = std::process::Command::new("wlrctl")
-            .args(&["toplevel", "focus", &app_id.to_lowercase()])
-            .spawn();
-    }
-
-    // 2. Try to focus using the exact window title from Wayland if we captured it
-    if let Some(ref title) = app.window_title {
-        println!("Activating by window title: {}", title);
-        let _ = std::process::Command::new("wlrctl")
-            .args(&["toplevel", "focus", &format!("title:{}", title)])
-            .spawn();
-        // Also split by common delimiters to try shorter matches
-        if let Some(pos) = title.rfind(" — ") {
-            let short_title = &title[..pos].trim();
-            if !short_title.is_empty() {
-                let _ = std::process::Command::new("wlrctl")
-                    .args(&["toplevel", "focus", &format!("title:{}", short_title)])
-                    .spawn();
-            }
-        }
-        if let Some(pos) = title.rfind(" - ") {
-            let short_title = &title[..pos].trim();
-            if !short_title.is_empty() {
-                let _ = std::process::Command::new("wlrctl")
-                    .args(&["toplevel", "focus", &format!("title:{}", short_title)])
-                    .spawn();
-            }
-        }
-    }
-
-    // Fallbacks: Try generic matching by name and executable name
     let name = &app.name;
     let exec_parts: Vec<&str> = app.exec.split_whitespace().collect();
     let exec_name = if !exec_parts.is_empty() {
@@ -166,7 +75,7 @@ pub fn activate_app(app: &DesktopApp) {
         String::new()
     };
 
-    // Try wlrctl (Wayland wlroots) using app_id/exec_name
+    // Try wlrctl (Wayland wlroots)
     if !exec_name.is_empty() {
         let _ = std::process::Command::new("wlrctl")
             .args(&["toplevel", "focus", &exec_name])
@@ -178,17 +87,6 @@ pub fn activate_app(app: &DesktopApp) {
             .args(&["toplevel", "focus", &format!("title:{}", exec_name)])
             .spawn();
     }
-    
-    // Also try the raw app.exec (covers placeholder app_ids)
-    if !app.exec.is_empty() {
-        let _ = std::process::Command::new("wlrctl")
-            .args(&["toplevel", "focus", &app.exec])
-            .spawn();
-        let _ = std::process::Command::new("wlrctl")
-            .args(&["toplevel", "focus", &app.exec.to_lowercase()])
-            .spawn();
-    }
-
     let _ = std::process::Command::new("wlrctl")
         .args(&["toplevel", "focus", name])
         .spawn();
@@ -198,6 +96,7 @@ pub fn activate_app(app: &DesktopApp) {
     let _ = std::process::Command::new("wlrctl")
         .args(&["toplevel", "focus", &format!("title:{}", name.to_lowercase())])
         .spawn();
+
     // Try wmctrl (X11 / XWayland)
     let _ = std::process::Command::new("wmctrl")
         .args(&["-a", name])
@@ -207,24 +106,4 @@ pub fn activate_app(app: &DesktopApp) {
             .args(&["-a", &exec_name])
             .spawn();
     }
-
-    // Spawn a thread to send a dummy Ctrl press and release to cancel the Alt menu bar trigger
-    std::thread::spawn(|| {
-        std::thread::sleep(std::time::Duration::from_millis(150));
-        let home = std::env::var("HOME").unwrap_or_default();
-        let wtype_path = if !home.is_empty() {
-            let path = format!("{}/.local/bin/wtype", home);
-            if std::path::Path::new(&path).exists() {
-                path
-            } else {
-                "wtype".to_string()
-            }
-        } else {
-            "wtype".to_string()
-        };
-
-        let _ = std::process::Command::new(wtype_path)
-            .args(&["-M", "ctrl", "-m", "ctrl"])
-            .status();
-    });
 }
