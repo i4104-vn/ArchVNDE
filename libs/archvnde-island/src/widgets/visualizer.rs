@@ -1,10 +1,7 @@
-//! Animated wave bars audio visualizer indicator for the media player.
-
 use gtk4::prelude::*;
 use std::cell::Cell;
 use std::rc::Rc;
 
-/// Creates a horizontal box container containing 4 animated visualizer bars.
 pub fn create_visualizer() -> (gtk4::Box, Vec<gtk4::Box>) {
     let visualizer_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 2);
     visualizer_box.add_css_class("notch-visualizer");
@@ -22,7 +19,6 @@ pub fn create_visualizer() -> (gtk4::Box, Vec<gtk4::Box>) {
     (visualizer_box, bars)
 }
 
-/// Registers tick callbacks on visualizer bars to dynamically animate height changes using mixed sine/cosine waves when music is playing.
 pub fn start_visualizer_animation(bars: Vec<gtk4::Box>, is_playing: Rc<Cell<bool>>) {
     if bars.is_empty() {
         return;
@@ -54,4 +50,3 @@ pub fn start_visualizer_animation(bars: Vec<gtk4::Box>, is_playing: Rc<Cell<bool
         glib::ControlFlow::Continue
     });
 }
-

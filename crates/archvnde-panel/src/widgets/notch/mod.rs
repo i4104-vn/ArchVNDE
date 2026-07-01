@@ -7,7 +7,11 @@ use gtk4::prelude::*;
 use std::cell::Cell;
 use std::rc::Rc;
 
+<<<<<<< HEAD:crates/archvnde-panel/src/widgets/notch/mod.rs
 use visualizer::{create_visualizer, start_visualizer_animation};
+=======
+use widgets::visualizer::{create_visualizer, start_visualizer_animation};
+>>>>>>> 4bd7c96 (fix: resolve private struct compile errors and unused imports):libs/archvnde-island/lib.rs
 use player_loop::start_player_polling_loop;
 
 /// Creates the macOS style dropdown notch in the panel center containing a music player.
@@ -107,11 +111,35 @@ pub fn create_system_notch() -> gtk4::Box {
     // Shared state variables
     let is_playing_state = Rc::new(Cell::new(false));
 
+<<<<<<< HEAD:crates/archvnde-panel/src/widgets/notch/mod.rs
     // Start background animation loops
     start_visualizer_animation(bars, is_playing_state.clone());
     start_player_polling_loop(
         is_playing_state.clone(),
         notch_capsule.clone(),
+=======
+    // Spawn DBus listener on startup
+    let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<models::NotificationMsg>();
+    widgets::notification::spawn_dbus_listener(tx);
+
+    glib::MainContext::default().spawn_local(async move {
+        while let Some(msg) = rx.recv().await {
+            match msg {
+                models::NotificationMsg::New { summary, body, icon, timeout } => {
+                    widgets::notification::show_notification_popup(&summary, &body, &icon, timeout);
+                }
+                models::NotificationMsg::Close => {
+                    widgets::notification::close_notification_popup();
+                }
+            }
+        }
+    });
+
+    // Start background animation loops
+    start_visualizer_animation(bars, is_playing_state.clone());
+    let island_widgets = models::IslandWidgets {
+        notch_capsule: notch_capsule.clone(),
+>>>>>>> 4bd7c96 (fix: resolve private struct compile errors and unused imports):libs/archvnde-island/lib.rs
         default_view,
         music_view,
         track_label,

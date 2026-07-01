@@ -12,54 +12,39 @@ dependencies = [
 ]
 
 [[package]]
-name = "archvnde-animation"
-version = "0.1.0"
-dependencies = [
- "glib",
- "gtk4",
-]
-
-[[package]]
 name = "archvnde-common"
 version = "0.1.0"
 dependencies = [
+ "archvnde-i18n",
  "dirs",
+ "gdk-pixbuf",
+ "gdk4",
+ "gio",
+ "glib",
  "gtk4",
+ "gtk4-layer-shell",
  "serde",
  "toml 0.8.23",
  "tracing",
 ]
 
 [[package]]
-name = "archvnde-icon"
+name = "archvnde-i18n"
 version = "0.1.0"
 dependencies = [
+ "dirs",
+ "serde",
+ "toml 0.8.23",
+]
+
+[[package]]
+name = "archvnde-island"
+version = "0.1.0"
+dependencies = [
+ "archvnde-common",
+ "chrono",
  "gdk-pixbuf",
  "gdk4",
- "gio",
- "glib",
- "gtk4",
-]
-
-[[package]]
-name = "archvnde-launcher"
-version = "0.1.0"
-dependencies = [
- "archvnde-animation",
- "archvnde-common",
- "dirs",
- "gtk4",
- "gtk4-layer-shell",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "archvnde-notification"
-version = "0.1.0"
-dependencies = [
- "archvnde-animation",
- "archvnde-common",
  "glib",
  "gtk4",
  "gtk4-layer-shell",
@@ -69,18 +54,83 @@ dependencies = [
 ]
 
 [[package]]
+name = "archvnde-launcher"
+version = "0.1.0"
+dependencies = [
+ "archvnde-common",
+ "dirs",
+ "gtk4",
+ "gtk4-layer-shell",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "archvnde-menu"
+version = "0.1.0"
+dependencies = [
+ "archvnde-common",
+ "archvnde-wallpaper",
+ "gio",
+ "glib",
+ "gtk4",
+ "gtk4-layer-shell",
+]
+
+[[package]]
 name = "archvnde-panel"
 version = "0.1.0"
 dependencies = [
- "archvnde-animation",
  "archvnde-common",
- "archvnde-icon",
+ "archvnde-island",
+ "archvnde-launcher",
+ "archvnde-tray",
  "chrono",
+ "gdk-pixbuf",
+ "gdk4",
  "glib",
  "gtk4",
  "gtk4-layer-shell",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "archvnde-screenshot"
+version = "0.1.0"
+dependencies = [
+ "archvnde-common",
+ "cairo-rs",
+ "chrono",
+ "dirs",
+ "gdk-pixbuf",
+ "gio",
+ "glib",
+ "gtk4",
+ "gtk4-layer-shell",
+]
+
+[[package]]
+name = "archvnde-switcher"
+version = "0.1.0"
+dependencies = [
+ "archvnde-common",
+ "dirs",
+ "gio",
+ "glib",
+ "gtk4",
+ "gtk4-layer-shell",
+]
+
+[[package]]
+name = "archvnde-tray"
+version = "0.1.0"
+dependencies = [
+ "archvnde-common",
+ "dirs",
+ "serde",
+ "tokio",
+ "zbus",
 ]
 
 [[package]]

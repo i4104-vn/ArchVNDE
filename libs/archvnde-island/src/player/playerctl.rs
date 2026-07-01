@@ -1,10 +1,3 @@
-//! Media player status querying helpers.
-//! Commands standard MPRIS active players using the `playerctl` command line utility.
-
-use gdk_pixbuf::prelude::*;
-use gtk4::prelude::*;
-
-/// Launches `playerctl` with the given argument slice, returning stdout as an Option string.
 pub fn run_playerctl(args: &[&str]) -> Option<String> {
     let output = std::process::Command::new("playerctl")
         .args(args)
@@ -19,7 +12,6 @@ pub fn run_playerctl(args: &[&str]) -> Option<String> {
     None
 }
 
-/// Decodes %-encoded (URL-encoded) string characters back into standard text.
 pub fn decode_uri(uri: &str) -> String {
     let mut decoded = String::new();
     let mut chars = uri.chars();
@@ -37,7 +29,6 @@ pub fn decode_uri(uri: &str) -> String {
     decoded
 }
 
-/// Loads local or file:// media album cover art, resizing to fit dimensions.
 pub fn load_album_art(art_url: &str, size: i32) -> Option<gtk4::Widget> {
     if art_url.is_empty() {
         return None;
@@ -49,7 +40,7 @@ pub fn load_album_art(art_url: &str, size: i32) -> Option<gtk4::Widget> {
         art_url.to_string()
     } else {
         return None;
-    } ;
+    };
 
     let pb = gdk_pixbuf::Pixbuf::from_file_at_scale(
         &local_path,
@@ -65,7 +56,9 @@ pub fn load_album_art(art_url: &str, size: i32) -> Option<gtk4::Widget> {
     Some(picture.upcast())
 }
 
-/// Parses and scales raw image data from memory buffers to build an album cover GTK widget.
+use gdk_pixbuf::prelude::*;
+use gtk4::prelude::*;
+
 pub fn load_album_art_from_bytes(bytes: &[u8], size: i32) -> Option<gtk4::Widget> {
     let loader = gdk_pixbuf::PixbufLoader::new();
     loader.write(bytes).ok()?;
@@ -78,6 +71,7 @@ pub fn load_album_art_from_bytes(bytes: &[u8], size: i32) -> Option<gtk4::Widget
         return None;
     }
     
+    // Calculate aspect-ratio preserved dimensions fitting inside `size x size`
     let scale_w = size as f64 / w as f64;
     let scale_h = size as f64 / h as f64;
     let scale = scale_w.min(scale_h);
@@ -93,5 +87,4 @@ pub fn load_album_art_from_bytes(bytes: &[u8], size: i32) -> Option<gtk4::Widget
     picture.set_content_fit(gtk4::ContentFit::Contain);
     Some(picture.upcast())
 }
-
 

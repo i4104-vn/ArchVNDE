@@ -5,10 +5,28 @@ use std::collections::HashMap;
 use std::thread;
 use zbus::interface;
 
-use crate::models::{ActiveNotification, NotificationMsg};
+#[derive(Clone, Debug)]
+pub struct ActiveNotification {
+    pub title: String,
+    pub body: String,
+    pub icon: String,
+    pub timestamp: std::time::Instant,
+}
+
+#[derive(Debug)]
+pub enum NotificationMsg {
+    New {
+        summary: String,
+        body: String,
+        icon: String,
+        timeout: i32,
+    },
+    Close,
+}
 
 thread_local! {
     pub static SHARED_NOTIFICATION: RefCell<Option<ActiveNotification>> = RefCell::new(None);
+    pub static HISTORICAL_NOTIFICATIONS: RefCell<Vec<ActiveNotification>> = RefCell::new(Vec::new());
     static ACTIVE_POPUP: RefCell<Option<gtk4::Window>> = RefCell::new(None);
     static ACTIVE_TIMER: RefCell<Option<glib::SourceId>> = RefCell::new(None);
 }
@@ -22,7 +40,7 @@ pub struct NotificationService {
 impl NotificationService {
     async fn notify(
         &self,
-        _app_name: &str,
+        app_name: &str,
         _replaces_id: u32,
         app_icon: &str,
         summary: &str,
@@ -34,10 +52,16 @@ impl NotificationService {
         let id = self.current_id.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
         println!("Received Notification via D-Bus: [{}] {}", summary, body);
         
+        let icon = if app_icon.is_empty() {
+            app_name.to_lowercase()
+        } else {
+            app_icon.to_string()
+        };
+        
         let _ = self.sender.send(NotificationMsg::New {
             summary: summary.to_string(),
             body: body.to_string(),
-            icon: app_icon.to_string(),
+            icon,
             timeout: expire_timeout,
         });
         
@@ -116,12 +140,9 @@ fn close_and_fade(window: &gtk4::Window, container_box: &gtk4::Box) {
     });
 
     let win = window.clone();
-    archvnde_common::animation::slide_out_cb(
+    archvnde_common::animation::css_genie_out(
         container_box.upcast_ref(),
-        archvnde_common::animation::SlideDirection::Up,
-        15,
-        220,
-        false,
+        400,
         move || {
             win.close();
         }
@@ -130,6 +151,21 @@ fn close_and_fade(window: &gtk4::Window, container_box: &gtk4::Box) {
 
 pub fn show_notification_popup(summary: &str, body: &str, icon_name: &str, timeout_ms: i32) {
     close_notification_popup();
+
+    // Save to historical notifications list
+    let notif = ActiveNotification {
+        title: summary.to_string(),
+        body: body.to_string(),
+        icon: icon_name.to_string(),
+        timestamp: std::time::Instant::now(),
+    };
+    HISTORICAL_NOTIFICATIONS.with(|list| {
+        let mut list_borrow = list.borrow_mut();
+        list_borrow.push(notif);
+        if list_borrow.len() > 50 {
+            list_borrow.remove(0); // Cap at 50 notifications
+        }
+    });
 
     let window = gtk4::Window::new();
     window.init_layer_shell();
@@ -155,13 +191,14 @@ pub fn show_notification_popup(summary: &str, body: &str, icon_name: &str, timeo
 
     let app_icon_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
     app_icon_box.add_css_class("popup-app-icon-box");
-<<<<<<< HEAD:crates/archvnde-island/src/widgets/notification.rs
-    let icon_symbol = if icon_name.is_empty() { "message" } else { icon_name };
-    let app_icon = archvnde_common::icon::get_icon_colored(icon_symbol, 24, "#ffffff");
-=======
-    let app_icon = archvnde_common::icon::get_system_or_file_icon(icon_name, "preferences-system-notifications");
+    let app_icon = if icon_name.is_empty() {
+        gtk4::Image::from_icon_name("preferences-system-notifications")
+    } else if icon_name.starts_with('/') {
+        gtk4::Image::from_file(icon_name)
+    } else {
+        gtk4::Image::from_icon_name(icon_name)
+    };
     app_icon.set_pixel_size(32);
->>>>>>> ce088a8 (refactor: extract data models and common icon helpers, modularize panel widgets):libs/archvnde-island/src/widgets/notification.rs
     app_icon_box.append(&app_icon);
 
     let text_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
@@ -184,21 +221,13 @@ pub fn show_notification_popup(summary: &str, body: &str, icon_name: &str, timeo
     body_label.add_css_class("popup-body");
     body_label.set_halign(gtk4::Align::Start);
     body_label.set_wrap(true);
-    body_label.set_ellipsize(gtk4::pango::EllipsizeMode::End);
-    body_label.set_lines(2);
     body_label.set_max_width_chars(32);
 
     text_box.append(&header_box);
     text_box.append(&body_label);
 
-    let avatar_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-    avatar_box.add_css_class("popup-avatar-box");
-    let avatar_icon = archvnde_common::icon::get_icon_colored("user", 16, "#ffffff");
-    avatar_box.append(&avatar_icon);
-
     content_row.append(&app_icon_box);
     content_row.append(&text_box);
-    content_row.append(&avatar_box);
 
     container_box.append(&content_row);
     window.set_child(Some(&container_box));
@@ -216,11 +245,8 @@ pub fn show_notification_popup(summary: &str, body: &str, icon_name: &str, timeo
 
     ACTIVE_POPUP.with(|p| *p.borrow_mut() = Some(window.clone()));
 
-    archvnde_common::animation::slide_in(
+    archvnde_common::animation::css_genie_in(
         container_box.upcast_ref(),
-        archvnde_common::animation::SlideDirection::Down,
-        15,
-        220,
     );
 
     let win_timer = window.clone();

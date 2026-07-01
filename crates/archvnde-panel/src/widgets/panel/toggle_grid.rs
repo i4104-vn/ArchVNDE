@@ -99,20 +99,22 @@ pub fn create_small_theme_toggle_tile() -> gtk4::Button {
         btn.add_css_class("active");
     }
 
-    let icon_name = if is_dark_init { "weather-clear-night" } else { "weather-clear" };
+    // Use an icon container Box so we can swap the entire widget on toggle
+    let icon_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+    icon_container.set_halign(gtk4::Align::Center);
+
+    let initial_icon_name = if is_dark_init { "dark-mode" } else { "brightness" };
     let initial_color = if is_dark_init { "#ffffff" } else { "rgba(255, 255, 255, 0.8)" };
-    let icon_widget = archvnde_common::icon::get_icon_colored(icon_name, 16, initial_color);
-    icon_widget.set_halign(gtk4::Align::Center);
+    let icon_widget = archvnde_common::icon::get_icon_colored(initial_icon_name, 16, initial_color);
+    icon_container.append(&icon_widget);
 
     let label = gtk4::Label::new(Some(&archvnde_common::i18n::t("control.dark_mode")));
     label.add_css_class("control-square-label");
     label.set_halign(gtk4::Align::Center);
 
-    main_box.append(&icon_widget);
+    main_box.append(&icon_container);
     main_box.append(&label);
     btn.set_child(Some(&main_box));
-
-    let icon_widget_clone = icon_widget.clone();
 
     btn.connect_clicked(move |b| {
         let settings = gtk4::Settings::default();
@@ -130,18 +132,18 @@ pub fn create_small_theme_toggle_tile() -> gtk4::Button {
             .args(&["set", "org.gnome.desktop.interface", "color-scheme", scheme])
             .spawn();
 
+        // Swap icon widget inside the container
+        if let Some(old) = icon_container.first_child() {
+            icon_container.remove(&old);
+        }
         if new_dark {
             b.add_css_class("active");
-            let new_img = archvnde_common::icon::get_icon_colored("weather-clear-night", 16, "#ffffff");
-            if let Some(paintable) = new_img.paintable() {
-                icon_widget_clone.set_paintable(Some(&paintable));
-            }
+            let new_img = archvnde_common::icon::get_icon_colored("dark-mode", 16, "#ffffff");
+            icon_container.append(&new_img);
         } else {
             b.remove_css_class("active");
-            let new_img = archvnde_common::icon::get_icon_colored("weather-clear", 16, "rgba(255, 255, 255, 0.8)");
-            if let Some(paintable) = new_img.paintable() {
-                icon_widget_clone.set_paintable(Some(&paintable));
-            }
+            let new_img = archvnde_common::icon::get_icon_colored("brightness", 16, "rgba(255, 255, 255, 0.8)");
+            icon_container.append(&new_img);
         }
     });
 
@@ -289,35 +291,35 @@ pub fn create_night_light_tile() -> gtk4::Button {
         btn.add_css_class("active");
     }
 
+    // Use an icon container Box so we can swap the widget on toggle
+    let icon_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+    icon_container.set_halign(gtk4::Align::Center);
+
     let initial_color = if is_active_init { "#ffffff" } else { "rgba(255, 255, 255, 0.8)" };
     let icon_widget = archvnde_common::icon::get_icon_colored("night-light", 16, initial_color);
-    icon_widget.set_halign(gtk4::Align::Center);
+    icon_container.append(&icon_widget);
 
     let label = gtk4::Label::new(Some(&archvnde_common::i18n::t("control.night_light")));
     label.add_css_class("control-square-label");
     label.set_halign(gtk4::Align::Center);
 
-    main_box.append(&icon_widget);
+    main_box.append(&icon_container);
     main_box.append(&label);
     btn.set_child(Some(&main_box));
-
-    let icon_widget_clone = icon_widget.clone();
 
     btn.connect_clicked(move |b| {
         if b.has_css_class("active") {
             b.remove_css_class("active");
+            if let Some(old) = icon_container.first_child() { icon_container.remove(&old); }
             let new_img = archvnde_common::icon::get_icon_colored("night-light", 16, "rgba(255, 255, 255, 0.8)");
-            if let Some(paintable) = new_img.paintable() {
-                icon_widget_clone.set_paintable(Some(&paintable));
-            }
-            let _ = std::process::Command::new("pkill").arg("gammastep").spawn();
-            let _ = std::process::Command::new("pkill").arg("wlsunset").spawn();
+            icon_container.append(&new_img);
+            let _ = std::process::Command::new("pkill").arg("-x").arg("gammastep").spawn();
+            let _ = std::process::Command::new("pkill").arg("-x").arg("wlsunset").spawn();
         } else {
             b.add_css_class("active");
+            if let Some(old) = icon_container.first_child() { icon_container.remove(&old); }
             let new_img = archvnde_common::icon::get_icon_colored("night-light", 16, "#ffffff");
-            if let Some(paintable) = new_img.paintable() {
-                icon_widget_clone.set_paintable(Some(&paintable));
-            }
+            icon_container.append(&new_img);
             let _ = std::process::Command::new("gammastep")
                 .args(&["-O", "4000", "-l", "0:0"])
                 .spawn();

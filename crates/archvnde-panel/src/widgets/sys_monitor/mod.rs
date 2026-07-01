@@ -97,6 +97,62 @@ pub fn create_sys_monitor_widget() -> gtk4::Box {
 
     // Polling loop for updating values on topbar and popover
     gtk4::glib::timeout_add_local(std::time::Duration::from_millis(2000), move || {
+<<<<<<< HEAD:crates/archvnde-panel/src/widgets/sys_monitor/mod.rs
+=======
+        if let Some(current_cpu) = get_cpu_raw() {
+            let mut last_cpu_borrow = last_cpu_clone.borrow_mut();
+            let cpu_percent = if let Some(ref last) = *last_cpu_borrow {
+                let total_diff = current_cpu.total.saturating_sub(last.total);
+                let idle_diff = current_cpu.idle.saturating_sub(last.idle);
+                if total_diff > 0 {
+                    let used_diff = total_diff.saturating_sub(idle_diff);
+                    (used_diff as f64 / total_diff as f64) * 100.0
+                } else {
+                    0.0
+                }
+            } else {
+                0.0
+            };
+            *last_cpu_borrow = Some(current_cpu);
+
+            let ram_info = get_ram_usage().unwrap_or((0.0, 0.0, 0.0));
+
+            // Update topbar capsule label
+            sys_label_clone.set_text(&format!(
+                "CPU: {:.0}% | RAM: {:.0}%",
+                cpu_percent, ram_info.2
+            ));
+
+            // Update popover widgets
+            cpu_label_clone.set_text(&format!("CPU Load: {:.1}%", cpu_percent));
+            cpu_progress_clone.set_fraction(cpu_percent / 100.0);
+
+            ram_label_clone.set_text(&format!("RAM Usage: {:.1}%", ram_info.2));
+            ram_progress_clone.set_fraction(ram_info.2 / 100.0);
+            ram_detail_clone.set_text(&format!(
+                "{:.2} GB / {:.2} GB",
+                ram_info.0, ram_info.1
+            ));
+        }
+
+        gtk4::glib::ControlFlow::Continue
+    });
+
+    // --- Hover Motion Controller Event Handling ---
+    let motion_controller = gtk4::EventControllerMotion::new();
+    let popover_enter = popover.clone();
+    
+    // Trigger immediate refresh on hover enter
+    let last_cpu_hover = last_cpu.clone();
+    let cpu_label_hover = cpu_label.clone();
+    let cpu_progress_hover = cpu_progress.clone();
+    let ram_label_hover = ram_label.clone();
+    let ram_progress_hover = ram_progress.clone();
+    let ram_detail_hover = ram_detail.clone();
+
+    motion_controller.connect_enter(move |_, _, _| {
+        // Run quick update
+>>>>>>> 663ce84 (fix: refactor sys_monitor timeout loop to avoid early return compile error):crates/archvnde-panel/src/widgets/sys_monitor.rs
         if let Some(current_cpu) = get_cpu_raw() {
             let mut last_cpu_borrow = last_cpu_clone.borrow_mut();
             let cpu_percent = if let Some(ref last) = *last_cpu_borrow {
