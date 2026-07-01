@@ -598,39 +598,3 @@ fn update_player_view(
     }
 }
 
-/// Cleans up visual elements (resets metadata, clears images) and triggers exit zoom-out
-/// animations when the media player is no longer active.
-fn handle_inactive_player(
-    widgets: &IslandWidgets,
-    is_playing_state: &Cell<bool>,
-    poll_counter: &Cell<u32>,
-    last_title: &RefCell<String>,
-    art_loaded_for_current_song: &Cell<bool>,
-) {
-    is_playing_state.set(false);
-    poll_counter.set(0);
-    last_title.borrow_mut().clear();
-    art_loaded_for_current_song.set(false);
-
-    widgets.play_btn_icon.set_icon_name(Some("media-playback-start-symbolic"));
-
-    if let Some(child) = widgets.art_container.first_child() {
-        widgets.art_container.remove(&child);
-    }
-    if let Some(child) = widgets.popover_art_container.first_child() {
-        widgets.popover_art_container.remove(&child);
-    }
-
-    if widgets.notch_capsule.is_visible() {
-        let notch_capsule_clone = widgets.notch_capsule.clone();
-        archvnde_common::animation::island_zoom_out(
-            widgets.notch_capsule.clone().upcast_ref(),
-            200,
-            500,
-            true,
-        );
-        glib::timeout_add_local_once(std::time::Duration::from_millis(500), move || {
-            notch_capsule_clone.remove_css_class("active-music");
-        });
-    }
-}

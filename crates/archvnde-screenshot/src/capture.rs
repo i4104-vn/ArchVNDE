@@ -1,6 +1,5 @@
 use gtk4::prelude::*;
 use std::path::PathBuf;
-use std::time::SystemTime;
 
 #[derive(Clone)]
 pub enum Drawing {

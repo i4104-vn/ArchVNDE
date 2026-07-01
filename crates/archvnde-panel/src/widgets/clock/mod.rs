@@ -4,6 +4,7 @@ use std::rc::Rc;
 
 mod calendar_window;
 mod notifications;
+mod render;
 
 /// Creates and returns a clock button widget that updates every second and
 /// spawns a centered, glassmorphic calendar popup dropdown when clicked.
@@ -13,12 +14,7 @@ pub fn create_clock_widget(
     calendar_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
     launcher_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
 ) -> gtk4::Button {
-    let clock_button = gtk4::Button::new();
-    clock_button.add_css_class("panel-clock-btn");
-
-    let clock_label = gtk4::Label::new(None);
-    clock_label.add_css_class("panel-clock");
-    clock_button.set_child(Some(&clock_label));
+    let (clock_button, clock_label) = render::build_clock_ui();
 
     let update_clock = {
         let clock_label = clock_label.clone();

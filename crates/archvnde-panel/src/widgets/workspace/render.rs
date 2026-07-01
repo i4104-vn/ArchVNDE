@@ -1,9 +1,6 @@
-//! Layout structure and widget builders for the desktop taskbar buttons and window previews.
-
 use gtk4::prelude::*;
 use archvnde_common::desktop::DesktopApp;
 
-/// Builds the base container box for the taskbar.
 pub fn build_workspace_container() -> (gtk4::Box, gtk4::Box) {
     let parent_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
     parent_box.add_css_class("taskbar-parent-box");
@@ -15,7 +12,6 @@ pub fn build_workspace_container() -> (gtk4::Box, gtk4::Box) {
     (parent_box, apps_box)
 }
 
-/// Creates a Popover widget anchored to the parent taskbar button.
 pub fn build_popover_container(parent: &gtk4::Button) -> gtk4::Popover {
     let popover = gtk4::Popover::new();
     popover.add_css_class("taskbar-popover");
@@ -25,7 +21,6 @@ pub fn build_popover_container(parent: &gtk4::Button) -> gtk4::Popover {
     popover
 }
 
-/// Constructs a taskbar item button with application icon and tooltip.
 pub fn build_taskbar_item_button(app: &DesktopApp, is_active: bool) -> gtk4::Button {
     let btn = gtk4::Button::new();
     btn.add_css_class("taskbar-app-btn");
@@ -43,29 +38,29 @@ pub fn build_taskbar_item_button(app: &DesktopApp, is_active: bool) -> gtk4::But
     btn
 }
 
-/// Renders the list of active window previews inside the Popover dropdown.
-/// Includes buttons to open a new app instance and to close all windows of this app.
 pub fn render_popover_previews(
     popover: &gtk4::Popover,
     windows: &[DesktopApp],
     app_id: &str,
 ) -> (
     Vec<(gtk4::Button, gtk4::Button, DesktopApp)>,
-    Option<(gtk4::Button, String)>,
-    Option<gtk4::Button>,
+    Option<(gtk4::Button, String)>, // (Open New Button, Exec command)
+    Option<gtk4::Button>, // Close All Button
 ) {
     let previews_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
     previews_box.add_css_class("taskbar-previews-container");
 
+    // Header
     let header = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
     header.add_css_class("taskbar-previews-header");
-    let header_label = gtk4::Label::new(Some(&archvnde_common::i18n::t("taskbar.tasks")));
+    let header_label = gtk4::Label::new(Some("Tasks"));
     header_label.add_css_class("taskbar-previews-header-label");
     header.append(&header_label);
     previews_box.append(&header);
 
     let mut action_triggers = Vec::new();
 
+    // List of open windows
     for app in windows {
         let item_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 4);
         item_box.add_css_class("taskbar-preview-list-item-box");
@@ -91,6 +86,7 @@ pub fn render_popover_previews(
         title_lbl.set_text(&label_text);
         preview_btn.set_child(Some(&title_lbl));
 
+        // Dedicated window close/kill button
         let kill_btn = gtk4::Button::from_icon_name("window-close-symbolic");
         kill_btn.add_css_class("taskbar-preview-list-kill-btn");
 
@@ -101,6 +97,7 @@ pub fn render_popover_previews(
         action_triggers.push((preview_btn, kill_btn, app.clone()));
     }
 
+    // Separator and Action Buttons
     let mut open_new_info = None;
     let mut close_all_btn_opt = None;
 
@@ -115,10 +112,12 @@ pub fn render_popover_previews(
             (app_id.to_string(), app_id.to_string(), app_id.to_string())
         };
 
+        // Divider
         let separator = gtk4::Separator::new(gtk4::Orientation::Horizontal);
         separator.add_css_class("taskbar-preview-separator");
         previews_box.append(&separator);
 
+        // Button: <Tên của App> (Mở cửa sổ mới)
         let open_new_btn = gtk4::Button::new();
         open_new_btn.add_css_class("taskbar-preview-action-btn");
         open_new_btn.set_hexpand(true);
@@ -139,6 +138,7 @@ pub fn render_popover_previews(
         previews_box.append(&open_new_btn);
         open_new_info = Some((open_new_btn, exec_cmd));
 
+        // Button: Đóng tất cả
         let close_all_btn = gtk4::Button::new();
         close_all_btn.add_css_class("taskbar-preview-action-btn");
         close_all_btn.set_hexpand(true);
@@ -150,7 +150,7 @@ pub fn render_popover_previews(
         close_all_icon.set_pixel_size(16);
         close_all_icon.add_css_class("taskbar-preview-action-icon");
 
-        let close_all_label = gtk4::Label::new(Some(&archvnde_common::i18n::t("taskbar.close_all")));
+        let close_all_label = gtk4::Label::new(Some("Đóng tất cả"));
         close_all_label.add_css_class("taskbar-preview-action-label");
         close_all_content.append(&close_all_icon);
         close_all_content.append(&close_all_label);
@@ -163,4 +163,3 @@ pub fn render_popover_previews(
 
     (action_triggers, open_new_info, close_all_btn_opt)
 }
-
