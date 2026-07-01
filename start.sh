@@ -30,7 +30,8 @@ sleep 0.5
 awww img wallpaper.png &
 
 # Start ArchVNDE status panel
-archvnde-panel &
+mkdir -p "$HOME/.cache/archvnde"
+archvnde-panel > "$HOME/.cache/archvnde/panel.log" 2>&1 &
 EOF
 chmod +x "$AUTOSTART_FILE"
 echo "Configured labwc autostart at $AUTOSTART_FILE"

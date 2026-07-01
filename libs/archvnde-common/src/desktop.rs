@@ -2,15 +2,82 @@ use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
+use std::sync::{Arc, Mutex, OnceLock};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DesktopApp {
     pub name: String,
     pub exec: String,
     pub icon: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub app_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub window_title: Option<String>,
 }
 
-pub fn find_desktop_apps() -> Vec<DesktopApp> {
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct DesktopCache {
+    pub system_mtime_secs: u64,
+    pub local_mtime_secs: u64,
+    pub apps: Vec<DesktopApp>,
+}
+
+static CACHE: OnceLock<Arc<Mutex<Option<DesktopCache>>>> = OnceLock::new();
+
+fn get_cache() -> &'static Arc<Mutex<Option<DesktopCache>>> {
+    CACHE.get_or_init(|| Arc::new(Mutex::new(None)))
+}
+
+fn get_cache_file_path() -> Option<PathBuf> {
+    dirs::cache_dir().map(|p| p.join("archvnde").join("desktop_apps.json"))
+}
+
+fn get_dir_mtime(path: &Path) -> u64 {
+    std::fs::metadata(path)
+        .and_then(|m| m.modified())
+        .and_then(|t| t.duration_since(std::time::SystemTime::UNIX_EPOCH).map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e)))
+        .map(|d| d.as_secs())
+        .unwrap_or(0)
+}
+
+pub fn refresh_desktop_apps_cache() -> Vec<DesktopApp> {
+    let apps = scan_desktop_apps_from_filesystem();
+    
+    let system_mtime = get_dir_mtime(Path::new("/usr/share/applications"));
+    let local_path = dirs::data_dir()
+        .unwrap_or_else(|| {
+            let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
+            PathBuf::from(home).join(".local/share")
+        })
+        .join("applications");
+    let local_mtime = get_dir_mtime(&local_path);
+    
+    let cache_data = DesktopCache {
+        system_mtime_secs: system_mtime,
+        local_mtime_secs: local_mtime,
+        apps: apps.clone(),
+    };
+
+    // Save to file cache
+    if let Some(cache_path) = get_cache_file_path() {
+        if let Some(parent) = cache_path.parent() {
+            let _ = std::fs::create_dir_all(parent);
+        }
+        if let Ok(file) = File::create(cache_path) {
+            let _ = serde_json::to_writer(file, &cache_data);
+        }
+    }
+    
+    // Save to in-memory cache
+    let cache = get_cache();
+    if let Ok(mut lock) = cache.lock() {
+        *lock = Some(cache_data);
+    }
+    
+    apps
+}
+
+fn scan_desktop_apps_from_filesystem() -> Vec<DesktopApp> {
     let mut apps = Vec::new();
     let paths = vec![
         PathBuf::from("/usr/share/applications"),
@@ -42,6 +109,48 @@ pub fn find_desktop_apps() -> Vec<DesktopApp> {
     apps.dedup_by(|a, b| a.name.to_lowercase() == b.name.to_lowercase());
 
     apps
+}
+
+pub fn find_desktop_apps() -> Vec<DesktopApp> {
+    let system_mtime = get_dir_mtime(Path::new("/usr/share/applications"));
+    let local_path = dirs::data_dir()
+        .unwrap_or_else(|| {
+            let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
+            PathBuf::from(home).join(".local/share")
+        })
+        .join("applications");
+    let local_mtime = get_dir_mtime(&local_path);
+
+    let cache = get_cache();
+    
+    // 1. Check in-memory cache
+    if let Ok(lock) = cache.lock() {
+        if let Some(ref cache_data) = *lock {
+            if cache_data.system_mtime_secs == system_mtime && cache_data.local_mtime_secs == local_mtime {
+                return cache_data.apps.clone();
+            }
+        }
+    }
+    
+    // 2. Try loading from file cache
+    if let Some(cache_path) = get_cache_file_path() {
+        if cache_path.exists() {
+            if let Ok(file) = File::open(&cache_path) {
+                if let Ok(cache_data) = serde_json::from_reader::<_, DesktopCache>(file) {
+                    if cache_data.system_mtime_secs == system_mtime && cache_data.local_mtime_secs == local_mtime {
+                        // Update in-memory cache
+                        if let Ok(mut lock) = cache.lock() {
+                            *lock = Some(cache_data.clone());
+                        }
+                        return cache_data.apps;
+                    }
+                }
+            }
+        }
+    }
+    
+    // 3. Fallback: scan filesystem synchronously (and update caches)
+    refresh_desktop_apps_cache()
 }
 
 fn parse_desktop_file(path: &Path) -> Option<DesktopApp> {
@@ -99,7 +208,7 @@ fn parse_desktop_file(path: &Path) -> Option<DesktopApp> {
     }
 
     match (name, exec) {
-        (Some(n), Some(e)) => Some(DesktopApp { name: n, exec: e, icon }),
+        (Some(n), Some(e)) => Some(DesktopApp { name: n, exec: e, icon, app_id: None, window_title: None }),
         _ => None,
     }
 }
