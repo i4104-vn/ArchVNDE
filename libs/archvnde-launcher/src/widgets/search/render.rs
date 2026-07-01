@@ -1,5 +1,8 @@
+//! UI layout renderer for query results sidebars.
+
 use gtk4::prelude::*;
 
+/// Builds a placeholder container showing the initial greeting/welcome message when query is empty.
 pub fn build_welcome_layout() -> gtk4::Box {
     let right_content = gtk4::Box::new(gtk4::Orientation::Vertical, 10);
     right_content.set_hexpand(true);
@@ -16,6 +19,7 @@ pub fn build_welcome_layout() -> gtk4::Box {
     right_content
 }
 
+/// Builds a search row button to launch standard browser searches.
 pub fn build_browser_search_button(query: &str) -> (gtk4::Button, gtk4::Label) {
     let browser_btn = gtk4::Button::new();
     browser_btn.add_css_class("launcher-browser-search-row");
@@ -40,6 +44,7 @@ pub fn build_browser_search_button(query: &str) -> (gtk4::Button, gtk4::Label) {
     (browser_btn, browser_lbl)
 }
 
+/// Builds a vertical layout box containing files search result entries.
 pub fn build_results_layout() -> (gtk4::Box, gtk4::Box) {
     let right_content = gtk4::Box::new(gtk4::Orientation::Vertical, 10);
     right_content.set_hexpand(true);
@@ -51,9 +56,11 @@ pub fn build_results_layout() -> (gtk4::Box, gtk4::Box) {
     (right_content, files_placeholder)
 }
 
+/// Builds a label title block for the files result group.
 pub fn build_files_title() -> gtk4::Label {
     let files_title = gtk4::Label::new(Some(&archvnde_common::i18n::t("launcher.files")));
     files_title.add_css_class("launcher-section-title");
     files_title.set_halign(gtk4::Align::Start);
     files_title
 }
+

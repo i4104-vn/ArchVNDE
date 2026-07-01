@@ -1,3 +1,5 @@
+//! UI structure assembly for Dynamic Island overlays and notification sliders.
+
 use gtk4::prelude::*;
 use std::cell::Cell;
 use std::rc::Rc;
@@ -6,6 +8,7 @@ use crate::player::player_loop::start_player_polling_loop;
 use crate::models;
 use crate::widgets;
 
+/// Creates the main Dynamic Island box container, initializing Notch and notification badge layout hierarchies.
 pub fn create_system_island() -> gtk4::Box {
     let container_vbox = gtk4::Box::new(gtk4::Orientation::Vertical, 8);
     container_vbox.set_valign(gtk4::Align::Start);
@@ -23,7 +26,6 @@ pub fn create_system_island() -> gtk4::Box {
     notch_content.set_halign(gtk4::Align::Fill);
     notch_content.set_hexpand(true);
 
-    // --- 1. Default View (compact Dynamic Island) ---
     let default_view = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
     default_view.set_valign(gtk4::Align::Center);
     default_view.set_halign(gtk4::Align::Center);
@@ -31,24 +33,20 @@ pub fn create_system_island() -> gtk4::Box {
     default_view.append(&default_icon);
     notch_content.append(&default_view);
 
-    // --- 2. Music View (expanded Dynamic Island) ---
     let music_view = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
     music_view.set_valign(gtk4::Align::Center);
     music_view.set_halign(gtk4::Align::Fill);
     music_view.set_hexpand(true);
-    music_view.set_visible(false); // Hidden by default
+    music_view.set_visible(false);
 
-    // Album Art container
     let art_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
     art_container.set_valign(gtk4::Align::Center);
 
-    // Track details
     let track_label = gtk4::Label::new(Some("No media"));
     track_label.add_css_class("notch-player-text");
     track_label.set_hexpand(true);
     track_label.set_halign(gtk4::Align::Center);
 
-    // Music Visualizer animation
     let (visualizer_box, bars) = create_visualizer();
 
     music_view.append(&art_container);
@@ -56,16 +54,14 @@ pub fn create_system_island() -> gtk4::Box {
     music_view.append(&visualizer_box);
     notch_content.append(&music_view);
 
-    // --- 2.5 Notification View (expanded Dynamic Island notification) ---
     let notification_view = gtk4::Box::new(gtk4::Orientation::Horizontal, 10);
     notification_view.set_valign(gtk4::Align::Center);
     notification_view.set_halign(gtk4::Align::Fill);
     notification_view.set_hexpand(true);
-    notification_view.set_visible(false); // Hidden by default
+    notification_view.set_visible(false);
 
-    // Add click gesture to jump to app
     let click_gesture = gtk4::GestureClick::new();
-    click_gesture.set_button(0); // Respond to all mouse buttons
+    click_gesture.set_button(0);
     click_gesture.connect_pressed(move |_, _, _, _| {
         let app_to_activate = widgets::notification::SHARED_NOTIFICATION.with(|sn| {
             sn.borrow().as_ref().map(|n| n.app_name.clone())
@@ -74,7 +70,6 @@ pub fn create_system_island() -> gtk4::Box {
         if let Some(app_name) = app_to_activate {
             println!("Notification clicked! Attempting to activate app: {}", app_name);
             
-            // 1. Search desktop apps for a matching application
             let apps = archvnde_common::desktop::find_desktop_apps();
             let mut found_app = None;
             let lower_name = app_name.to_lowercase();
@@ -86,7 +81,6 @@ pub fn create_system_island() -> gtk4::Box {
                 }
             }
             
-            // Substring fallback
             if found_app.is_none() {
                 for app in &apps {
                     if app.name.to_lowercase().contains(&lower_name) || lower_name.contains(&app.name.to_lowercase()) {
@@ -96,7 +90,6 @@ pub fn create_system_island() -> gtk4::Box {
                 }
             }
             
-            // 2. Focus the app window using wlrctl (similar to Alt-Tab switcher)
             if let Some(app) = found_app {
                 let exec_parts: Vec<&str> = app.exec.split_whitespace().collect();
                 let exec_name = if !exec_parts.is_empty() {
@@ -108,7 +101,6 @@ pub fn create_system_island() -> gtk4::Box {
                     String::new()
                 };
 
-                // Focus windows using wlrctl
                 if !exec_name.is_empty() {
                     let _ = std::process::Command::new("wlrctl")
                         .args(&["window", "focus", &exec_name])
@@ -128,7 +120,6 @@ pub fn create_system_island() -> gtk4::Box {
                     .args(&["window", "focus", &app.name])
                     .spawn();
             } else {
-                // Fallback: directly try wlrctl focus on the raw app_name
                 let _ = std::process::Command::new("wlrctl")
                     .args(&["window", "focus", &app_name])
                     .spawn();
@@ -169,12 +160,11 @@ pub fn create_system_island() -> gtk4::Box {
     notch_capsule.append(&notch_content);
     container_vbox.append(&notch_capsule);
 
-    // --- 3. Notification Badge widget (flies down under the island) ---
     let notification_badge = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
     notification_badge.add_css_class("island-badge");
     notification_badge.set_valign(gtk4::Align::Start);
     notification_badge.set_halign(gtk4::Align::Center);
-    notification_badge.set_visible(false); // Hidden by default
+    notification_badge.set_visible(false);
 
     let badge_icon_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
     badge_icon_container.set_valign(gtk4::Align::Center);
@@ -196,7 +186,6 @@ pub fn create_system_island() -> gtk4::Box {
     notification_badge.append(&badge_text_box);
     container_vbox.append(&notification_badge);
 
-    // --- 4. Media Control Popover ---
     let (
         _popover,
         popover_title,
@@ -206,10 +195,8 @@ pub fn create_system_island() -> gtk4::Box {
         play_btn_icon,
     ) = widgets::popover::create_media_popover(&notch_capsule, &notification_view);
 
-    // Shared state variables
     let is_playing_state = Rc::new(Cell::new(false));
 
-    // Spawn DBus listener on startup
     let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<models::NotificationMsg>();
     widgets::notification::spawn_dbus_listener(tx);
 
@@ -226,7 +213,6 @@ pub fn create_system_island() -> gtk4::Box {
         }
     });
 
-    // Start background animation loops
     start_visualizer_animation(bars, is_playing_state.clone());
     let island_widgets = models::IslandWidgets {
         notch_capsule: notch_capsule.clone(),
@@ -256,3 +242,4 @@ pub fn create_system_island() -> gtk4::Box {
 
     container_vbox
 }
+

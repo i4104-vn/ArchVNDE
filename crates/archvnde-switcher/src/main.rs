@@ -1,3 +1,6 @@
+//! Main entry point for the ArchVNDE Alt-Tab window switcher.
+//! Handles single-instance Unix sockets to cycle through open windows on subsequent keypresses.
+
 use gtk4::prelude::*;
 use std::os::unix::net::UnixStream;
 use std::io::Write;
@@ -9,6 +12,8 @@ mod render;
 
 use apps::get_running_apps;
 
+/// Connects to the active switcher instance socket to cycle the selection.
+/// Returns true if no other instance is running and this process should start the GUI.
 fn handle_single_instance() -> bool {
     let socket_path = "/tmp/archvnde-switcher.socket";
     
@@ -26,7 +31,6 @@ fn main() {
         return;
     }
 
-    // Check if there are running apps. If not, exit immediately.
     let apps = get_running_apps();
     if apps.is_empty() {
         return;
@@ -47,6 +51,6 @@ fn main() {
 
     application.run();
 
-    // Clean up Unix socket file on exit
     std::fs::remove_file("/tmp/archvnde-switcher.socket").ok();
 }
+

@@ -4,11 +4,11 @@
 }
 
 .launcher-box {
-    background-color: rgba(255, 255, 255, 0.82);
+    background-color: rgba(255, 255, 255, 0.98);
     background-image: linear-gradient(160deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.15) 100%);
     -gtk-background-blur: 24;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-top: 1px solid rgba(255, 255, 255, 0.28);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: 24px;
     color: #1c1c1e;
     padding: 0px;
@@ -17,11 +17,11 @@
 }
 
 entry.launcher-search,
-entry.launcher-search > text {
-    background-color: rgba(0, 0, 0, 0.04);
+entry.launcher-search>text {
+    background-color: rgba(255, 255, 255, 0.98);
     background-image: none;
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 14px;
     color: #1c1c1e;
     padding: 12px 16px;
@@ -32,7 +32,7 @@ entry.launcher-search > text {
 }
 
 entry.launcher-search:focus,
-entry.launcher-search:focus > text {
+entry.launcher-search:focus>text {
     background-color: rgba(255, 255, 255, 0.09);
     border-color: rgba(96, 165, 250, 0.40);
     border-top-color: rgba(147, 197, 253, 0.55);
@@ -41,8 +41,8 @@ entry.launcher-search:focus > text {
 }
 
 entry.launcher-search placeholder,
-entry.launcher-search > text > placeholder {
-    color: rgba(0, 0, 0, 0.25);
+entry.launcher-search>text>placeholder {
+    color: rgba(28, 28, 30, 0.35);
     opacity: 1.0;
 }
 
@@ -61,13 +61,13 @@ button.launcher-grid-item {
     border-radius: 16px;
     padding: 12px 6px;
     transition: all 200ms ease;
-    color: rgba(255, 255, 255, 0.78);
+    color: rgba(28, 28, 30, 0.78);
     min-width: 84px;
 }
 
 button.launcher-grid-item:hover {
     background-color: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     color: #1c1c1e;
     transform: scale(1.05) translateY(-2px);
     box-shadow: none;
@@ -83,7 +83,7 @@ button.launcher-grid-item:active {
     font-weight: 600;
     text-align: center;
     margin-top: 6px;
-    color: rgba(255, 255, 255, 0.82);
+    color: rgba(28, 28, 30, 0.82);
 }
 
 button.launcher-grid-item:hover .launcher-grid-label {
@@ -109,7 +109,7 @@ button.launcher-grid-item:hover .launcher-grid-label {
 }
 
 button.launcher-power-btn {
-    background-color: rgba(0, 0, 0, 0.03);
+    background-color: rgba(0, 0, 0, 0.04);
     background-image: none;
     border: 1px solid rgba(255, 255, 255, 0.07);
     border-radius: 10px;
@@ -125,7 +125,7 @@ button.launcher-power-btn:hover {
 }
 
 .launcher-no-results {
-    color: rgba(255, 255, 255, 0.38);
+    color: rgba(28, 28, 30, 0.38);
     font-size: 12px;
     font-weight: 600;
     margin: 40px 0;
@@ -139,10 +139,10 @@ popover {
     border: none;
 }
 
-popover > contents {
+popover>contents {
     background-color: rgba(255, 255, 255, 0.07);
     background-image: linear-gradient(160deg, rgba(0, 0, 0, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
-    border: 1px solid rgba(0, 0, 0, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-top: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: 14px;
     padding: 4px;
@@ -168,7 +168,7 @@ button.launcher-menu-item-btn {
 }
 
 button.launcher-menu-item-btn:hover {
-    background-color: rgba(0, 0, 0, 0.06);
+    background-color: rgba(0, 0, 0, 0.08);
     color: #1c1c1e;
 }
 
@@ -194,7 +194,7 @@ button.launcher-list-item {
     padding: 6px 12px;
     margin: 2px 0;
     transition: all 180ms ease;
-    color: rgba(0, 0, 0, 0.45);
+    color: rgba(28, 28, 30, 0.75);
     min-height: 38px;
 }
 
@@ -255,12 +255,12 @@ button.launcher-file-item {
     border-radius: 10px;
     padding: 6px 12px;
     margin: 1px 0;
-    color: rgba(255, 255, 255, 0.68);
+    color: rgba(28, 28, 30, 0.68);
     transition: all 150ms ease;
 }
 
 button.launcher-file-item:hover {
-    background-color: rgba(0, 0, 0, 0.04);
+    background-color: rgba(0, 0, 0, 0.05);
     color: #1c1c1e;
     transform: scale(1.01);
 }
@@ -277,9 +277,8 @@ button.launcher-file-item:focus,
 button.launcher-file-item.selected,
 button.launcher-browser-search-row:focus,
 button.launcher-browser-search-row.selected {
-    background-color: rgba(0, 0, 0, 0.09) !important;
+    background-color: rgba(255, 255, 255, 0.12) !important;
     border: 1px solid rgba(96, 165, 250, 0.40) !important;
     color: #1c1c1e !important;
     outline: none;
 }
-

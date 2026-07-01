@@ -6,11 +6,7 @@ use std::path::PathBuf;
 
 use crate::models::IslandState;
 
-<<<<<<< HEAD:crates/archvnde-common/src/island.rs
-
-=======
 /// Resolves the file path of the temporary Dynamic Island state file.
->>>>>>> 52145a1 (refactor: clean up comments and add i18n support):libs/archvnde-common/src/island/mod.rs
 pub fn get_island_state_path() -> PathBuf {
     std::env::temp_dir().join("archvnde-island.toml")
 }

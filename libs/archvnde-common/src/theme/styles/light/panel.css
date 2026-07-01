@@ -25,7 +25,7 @@ window.notification-card {
 .panel-box {
     background-color: transparent;
     background-image: none;
-    color: rgba(255, 255, 255, 0.95);
+    color: rgba(28, 28, 30, 0.95);
     margin: 0;
     padding: 0px 4px;
     min-height: 36px;
@@ -48,11 +48,11 @@ button.panel-logo-btn {
 
 button.panel-logo-btn:hover {
     background-color: rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .capsule-separator {
-    color: rgba(255, 255, 255, 0.14);
+    color: rgba(28, 28, 30, 0.14);
     font-size: 11px;
     margin: 0 2px;
 }

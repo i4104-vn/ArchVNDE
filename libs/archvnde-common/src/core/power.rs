@@ -1,3 +1,5 @@
+//! System power action wrappers.
+
 use std::process::Command;
 
 /// Triggers a system poweroff.

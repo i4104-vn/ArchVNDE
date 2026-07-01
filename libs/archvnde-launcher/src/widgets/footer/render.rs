@@ -1,5 +1,8 @@
+//! UI layout renderer for the launcher footer row.
+
 use gtk4::prelude::*;
 
+/// Builds a horizontal bar containing user profile details, spacing, and a power popover trigger.
 pub fn build_footer_layout() -> (
     gtk4::Box,
     gtk4::Button,
@@ -32,13 +35,13 @@ pub fn build_footer_layout() -> (
     let power_menu = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
     power_menu.add_css_class("launcher-menu-box");
 
-    let shutdown_btn = gtk4::Button::with_label("Shut Down");
+    let shutdown_btn = gtk4::Button::with_label(&archvnde_common::i18n::t("launcher.shutdown"));
     shutdown_btn.add_css_class("launcher-menu-item-btn");
 
-    let reboot_btn = gtk4::Button::with_label("Restart");
+    let reboot_btn = gtk4::Button::with_label(&archvnde_common::i18n::t("launcher.restart"));
     reboot_btn.add_css_class("launcher-menu-item-btn");
 
-    let suspend_btn = gtk4::Button::with_label("Suspend");
+    let suspend_btn = gtk4::Button::with_label(&archvnde_common::i18n::t("launcher.suspend"));
     suspend_btn.add_css_class("launcher-menu-item-btn");
 
     power_menu.append(&shutdown_btn);
@@ -61,3 +64,4 @@ pub fn build_footer_layout() -> (
         suspend_btn,
     )
 }
+

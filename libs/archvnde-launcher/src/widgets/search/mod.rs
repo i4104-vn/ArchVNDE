@@ -1,9 +1,14 @@
+//! Controller logic coordinating real-time app search queries, web redirect options,
+//! and spawning background indexing worker threads for file queries.
+
 use gtk4::prelude::*;
 use std::process::Command;
 use super::file_search::{search_files, create_file_row};
 
 mod render;
 
+/// Populates the right-hand container with query results.
+/// Displays a web browser search button and launches a background thread to match files.
 pub fn populate_search_results(
     right_scroll: &gtk4::ScrolledWindow,
     query: &str,
@@ -33,7 +38,6 @@ pub fn populate_search_results(
         right_content.append(&browser_btn);
         right_scroll.set_child(Some(&right_content));
 
-        // Run file search in a background thread to avoid blocking the GTK main thread
         let query_for_search = query_trimmed.clone();
         let (sender, receiver) = std::sync::mpsc::channel::<Vec<std::path::PathBuf>>();
 
@@ -42,7 +46,6 @@ pub fn populate_search_results(
             let _ = sender.send(results);
         });
 
-        // Poll the result from the background thread on the next idle cycle
         let files_placeholder_clone = files_placeholder.clone();
         let win_clone = window.clone();
         gtk4::glib::idle_add_local(move || {
@@ -69,3 +72,4 @@ pub fn populate_search_results(
         });
     }
 }
+

@@ -1,3 +1,5 @@
+//! UI renderer and main window coordinator for the search/app launcher overlay.
+
 use crate::core::find_desktop_apps;
 use gtk4::prelude::*;
 use gtk4_layer_shell::{Edge, KeyboardMode, Layer};
@@ -7,6 +9,8 @@ use crate::widgets::footer::create_launcher_footer;
 use crate::widgets::app_row::create_list_app_widget;
 use crate::widgets::search::populate_search_results;
 
+/// Builds the application launcher UI, connecting its key navigation,
+/// search entry box, left-column app grid, and right-column file/web results.
 pub fn build_launcher_ui(
     app: &gtk4::Application,
     launcher_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
@@ -45,12 +49,10 @@ pub fn build_launcher_ui(
     search_entry.set_margin_start(16);
     search_entry.set_margin_end(16);
 
-    // Horizontal split box for two columns
     let columns_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 12);
     columns_box.add_css_class("launcher-columns-box");
     columns_box.set_vexpand(true);
 
-    // Left column: scrollable all apps list (always shows all apps)
     let left_scroll = gtk4::ScrolledWindow::new();
     left_scroll.add_css_class("launcher-left-column");
     left_scroll.set_size_request(280, -1);
@@ -70,7 +72,6 @@ pub fn build_launcher_ui(
     let app_widgets_rc = Rc::new(app_widgets);
     left_scroll.set_child(Some(&left_list_box));
 
-    // Right column: dynamic search results
     let right_scroll = gtk4::ScrolledWindow::new();
     right_scroll.add_css_class("launcher-right-column");
     right_scroll.set_hexpand(true);
@@ -88,13 +89,11 @@ pub fn build_launcher_ui(
         move || {
             let query = current_query.borrow().trim().to_lowercase();
 
-            // 1. Filter applications on the left column in real-time by toggling visibility
             for (app, btn) in app_widgets.iter() {
                 let matches = query.is_empty() || app.name.to_lowercase().contains(&query);
                 btn.set_visible(matches);
             }
 
-            // 2. Populate file search and web search on the right column (async, non-blocking)
             populate_search_results(
                 &right_scroll,
                 &current_query.borrow(),
@@ -105,7 +104,6 @@ pub fn build_launcher_ui(
 
     let populate_impl_rc = Rc::new(populate_impl);
 
-    // Initial populate
     populate_impl_rc();
     update_highlight(&left_list_box, &right_scroll, Some(0));
 
@@ -121,7 +119,6 @@ pub fn build_launcher_ui(
         let text = entry.text().to_string();
         *current_query_search.borrow_mut() = text;
         
-        // Cancel any pending debounce timer
         if let Some(source_id) = d_source_id.borrow_mut().take() {
             source_id.remove();
         }
@@ -132,7 +129,6 @@ pub fn build_launcher_ui(
         let left_list_box_clone = left_list_box_changed.clone();
         let right_scroll_clone = right_scroll_changed.clone();
 
-        // Debounce: wait 200ms before triggering search to avoid blocking on every keystroke
         let new_source_id = gtk4::glib::timeout_add_local_once(
             std::time::Duration::from_millis(200),
             move || {
@@ -173,7 +169,6 @@ pub fn build_launcher_ui(
         gtk4::glib::Propagation::Stop
     });
 
-    // Dismiss when clicking outside the launcher box area using common helper
     archvnde_common::window::setup_click_outside_dismiss(&window, &box_layout);
 
     window.connect_is_active_notify(|win| {
@@ -182,7 +177,6 @@ pub fn build_launcher_ui(
         }
     });
 
-    // FIX: Use Capture phase so arrow/enter keys are handled even when a button has focus
     let key_controller = gtk4::EventControllerKey::new();
     key_controller.set_propagation_phase(gtk4::PropagationPhase::Capture);
     let win_clone = window.clone();
@@ -231,7 +225,6 @@ pub fn build_launcher_ui(
                 gtk4::glib::Propagation::Stop
             }
             _ => {
-                // If a button has focus and user types a printable char → redirect to search entry
                 if !search_entry_clone.is_focus() {
                     if let Some(c) = key.to_unicode() {
                         if !c.is_control() {
@@ -285,7 +278,6 @@ pub fn build_launcher_ui(
         450,
     );
 
-    // FIX: Delay focus grab until after the window is mapped/realized so grab_focus() succeeds
     let left_list_box_focus = left_list_box.clone();
     let right_scroll_focus = right_scroll.clone();
     let search_entry_focus = search_entry.clone();
@@ -308,13 +300,13 @@ pub fn build_launcher_ui(
     window
 }
 
+/// Helper function to traverse left and right grids to collect all visible clickable button widgets.
 fn get_visible_selectable_buttons(
     left_list_box: &gtk4::Box,
     right_scroll: &gtk4::ScrolledWindow,
 ) -> Vec<gtk4::Button> {
     let mut buttons = Vec::new();
 
-    // 1. Collect from left list box (all apps)
     let mut child = left_list_box.first_child();
     while let Some(w) = child {
         if w.is_visible() {
@@ -325,7 +317,6 @@ fn get_visible_selectable_buttons(
         child = w.next_sibling();
     }
 
-    // 2. Collect from right column
     if let Some(right_child) = right_scroll.child() {
         if let Some(right_box) = right_child.downcast_ref::<gtk4::Box>() {
             let mut sub_child = right_box.first_child();
@@ -353,6 +344,7 @@ fn get_visible_selectable_buttons(
     buttons
 }
 
+/// Applies highlit/selected styling to the active child button index while removing it from others.
 fn update_highlight(
     left_list_box: &gtk4::Box,
     right_scroll: &gtk4::ScrolledWindow,
@@ -367,3 +359,4 @@ fn update_highlight(
         }
     }
 }
+

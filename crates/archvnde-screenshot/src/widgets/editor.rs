@@ -1,3 +1,5 @@
+//! UI layout and drawing canvas handler for the screenshot crop/annotation editor window.
+
 use gtk4::prelude::*;
 use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
 use std::cell::RefCell;
@@ -8,6 +10,7 @@ use crate::capture::{
     draw_pixelated_rect, trigger_save, trigger_copy
 };
 
+/// Draws the background image, crop selection window shadow, and annotation marks (strokes, boxes, blur).
 fn draw_editor_canvas(cr: &cairo::Context, s: &EditorState, width: f64, height: f64) {
     // 1. Draw Background Screenshot
     cr.set_source_pixbuf(&s.bg_pixbuf, 0.0, 0.0);
@@ -105,50 +108,12 @@ fn draw_editor_canvas(cr: &cairo::Context, s: &EditorState, width: f64, height: 
     }
 }
 
-<<<<<<< HEAD:crates/archvnde-screenshot/src/widgets/editor.rs
+/// Creates a Popover widget containing a color palette grid to select the active pen/shape color.
 fn create_color_popover(
     parent: &gtk4::Button,
     state: Rc<RefCell<EditorState>>,
     color_dot: &gtk4::DrawingArea,
 ) -> gtk4::Popover {
-=======
-    // Tool buttons
-    let btn_reset = gtk4::Button::from_icon_name("view-refresh-symbolic");
-    btn_reset.set_tooltip_text(Some("Bỏ chụp và làm lại (Xóa hết nét vẽ)"));
-    btn_reset.add_css_class("screenshot-toolbar-btn");
-
-    let btn_pen = gtk4::Button::from_icon_name("document-edit-symbolic");
-    btn_pen.set_tooltip_text(Some("Bút vẽ"));
-    btn_pen.add_css_class("screenshot-toolbar-btn");
-
-    let btn_rect = gtk4::Button::from_icon_name("media-record-symbolic");
-    btn_rect.set_tooltip_text(Some("Vẽ hình chữ nhật"));
-    btn_rect.add_css_class("screenshot-toolbar-btn");
-
-    let btn_blur = gtk4::Button::from_icon_name("view-grid-symbolic");
-    btn_blur.set_tooltip_text(Some("Làm mờ thông tin"));
-    btn_blur.add_css_class("screenshot-toolbar-btn");
-
-    let btn_eraser = gtk4::Button::from_icon_name("edit-clear-all-symbolic");
-    btn_eraser.set_tooltip_text(Some("Xóa hình vẽ"));
-    btn_eraser.add_css_class("screenshot-toolbar-btn");
-
-    // Color picker button with a color dot indicator inside
-    let color_btn = gtk4::Button::new();
-    color_btn.set_tooltip_text(Some("Chọn màu vẽ"));
-    color_btn.add_css_class("screenshot-toolbar-btn");
-    
-    let color_dot = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-    color_dot.add_css_class("color-dot-indicator");
-    color_dot.set_size_request(14, 14);
-    color_btn.set_child(Some(&color_dot));
-
-    // Dynamic CSS provider for updating the active color dot indicator
-    let color_provider = gtk4::CssProvider::new();
-    color_dot.style_context().add_provider(&color_provider, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
-
-    // Create the Popover containing the 2x4 color grid
->>>>>>> fc66e5e (refactor: extract screenshot UI styles to screenshot.css and optimize editor.rs):crates/archvnde-screenshot/src/editor.rs
     let popover = gtk4::Popover::new();
     popover.set_parent(parent);
     popover.set_position(gtk4::PositionType::Top);
@@ -185,24 +150,11 @@ fn create_color_popover(
 
         let state_c = state.clone();
         let popover_c = popover.clone();
-        let color_provider_c = color_provider.clone();
+        let color_dot_c = color_dot.clone();
         let rgb_val = rgb;
         btn.connect_clicked(move |_| {
             state_c.borrow_mut().current_color = rgb_val;
-<<<<<<< HEAD:crates/archvnde-screenshot/src/widgets/editor.rs
             color_dot_c.queue_draw();
-=======
-            
-            // Update the color dot indicator on the toolbar button
-            let r = (rgb_val.0 * 255.0) as u8;
-            let g = (rgb_val.1 * 255.0) as u8;
-            let b = (rgb_val.2 * 255.0) as u8;
-            color_provider_c.load_from_data(&format!(
-                ".color-dot-indicator {{ background-color: rgb({}, {}, {}) !important; }}",
-                r, g, b
-            ));
-            
->>>>>>> fc66e5e (refactor: extract screenshot UI styles to screenshot.css and optimize editor.rs):crates/archvnde-screenshot/src/editor.rs
             popover_c.popdown();
         });
 
@@ -218,6 +170,8 @@ fn create_color_popover(
     popover
 }
 
+/// Sets up pointer/mouse drag gestures on the canvas to handle regional selection,
+/// free-hand strokes, drawing boxes, and eraser/blur selection.
 fn setup_editor_gestures(
     drawing_area: &gtk4::DrawingArea,
     state: Rc<RefCell<EditorState>>,
@@ -393,6 +347,8 @@ fn setup_editor_gestures(
     drawing_area.add_controller(drag_gesture);
 }
 
+/// Sets up keyboard event controllers to handle global shortcuts like Escape (cancel),
+/// Return (copy to clipboard), and Ctrl+S (save to file).
 fn setup_editor_keys(
     window: &gtk4::ApplicationWindow,
     state: Rc<RefCell<EditorState>>,
@@ -431,6 +387,8 @@ fn setup_editor_keys(
     window.add_controller(key_controller);
 }
 
+/// Constructs the screenshot editor window, maps its overlay design,
+/// initializes the canvas, and builds the editing toolbars.
 pub fn build_editor_ui(app: &gtk4::Application, temp_path: &str) -> gtk4::ApplicationWindow {
     let pixbuf = match gdk_pixbuf::Pixbuf::from_file(temp_path) {
         Ok(pb) => pb,

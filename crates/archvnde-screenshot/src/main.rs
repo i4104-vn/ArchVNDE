@@ -45,6 +45,7 @@ fn main() {
     );
 
     application.connect_activate(move |app| {
+        archvnde_common::init_theme();
         let window = build_editor_ui(app, &temp_path_for_activate);
         window.present();
     });

@@ -1,3 +1,7 @@
+//! Main entry point for the ArchVNDE Screen Locker.
+//! Sets up GTK Application, parses command line arguments for a custom wallpaper,
+//! initializes theme context, and maps locker windows to all connected monitors.
+
 mod pam;
 mod widgets;
 mod render;
@@ -7,7 +11,6 @@ use gtk4::prelude::*;
 fn main() {
     println!("Starting ArchVNDE Screen Locker...");
 
-    // 1. Simple argument parsing for custom wallpaper image
     let args: Vec<String> = std::env::args().collect();
     let mut custom_image = None;
     if args.len() > 1 {
@@ -25,7 +28,6 @@ fn main() {
         }
     }
 
-    // Resolve wallpaper path (fallback to standard ~/.config/archvnde/wallpaper.png)
     let home = std::env::var("HOME").unwrap_or_else(|_| "/home/i4104".to_string());
     let wallpaper_path = if let Some(ref path) = custom_image {
         if std::path::Path::new(path).exists() {
@@ -44,10 +46,7 @@ fn main() {
     );
 
     application.connect_activate(move |app| {
-        // Initialize global styles
         archvnde_common::init_theme();
-
-        // Build lock UI using render module
         render::build_lock_ui(app, &wallpaper_path);
     });
 

@@ -338,50 +338,6 @@ pub fn create_night_light_tile() -> gtk4::Button {
     btn
 }
 
-pub fn create_small_square_tile(icon_name: &str, text: &str) -> gtk4::Button {
-    let btn = gtk4::Button::new();
-    btn.add_css_class("control-square-tile");
-    btn.set_hexpand(true);
-    btn.set_valign(gtk4::Align::Fill);
-    btn.set_vexpand(true);
-
-    let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
-    main_box.set_valign(gtk4::Align::Center);
-    main_box.set_halign(gtk4::Align::Center);
-
-    let icon_widget = archvnde_common::icon::get_icon_colored(icon_name, 16, "rgba(255, 255, 255, 0.8)");
-    icon_widget.set_halign(gtk4::Align::Center);
-
-    let label = gtk4::Label::new(Some(text));
-    label.add_css_class("control-square-label");
-    label.set_halign(gtk4::Align::Center);
-
-    main_box.append(&icon_widget);
-    main_box.append(&label);
-
-    btn.set_child(Some(&main_box));
-
-    let icon_name_str = icon_name.to_string();
-    let icon_widget_clone = icon_widget.clone();
-
-    btn.connect_clicked(move |b| {
-        if b.has_css_class("active") {
-            b.remove_css_class("active");
-            let new_img = archvnde_common::icon::get_icon_colored(&icon_name_str, 16, "rgba(255, 255, 255, 0.8)");
-            if let Some(paintable) = new_img.paintable() {
-                icon_widget_clone.set_paintable(Some(&paintable));
-            }
-        } else {
-            b.add_css_class("active");
-            let new_img = archvnde_common::icon::get_icon_colored(&icon_name_str, 16, "#ffffff");
-            if let Some(paintable) = new_img.paintable() {
-                icon_widget_clone.set_paintable(Some(&paintable));
-            }
-        }
-    });
-
-    btn
-}
 
 pub fn create_control_center_grid() -> gtk4::Grid {
     let grid = gtk4::Grid::new();

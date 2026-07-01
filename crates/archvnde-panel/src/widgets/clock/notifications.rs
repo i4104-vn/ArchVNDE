@@ -1,3 +1,7 @@
+//! Interactive notifications history manager.
+//! Manages loading, grouped rendering (by app), and expanding/collapsing of notifications,
+//! as well as formatting timestamps and clearing history.
+
 use gtk4::prelude::*;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -36,7 +40,7 @@ pub fn setup_notifications_list(
             });
 
             if notifications.is_empty() {
-                let empty_label = gtk4::Label::new(Some("Không có thông báo mới"));
+                let empty_label = gtk4::Label::new(Some(&archvnde_common::i18n::t("panel.no_notifications")));
                 empty_label.add_css_class("notif-empty-label");
                 empty_label.set_halign(gtk4::Align::Center);
                 empty_label.set_valign(gtk4::Align::Center);
@@ -59,7 +63,7 @@ pub fn setup_notifications_list(
                 for app_key in app_order {
                     let list = &grouped[&app_key];
                     let display_app_name = if app_key == "system" {
-                        "Hệ thống".to_string()
+                        archvnde_common::i18n::t("panel.system")
                     } else {
                         let mut chars = app_key.chars();
                         match chars.next() {
@@ -120,7 +124,17 @@ pub fn setup_notifications_list(
     let update_header = move || {
         let current_now = chrono::Local::now();
         bt_clone.set_text(&current_now.format("%I:%M %p").to_string());
-        bd_clone.set_text(&current_now.format("%A, %B %d").to_string());
+        
+        let weekday_key = format!("weekday.{}", current_now.format("%a").to_string().to_lowercase());
+        let weekday = archvnde_common::i18n::t(&weekday_key);
+        let month_key = format!("month.{}", current_now.format("%m").to_string());
+        let month_str = archvnde_common::i18n::t(&month_key);
+        
+        let date_str = archvnde_common::i18n::t("panel.date_format")
+            .replace("{weekday}", &weekday)
+            .replace("{day}", &current_now.format("%d").to_string())
+            .replace("{month}", &month_str);
+        bd_clone.set_text(&date_str);
 
         let current_count = archvnde_island::widgets::notification::HISTORICAL_NOTIFICATIONS.with(|list| {
             list.borrow().len()
@@ -134,6 +148,7 @@ pub fn setup_notifications_list(
     };
     glib::timeout_add_local(std::time::Duration::from_millis(500), update_header);
 }
+
 
 /// Renders the expanded group layout displaying all historical notifications grouped
 /// under the specific application name with slide animation transitions.
@@ -191,11 +206,15 @@ fn render_expanded_group(
         let title_lbl = gtk4::Label::new(Some(&notif.title));
         title_lbl.add_css_class("notif-item-title");
         title_lbl.set_halign(gtk4::Align::Start);
+        title_lbl.set_ellipsize(gtk4::pango::EllipsizeMode::End);
+        title_lbl.set_lines(1);
 
         let body_lbl = gtk4::Label::new(Some(&notif.body));
         body_lbl.add_css_class("notif-item-body");
         body_lbl.set_halign(gtk4::Align::Start);
         body_lbl.set_wrap(true);
+        body_lbl.set_ellipsize(gtk4::pango::EllipsizeMode::End);
+        body_lbl.set_lines(2);
         body_lbl.set_max_width_chars(28);
 
         text_box.append(&title_lbl);
@@ -279,12 +298,16 @@ fn render_collapsed_group(
     let app_title = gtk4::Label::new(Some(display_app_name));
     app_title.add_css_class("notif-item-title");
     app_title.set_halign(gtk4::Align::Start);
+    app_title.set_ellipsize(gtk4::pango::EllipsizeMode::End);
+    app_title.set_lines(1);
     header_box.append(&app_title);
 
     let body_lbl = gtk4::Label::new(Some(&latest_notif.body));
     body_lbl.add_css_class("notif-item-body");
     body_lbl.set_halign(gtk4::Align::Start);
     body_lbl.set_wrap(true);
+    body_lbl.set_ellipsize(gtk4::pango::EllipsizeMode::End);
+    body_lbl.set_lines(2);
     body_lbl.set_max_width_chars(28);
 
     text_box.append(&header_box);
@@ -333,16 +356,16 @@ fn render_collapsed_group(
     group_container
 }
 
-/// Formats elapsed time since notification trigger into a user-friendly Vietnamese text.
+/// Formats elapsed time since notification trigger into a user-friendly localized text.
 fn format_elapsed_time(instant: std::time::Instant) -> String {
     let secs = instant.elapsed().as_secs();
     if secs < 60 {
-        "Vừa xong".to_string()
+        archvnde_common::i18n::t("panel.just_now")
     } else if secs < 3600 {
-        format!("{} phút trước", secs / 60)
+        archvnde_common::i18n::t("panel.minutes_ago").replace("{}", &(secs / 60).to_string())
     } else if secs < 86400 {
-        format!("{} giờ trước", secs / 3600)
+        archvnde_common::i18n::t("panel.hours_ago").replace("{}", &(secs / 3600).to_string())
     } else {
-        format!("{} ngày trước", secs / 86400)
+        archvnde_common::i18n::t("panel.days_ago").replace("{}", &(secs / 86400).to_string())
     }
 }

@@ -1,7 +1,12 @@
+//! UI rendering structure for the system monitor popover and draw graphs.
+
 use gtk4::prelude::*;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+/// Builds widgets for system monitoring.
+/// 
+/// Returns labels, popover, drawings areas, and details components.
 pub fn build_sys_monitor_ui(
     capsule: &gtk4::Box,
 ) -> (
@@ -20,7 +25,6 @@ pub fn build_sys_monitor_ui(
     sys_label.add_css_class("status-text");
     capsule.append(&sys_label);
 
-    // --- Hover Popover Configuration ---
     let popover = gtk4::Popover::new();
     popover.add_css_class("sys-monitor-popover");
     popover.set_parent(capsule);
@@ -29,13 +33,11 @@ pub fn build_sys_monitor_ui(
     let popover_box = gtk4::Box::new(gtk4::Orientation::Vertical, 10);
     popover_box.set_size_request(200, -1);
 
-    // Title
-    let popover_title = gtk4::Label::new(Some("System Resources"));
+    let popover_title = gtk4::Label::new(Some(&archvnde_common::i18n::t("panel.system_resources")));
     popover_title.add_css_class("tile-title");
     popover_title.set_xalign(0.0);
     popover_title.set_margin_bottom(4);
 
-    // CPU Info Row
     let cpu_label = gtk4::Label::new(Some("CPU Usage: 0%"));
     cpu_label.set_xalign(0.0);
     cpu_label.add_css_class("tile-subtitle");
@@ -44,7 +46,6 @@ pub fn build_sys_monitor_ui(
     cpu_chart.set_size_request(200, 60);
     cpu_chart.add_css_class("sys-chart");
 
-    // RAM Info Row
     let ram_label = gtk4::Label::new(Some("RAM Usage: 0%"));
     ram_label.set_xalign(0.0);
     ram_label.add_css_class("tile-subtitle");
@@ -78,6 +79,7 @@ pub fn build_sys_monitor_ui(
     )
 }
 
+/// Converts a hex color string to normalized RGB f64 values.
 fn hex_to_rgb(hex: &str) -> (f64, f64, f64) {
     let clean = hex.trim_start_matches('#');
     if let Ok(val) = u32::from_str_radix(clean, 16) {
@@ -90,6 +92,7 @@ fn hex_to_rgb(hex: &str) -> (f64, f64, f64) {
     }
 }
 
+/// Configures custom draw functions on a GTK DrawingArea to plot system metrics history graphs.
 pub fn setup_chart_draw(
     chart: &gtk4::DrawingArea,
     history: Rc<RefCell<std::collections::VecDeque<f64>>>,
@@ -104,7 +107,6 @@ pub fn setup_chart_draw(
         let w = width as f64;
         let h = height as f64;
 
-        // Draw horizontal grid lines
         cr.set_source_rgba(1.0, 1.0, 1.0, 0.08);
         cr.set_line_width(1.0);
         for i in 1..4 {
@@ -117,7 +119,6 @@ pub fn setup_chart_draw(
         let len = history.len();
         let step = w / ((len - 1) as f64);
 
-        // Path for fill
         cr.move_to(0.0, h);
         for (i, &val) in history.iter().enumerate() {
             let x = i as f64 * step;
@@ -131,7 +132,6 @@ pub fn setup_chart_draw(
         cr.set_source_rgba(r, g, b, 0.15);
         let _ = cr.fill();
 
-        // Path for stroke line
         let mut first = true;
         for (i, &val) in history.iter().enumerate() {
             let x = i as f64 * step;
@@ -149,3 +149,4 @@ pub fn setup_chart_draw(
         let _ = cr.stroke();
     });
 }
+

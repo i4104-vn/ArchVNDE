@@ -1,7 +1,11 @@
+//! Launcher footer action controller component.
+//! Connects profile items and quick power buttons (shutdown, restart, suspend).
+
 use gtk4::prelude::*;
 
 mod render;
 
+/// Creates a footer component containing the logged-in username and a system power popover.
 pub fn create_launcher_footer() -> gtk4::Box {
     let (
         footer_box,
@@ -31,3 +35,4 @@ pub fn create_launcher_footer() -> gtk4::Box {
 
     footer_box
 }
+

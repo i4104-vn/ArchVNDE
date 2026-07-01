@@ -1,8 +1,11 @@
+//! UI layout renderer for the Dynamic Island media controller popover.
+
 use gtk4::prelude::*;
 
 /// Builds and registers the glassmorphic media control Popover anchored to the notch capsule.
 pub fn create_media_popover(
     notch_capsule: &gtk4::Box,
+    notification_view: &gtk4::Box,
 ) -> (
     gtk4::Popover,
     gtk4::Label,
@@ -13,13 +16,13 @@ pub fn create_media_popover(
 ) {
     let popover = gtk4::Popover::new();
     popover.set_parent(notch_capsule);
-    popover.set_has_arrow(true);
+    popover.set_has_arrow(false);
+    popover.set_offset(0, 10);
     popover.add_css_class("media-popover");
 
     let popover_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
     popover_box.add_css_class("media-popover-box");
 
-    // Header (App Source)
     let popover_header = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
     popover_header.add_css_class("media-popover-header");
     popover_header.set_valign(gtk4::Align::Center);
@@ -30,13 +33,11 @@ pub fn create_media_popover(
     popover_header.append(&popover_app_name);
     popover_box.append(&popover_header);
 
-    // Cover Art Container
     let popover_art_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
     popover_art_container.set_valign(gtk4::Align::Fill);
     popover_art_container.set_halign(gtk4::Align::Fill);
     popover_box.append(&popover_art_container);
 
-    // Title & Artist
     let popover_title = gtk4::Label::new(Some("Unknown Title"));
     popover_title.add_css_class("media-popover-title");
     popover_title.set_halign(gtk4::Align::Center);
@@ -54,9 +55,6 @@ pub fn create_media_popover(
     popover_box.append(&popover_title);
     popover_box.append(&popover_artist);
 
-    // Timeline removed by user request
-
-    // Controls
     let controls_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 18);
     controls_box.add_css_class("media-popover-controls");
     controls_box.set_halign(gtk4::Align::Center);
@@ -96,7 +94,6 @@ pub fn create_media_popover(
 
     popover.set_child(Some(&popover_box));
 
-    // Toggle popover on notch_capsule click
     let click_gesture = gtk4::GestureClick::new();
     let popover_clone = popover.clone();
     let popover_box_clone = popover_box.clone();
@@ -104,27 +101,42 @@ pub fn create_media_popover(
     let is_animating = std::rc::Rc::new(std::cell::Cell::new(false));
     let is_animating_clone = is_animating.clone();
 
+    let notification_view_clone = notification_view.clone();
     click_gesture.connect_pressed(move |_, _, _, _| {
         if is_animating_clone.get() {
             return;
         }
+        if notification_view_clone.is_visible() {
+            let active_app_name = crate::widgets::notification::SHARED_NOTIFICATION.with(|sn| {
+                sn.borrow().as_ref().map(|n| n.icon.clone())
+            });
+            if let Some(app_name) = active_app_name {
+                if !app_name.is_empty() && !app_name.starts_with('/') {
+                    let _ = std::process::Command::new("wlrctl")
+                        .args(&["window", "focus", &app_name])
+                        .spawn();
+                    let _ = std::process::Command::new("wlrctl")
+                        .args(&["window", "focus", &app_name.to_lowercase()])
+                        .spawn();
+                    let _ = std::process::Command::new("wmctrl")
+                        .args(&["-a", &app_name])
+                        .spawn();
+                }
+            }
+            return;
+        }
+
         if popover_clone.is_visible() {
             let p_clone = popover_clone.clone();
             let is_animating_cb = is_animating_clone.clone();
             is_animating_cb.set(true);
             
-            archvnde_common::animation::genie_out(
+            archvnde_common::animation::slide_out_cb(
                 popover_box_clone.upcast_ref(),
-<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
-                240,
-                180,
-                400,
-=======
                 archvnde_common::animation::SlideDirection::Up,
                 15,
                 450,
                 false,
->>>>>>> 6f31f40 (perf: optimize animation refresh rates to 120fps and relax popup durations):libs/archvnde-island/src/widgets/popover.rs
                 move || {
                     p_clone.popdown();
                     is_animating_cb.set(false);
@@ -136,25 +148,21 @@ pub fn create_media_popover(
     });
     notch_capsule.add_controller(click_gesture);
 
-    // Zoom-in when the popover maps (opens)
     let popover_box_clone2 = popover_box.clone();
+    let notch_capsule_clone = notch_capsule.clone();
     popover.connect_map(move |_| {
-        archvnde_common::animation::genie_in(
+        notch_capsule_clone.add_css_class("popover-open");
+        archvnde_common::animation::slide_in(
             popover_box_clone2.upcast_ref(),
-<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
-            240,
-            180,
-            400,
-=======
             archvnde_common::animation::SlideDirection::Down,
             15,
-<<<<<<< HEAD:crates/archvnde-island/src/widgets/popover.rs
-            500,
->>>>>>> 6f31f40 (perf: optimize animation refresh rates to 120fps and relax popup durations):libs/archvnde-island/src/widgets/popover.rs
-=======
             450,
->>>>>>> 54d7b9f (perf: adjust all popup animation durations to 450ms):libs/archvnde-island/src/widgets/popover.rs
         );
+    });
+
+    let notch_capsule_clone2 = notch_capsule.clone();
+    popover.connect_unmap(move |_| {
+        notch_capsule_clone2.remove_css_class("popover-open");
     });
 
     (
@@ -166,3 +174,4 @@ pub fn create_media_popover(
         play_btn_icon_clone,
     )
 }
+
