@@ -49,7 +49,7 @@ pub fn create_header_row() -> gtk4::Box {
     });
 
     // 3. Power off button
-    let power_off = crate::widgets::power::create_shutdown_button();
+    let power_off = create_shutdown_button();
 
     btn_box.append(&lang_btn);
     btn_box.append(&settings_btn);
@@ -59,4 +59,16 @@ pub fn create_header_row() -> gtk4::Box {
     header_box.append(&btn_box);
 
     header_box
+}
+
+fn create_shutdown_button() -> gtk4::Button {
+    let power_off = gtk4::Button::new();
+    power_off.add_css_class("circle-btn");
+    power_off.add_css_class("power-btn");
+    let power_icon = archvnde_common::icon::get_icon("power", 16);
+    power_off.set_child(Some(&power_icon));
+    power_off.connect_clicked(|_| {
+        archvnde_common::poweroff();
+    });
+    power_off
 }

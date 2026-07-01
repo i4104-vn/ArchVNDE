@@ -6,17 +6,9 @@ const DEFAULT_CSS: &str = concat!(
     "\n",
     include_str!("styles/button.css"),
     "\n",
-    include_str!("styles/quick_settings.css"),
+    include_str!("styles/panel.css"),
     "\n",
-    include_str!("styles/launcher.css"),
-    "\n",
-    include_str!("styles/notification.css"),
-    "\n",
-    include_str!("styles/calendar.css"),
-    "\n",
-    include_str!("styles/power.css"),
-    "\n",
-    include_str!("styles/menu.css")
+    include_str!("styles/power.css")
 );
 
 /// Initializes the user configuration directory, writes the default

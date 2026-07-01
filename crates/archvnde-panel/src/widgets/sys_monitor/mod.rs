@@ -1,20 +1,15 @@
-//! System resource monitor widget for CPU load and RAM usage statistics.
-//! Periodically polls procfs files (`/proc/stat` and `/proc/meminfo`) to feed historical data charts.
-
 use gtk4::prelude::*;
 use std::cell::RefCell;
 use std::rc::Rc;
 
 mod render;
 
-/// Raw CPU time values used to calculate delta load values.
 #[derive(Clone, Debug)]
 struct CpuTime {
     total: u64,
     idle: u64,
 }
 
-/// Reads raw CPU tick numbers from `/proc/stat`.
 fn get_cpu_raw() -> Option<CpuTime> {
     let file = std::fs::File::open("/proc/stat").ok()?;
     let reader = std::io::BufReader::new(file);
@@ -38,8 +33,6 @@ fn get_cpu_raw() -> Option<CpuTime> {
     None
 }
 
-/// Reads raw RAM size information from `/proc/meminfo`.
-/// Returns a tuple containing `(used_gb, total_gb, usage_percent)`.
 fn get_ram_usage() -> Option<(f64, f64, f64)> {
     let file = std::fs::File::open("/proc/meminfo").ok()?;
     let reader = std::io::BufReader::new(file);
@@ -69,8 +62,6 @@ fn get_ram_usage() -> Option<(f64, f64, f64)> {
     }
 }
 
-/// Creates a system resource monitoring capsule.
-/// Displays basic stats on hover and draws CPU/RAM utilization graphs on a popup card.
 pub fn create_sys_monitor_widget() -> gtk4::Box {
     let capsule = gtk4::Box::new(gtk4::Orientation::Horizontal, 6);
 
@@ -84,12 +75,14 @@ pub fn create_sys_monitor_widget() -> gtk4::Box {
         ram_detail,
     ) = render::build_sys_monitor_ui(&capsule);
 
+    // Historical values (length 30, pre-filled with 0.0)
     let cpu_history = Rc::new(RefCell::new(std::collections::VecDeque::from(vec![0.0; 30])));
     let ram_history = Rc::new(RefCell::new(std::collections::VecDeque::from(vec![0.0; 30])));
 
     render::setup_chart_draw(&cpu_chart, cpu_history.clone(), "#3b82f6");
     render::setup_chart_draw(&ram_chart, ram_history.clone(), "#a855f7");
 
+    // Shared references to update values inside loops/hover events
     let last_cpu: Rc<RefCell<Option<CpuTime>>> = Rc::new(RefCell::new(None));
     let last_cpu_clone = last_cpu.clone();
     let sys_label_clone = sys_label.clone();
@@ -102,6 +95,7 @@ pub fn create_sys_monitor_widget() -> gtk4::Box {
     let cpu_chart_loop = cpu_chart.clone();
     let ram_chart_loop = ram_chart.clone();
 
+    // Polling loop for updating values on topbar and popover
     gtk4::glib::timeout_add_local(std::time::Duration::from_millis(2000), move || {
         if let Some(current_cpu) = get_cpu_raw() {
             let mut last_cpu_borrow = last_cpu_clone.borrow_mut();
@@ -121,18 +115,21 @@ pub fn create_sys_monitor_widget() -> gtk4::Box {
 
             let ram_info = get_ram_usage().unwrap_or((0.0, 0.0, 0.0));
 
+            // Update topbar capsule label
             sys_label_clone.set_text(&format!(
                 "CPU: {:.0}% | RAM: {:.0}%",
                 cpu_percent, ram_info.2
             ));
 
-            cpu_label_clone.set_text(&format!("{}: {:.1}%", archvnde_common::i18n::t("panel.cpu_load"), cpu_percent));
-            ram_label_clone.set_text(&format!("{}: {:.1}%", archvnde_common::i18n::t("panel.ram_usage"), ram_info.2));
+            // Update popover widgets
+            cpu_label_clone.set_text(&format!("CPU Load: {:.1}%", cpu_percent));
+            ram_label_clone.set_text(&format!("RAM Usage: {:.1}%", ram_info.2));
             ram_detail_clone.set_text(&format!(
-                "{:.} GB / {:.2} GB",
-                format!("{:.2}", ram_info.0), ram_info.1
+                "{:.2} GB / {:.2} GB",
+                ram_info.0, ram_info.1
             ));
 
+            // Update history and trigger redraw
             {
                 let mut hist = cpu_history_loop.borrow_mut();
                 hist.pop_front();
@@ -151,9 +148,11 @@ pub fn create_sys_monitor_widget() -> gtk4::Box {
         gtk4::glib::ControlFlow::Continue
     });
 
+    // --- Hover Motion Controller Event Handling ---
     let motion_controller = gtk4::EventControllerMotion::new();
     let popover_enter = popover.clone();
     
+    // Trigger immediate refresh on hover enter
     let last_cpu_hover = last_cpu.clone();
     let cpu_label_hover = cpu_label.clone();
     let ram_label_hover = ram_label.clone();
@@ -164,6 +163,7 @@ pub fn create_sys_monitor_widget() -> gtk4::Box {
     let ram_chart_hover = ram_chart.clone();
 
     motion_controller.connect_enter(move |_, _, _| {
+        // Run quick update
         let mut cpu_percent = 0.0;
         if let Some(current_cpu) = get_cpu_raw() {
             let mut last_cpu_borrow = last_cpu_hover.borrow_mut();
@@ -180,19 +180,20 @@ pub fn create_sys_monitor_widget() -> gtk4::Box {
                 0.0
             };
             *last_cpu_borrow = Some(current_cpu);
-            cpu_label_hover.set_text(&format!("{}: {:.1}%", archvnde_common::i18n::t("panel.cpu_load"), cpu_percent));
+            cpu_label_hover.set_text(&format!("CPU Load: {:.1}%", cpu_percent));
         }
 
         let mut ram_pct = 0.0;
         if let Some(ram_info) = get_ram_usage() {
             ram_pct = ram_info.2;
-            ram_label_hover.set_text(&format!("{}: {:.1}%", archvnde_common::i18n::t("panel.ram_usage"), ram_pct));
+            ram_label_hover.set_text(&format!("RAM Usage: {:.1}%", ram_pct));
             ram_detail_hover.set_text(&format!(
                 "{:.2} GB / {:.2} GB",
                 ram_info.0, ram_info.1
             ));
         }
 
+        // Push new value to history and queue redraw immediately on hover
         {
             let mut hist = cpu_history_hover.borrow_mut();
             hist.pop_front();
@@ -218,4 +219,3 @@ pub fn create_sys_monitor_widget() -> gtk4::Box {
     capsule.add_controller(motion_controller);
     capsule
 }
-

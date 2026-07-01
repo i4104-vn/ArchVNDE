@@ -1,5 +1,3 @@
-//! UI layout and renderer for the desktop context menu.
-
 use gtk4::prelude::*;
 use gtk4_layer_shell::{Edge, KeyboardMode, Layer};
 use std::cell::Cell;
@@ -10,7 +8,6 @@ use crate::widgets::position::position_and_animate_menu;
 use crate::widgets::events::setup_menu_dismiss_events;
 use crate::widgets::actions;
 
-/// Closes context menu with a genie out animation.
 pub fn close_menu_animated(
     window: &gtk4::ApplicationWindow,
     menu_box: &gtk4::Box,
@@ -33,23 +30,23 @@ pub fn close_menu_animated(
     );
 }
 
-/// Builds Context Menu UI ApplicationWindow.
 pub fn build_menu_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     let window = gtk4::ApplicationWindow::new(app);
     archvnde_common::apply_theme_class(&window);
     
+    // Use unified window init helper from archvnde_common
     archvnde_common::window::init_layer_window(
         &window,
         Layer::Overlay,
         KeyboardMode::Exclusive,
-        -1,
+        -1, // no exclusive zone needed
         &[
             (Edge::Top, true),
             (Edge::Bottom, true),
             (Edge::Left, true),
             (Edge::Right, true),
         ],
-        -1,
+        -1, // no margin bottom
     );
 
     window.add_css_class("menu-fullscreen");
@@ -89,6 +86,7 @@ pub fn build_menu_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
 
     setup_menu_dismiss_events(&window, &menu_box);
 
+    // Populate context menu items
     add_menu_item(
         &window,
         &menu_box,
@@ -124,6 +122,7 @@ pub fn build_menu_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
         Rc::new(actions::execute_reconfigure_shell),
     );
 
+    // Separator
     let sep = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
     sep.add_css_class("menu-item-separator");
     menu_box.append(&sep);
@@ -140,4 +139,3 @@ pub fn build_menu_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
 
     window
 }
-

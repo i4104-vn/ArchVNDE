@@ -1,6 +1,3 @@
-//! Main entry point for the ArchVNDE Desktop Context Menu.
-//! Initializes theme contexts and maps the popup menu window.
-
 mod widgets;
 mod render;
 
@@ -15,11 +12,15 @@ fn main() {
     );
 
     application.connect_activate(|app| {
+        // Initialize style provider
         archvnde_common::init_theme();
+
+        // Build menu window layout (from render module)
         let window = render::build_menu_ui(app);
+
+        // Present window
         window.present();
     });
 
     application.run();
 }
-

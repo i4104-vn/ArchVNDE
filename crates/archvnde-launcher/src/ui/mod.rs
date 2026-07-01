@@ -69,22 +69,9 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
 
     let key_controller = gtk4::EventControllerKey::new();
     let win_clone = window.clone();
-    let box_layout_clone = box_layout.clone();
     key_controller.connect_key_pressed(move |_, key, _, _| {
         if key == gtk4::gdk::Key::Escape {
-            let win = win_clone.clone();
-            let box_layout = box_layout_clone.clone();
-            let w = box_layout.width().max(450);
-            let h = box_layout.height().max(550);
-            archvnde_common::animation::genie_out(
-                box_layout.upcast_ref(),
-                w,
-                h,
-                200,
-                move || {
-                    win.close();
-                }
-            );
+            win_clone.close();
             gtk4::glib::Propagation::Proceed
         } else {
             gtk4::glib::Propagation::Stop
@@ -97,7 +84,7 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
     box_layout.append(&scrolled_window);
     window.set_child(Some(&box_layout));
 
-    archvnde_common::animation::genie_in(box_layout.upcast_ref(), 450, 550, 240);
+    archvnde_animation::slide_in(box_layout.upcast_ref(), archvnde_animation::SlideDirection::Down, 12, 240);
 
     window
 }

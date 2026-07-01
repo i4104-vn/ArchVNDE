@@ -4,21 +4,17 @@ use std::rc::Rc;
 
 mod calendar_window;
 mod notifications;
+mod render;
 
 /// Creates and returns a clock button widget that updates every second and
 /// spawns a centered, glassmorphic calendar popup dropdown when clicked.
 pub fn create_clock_widget(
     app: &gtk4::Application,
-    quick_settings_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
+    control_center_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
     calendar_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
     launcher_window: Rc<RefCell<Option<gtk4::ApplicationWindow>>>,
 ) -> gtk4::Button {
-    let clock_button = gtk4::Button::new();
-    clock_button.add_css_class("panel-clock-btn");
-
-    let clock_label = gtk4::Label::new(None);
-    clock_label.add_css_class("panel-clock");
-    clock_button.set_child(Some(&clock_label));
+    let (clock_button, clock_label) = render::build_clock_ui();
 
     let update_clock = {
         let clock_label = clock_label.clone();
@@ -37,14 +33,14 @@ pub fn create_clock_widget(
     glib::timeout_add_local(std::time::Duration::from_secs(1), update_clock);
 
     let cw_clone = calendar_window.clone();
-    let qsw_clone = quick_settings_window.clone();
+    let ccw_clone = control_center_window.clone();
     let lw_clone = launcher_window.clone();
     let app_clone = app.clone();
 
     clock_button.connect_clicked(move |_| {
-        // Close Quick Settings window if open
-        let qs_win = qsw_clone.borrow().clone();
-        if let Some(win) = qs_win {
+        // Close Control Center window if open
+        let cc_win = ccw_clone.borrow().clone();
+        if let Some(win) = cc_win {
             win.close();
         }
 

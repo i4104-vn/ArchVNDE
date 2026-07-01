@@ -47,6 +47,9 @@ pub fn create_system_island() -> gtk4::Box {
     // Album Art container
     let art_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
     art_container.set_valign(gtk4::Align::Center);
+    let fallback_icon = archvnde_common::icon::get_icon_colored("music", 14, "#3b82f6");
+    fallback_icon.add_css_class("notch-album-art");
+    art_container.append(&fallback_icon);
 
     // Track details
     let track_label = gtk4::Label::new(Some("No media"));
@@ -65,16 +68,32 @@ pub fn create_system_island() -> gtk4::Box {
     notch_capsule.append(&notch_content);
     container_vbox.append(&notch_capsule);
 
-    // --- 3. Notification Badge container (vertical stack, holds up to 3 active badges) ---
-    let notification_badge = gtk4::Box::new(gtk4::Orientation::Vertical, 6);
+    // --- 3. Notification Badge widget (flies down under the island) ---
+    let notification_badge = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
+    notification_badge.add_css_class("island-badge");
     notification_badge.set_valign(gtk4::Align::Start);
     notification_badge.set_halign(gtk4::Align::Center);
-    container_vbox.append(&notification_badge);
+    notification_badge.set_visible(false); // Hidden by default
 
-    // Dummy elements to satisfy start_player_polling_loop arguments
-    let badge_title = gtk4::Label::new(None);
-    let badge_desc = gtk4::Label::new(None);
     let badge_icon_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+    badge_icon_container.set_valign(gtk4::Align::Center);
+    let badge_icon = archvnde_common::icon::get_icon_colored("bell", 14, "#3b82f6");
+    badge_icon_container.append(&badge_icon);
+
+    let badge_text_box = gtk4::Box::new(gtk4::Orientation::Vertical, 2);
+    let badge_title = gtk4::Label::new(Some("Notification"));
+    badge_title.add_css_class("badge-title");
+    badge_title.set_halign(gtk4::Align::Start);
+    let badge_desc = gtk4::Label::new(Some("New Message"));
+    badge_desc.add_css_class("badge-desc");
+    badge_desc.set_halign(gtk4::Align::Start);
+    
+    badge_text_box.append(&badge_title);
+    badge_text_box.append(&badge_desc);
+
+    notification_badge.append(&badge_icon_container);
+    notification_badge.append(&badge_text_box);
+    container_vbox.append(&notification_badge);
 
     // --- 4. Media Control Popover ---
     let (
@@ -83,7 +102,7 @@ pub fn create_system_island() -> gtk4::Box {
         popover_artist,
         popover_art_container,
         popover_app_name,
-        play_btn_icon,
+        play_img_clone,
     ) = widgets::popover::create_media_popover(&notch_capsule);
 
     // Shared state variables
@@ -93,93 +112,11 @@ pub fn create_system_island() -> gtk4::Box {
     let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<widgets::notification::NotificationMsg>();
     widgets::notification::spawn_dbus_listener(tx);
 
-    let notif_badge_clone = notification_badge.clone();
     glib::MainContext::default().spawn_local(async move {
         while let Some(msg) = rx.recv().await {
             match msg {
                 widgets::notification::NotificationMsg::New { summary, body, icon, timeout } => {
                     widgets::notification::show_notification_popup(&summary, &body, &icon, timeout);
-
-                    // Create dynamic badge card
-                    let badge_card = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
-                    badge_card.add_css_class("island-badge");
-                    badge_card.set_valign(gtk4::Align::Center);
-
-                    let badge_icon_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-                    badge_icon_box.set_valign(gtk4::Align::Center);
-                    let icon_symbol = if icon.is_empty() { "bell" } else { &icon };
-                    let badge_icon = archvnde_common::icon::get_icon_colored(icon_symbol, 14, "#3b82f6");
-                    badge_icon_box.append(&badge_icon);
-
-                    let badge_text_box = gtk4::Box::new(gtk4::Orientation::Vertical, 2);
-                    let badge_lbl_title = gtk4::Label::new(Some(&summary));
-                    badge_lbl_title.add_css_class("badge-title");
-                    badge_lbl_title.set_halign(gtk4::Align::Start);
-                    
-                    let badge_lbl_desc = gtk4::Label::new(Some(&body));
-                    badge_lbl_desc.add_css_class("badge-desc");
-                    badge_lbl_desc.set_halign(gtk4::Align::Start);
-                    badge_lbl_desc.set_wrap(true);
-                    badge_lbl_desc.set_max_width_chars(28);
-
-                    badge_text_box.append(&badge_lbl_title);
-                    badge_text_box.append(&badge_lbl_desc);
-
-                    badge_card.append(&badge_icon_box);
-                    badge_card.append(&badge_text_box);
-
-                    // Append and animate in
-                    notif_badge_clone.append(&badge_card);
-                    archvnde_common::animation::slide_in(
-                        badge_card.upcast_ref(),
-                        archvnde_common::animation::SlideDirection::Down,
-                        8,
-                        200,
-                    );
-
-                    // Keep maximum of 3 active badges
-                    let mut children = Vec::new();
-                    let mut next_child = notif_badge_clone.first_child();
-                    while let Some(child) = next_child {
-                        next_child = child.next_sibling();
-                        children.push(child);
-                    }
-
-                    if children.len() > 3 {
-                        let items_to_remove = children.len() - 3;
-                        for i in 0..items_to_remove {
-                            let old_card = children[i].clone();
-                            let nb_c = notif_badge_clone.clone();
-                            archvnde_common::animation::slide_out_cb(
-                                &old_card,
-                                archvnde_common::animation::SlideDirection::Up,
-                                8,
-                                200,
-                                false,
-                                move || {
-                                    nb_c.remove(&old_card);
-                                }
-                            );
-                        }
-                    }
-
-                    // Expire card after 5 seconds
-                    let badge_card_expire = badge_card.clone();
-                    let nb_expire = notif_badge_clone.clone();
-                    glib::timeout_add_local_once(std::time::Duration::from_secs(5), move || {
-                        if badge_card_expire.parent().is_some() {
-                            archvnde_common::animation::slide_out_cb(
-                                &badge_card_expire,
-                                archvnde_common::animation::SlideDirection::Up,
-                                8,
-                                200,
-                                false,
-                                move || {
-                                    nb_expire.remove(&badge_card_expire);
-                                }
-                            );
-                        }
-                    });
                 }
                 widgets::notification::NotificationMsg::Close => {
                     widgets::notification::close_notification_popup();
@@ -207,7 +144,7 @@ pub fn create_system_island() -> gtk4::Box {
         popover_artist,
         popover_art_container,
         popover_app_name,
-        play_btn_icon,
+        play_img_clone,
     );
 
     container_vbox

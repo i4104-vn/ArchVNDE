@@ -41,24 +41,6 @@ pub fn create_app_row(app: &DesktopApp, window: &gtk4::ApplicationWindow) -> gtk
                 eprintln!("Failed to spawn command {}: {}", exec_cmd, e);
             }
         }
-
-        if let Some(child) = win_to_close.child() {
-            if let Ok(box_layout) = child.downcast::<gtk4::Box>() {
-                let win = win_to_close.clone();
-                let w = box_layout.width().max(450);
-                let h = box_layout.height().max(550);
-                archvnde_common::animation::genie_out(
-                    box_layout.upcast_ref(),
-                    w,
-                    h,
-                    200,
-                    move || {
-                        win.close();
-                    }
-                );
-                return;
-            }
-        }
         win_to_close.close();
     });
 

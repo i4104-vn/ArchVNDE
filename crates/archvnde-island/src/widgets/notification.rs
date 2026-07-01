@@ -5,24 +5,7 @@ use std::collections::HashMap;
 use std::thread;
 use zbus::interface;
 
-#[derive(Clone, Debug)]
-pub struct ActiveNotification {
-    pub title: String,
-    pub body: String,
-    pub icon: String,
-    pub timestamp: std::time::Instant,
-}
-
-#[derive(Debug)]
-pub enum NotificationMsg {
-    New {
-        summary: String,
-        body: String,
-        icon: String,
-        timeout: i32,
-    },
-    Close,
-}
+use crate::models::{ActiveNotification, NotificationMsg};
 
 thread_local! {
     pub static SHARED_NOTIFICATION: RefCell<Option<ActiveNotification>> = RefCell::new(None);
@@ -172,8 +155,13 @@ pub fn show_notification_popup(summary: &str, body: &str, icon_name: &str, timeo
 
     let app_icon_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
     app_icon_box.add_css_class("popup-app-icon-box");
+<<<<<<< HEAD:crates/archvnde-island/src/widgets/notification.rs
     let icon_symbol = if icon_name.is_empty() { "message" } else { icon_name };
     let app_icon = archvnde_common::icon::get_icon_colored(icon_symbol, 24, "#ffffff");
+=======
+    let app_icon = archvnde_common::icon::get_system_or_file_icon(icon_name, "preferences-system-notifications");
+    app_icon.set_pixel_size(32);
+>>>>>>> ce088a8 (refactor: extract data models and common icon helpers, modularize panel widgets):libs/archvnde-island/src/widgets/notification.rs
     app_icon_box.append(&app_icon);
 
     let text_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);

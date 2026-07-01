@@ -1,7 +1,7 @@
 //! Event listener handlers to dismiss or close the menu.
 
 use gtk4::prelude::*;
-use super::close_menu_animated;
+use crate::render::close_menu_animated;
 
 /// Configures event controllers to dismiss the popup context menu when the user
 /// clicks outside its bounds or presses the Escape key.

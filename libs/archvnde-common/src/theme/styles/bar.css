@@ -492,6 +492,14 @@ popover.taskbar-popover>contents {
     opacity: 1.0 !important;
 }
 
+.taskbar-previews-header-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    margin: 10px;
+
+}
+
 /* Previews popup container */
 .taskbar-previews-container {
     padding: 2px;
@@ -571,12 +579,16 @@ button.taskbar-preview-list-kill-btn:hover {
     min-height: 1px;
 }
 
+.taskbar-preview-action-icon {
+    color: red;
+}
+
 button.taskbar-preview-action-btn {
     background-image: none;
     background-color: transparent;
     border: none;
     border-radius: 6px;
-    padding: 6px 10px;
+    padding: 6px 8px;
     transition: all 150ms ease;
     box-shadow: none;
     text-align: left;

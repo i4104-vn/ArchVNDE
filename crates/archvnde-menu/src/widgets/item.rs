@@ -2,7 +2,7 @@
 
 use gtk4::prelude::*;
 use std::rc::Rc;
-use super::close_menu_animated;
+use crate::render::close_menu_animated;
 
 /// Adds a standard hoverable button option row inside the menu container.
 /// Automatically executes the assigned callback after closing the window.

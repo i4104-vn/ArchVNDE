@@ -3,9 +3,10 @@ use std::env;
 
 mod capture;
 mod widgets;
+mod render;
 
 use capture::{capture_screen_to_temp, get_screenshot_save_path};
-use widgets::editor::build_editor_ui;
+use render::build_editor_ui;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
