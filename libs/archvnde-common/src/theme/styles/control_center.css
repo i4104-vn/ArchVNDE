@@ -175,11 +175,7 @@ button.control-tile-row {
 }
 
 button.control-tile-row:hover {
-<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/control_center.css
     background-color: rgba(255, 255, 255, 0.06);
-=======
-    background-color: rgba(255, 255, 255, 0.05);
->>>>>>> 64a9bfa (fix: resolve search bar and control center button styling, align launcher window margins):libs/archvnde-common/src/theme/styles/quick_settings.css
     background-image: none;
 }
 
@@ -202,16 +198,10 @@ button.control-tile-row:hover {
 }
 
 button.control-dnd-tile {
-<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/control_center.css
     background-color: rgba(255, 255, 255, 0.04);
     background-image: none;
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-top: 1px solid rgba(255, 255, 255, 0.10);
-=======
-    background-color: rgba(255, 255, 255, 0.03);
-    background-image: none;
-    border: 1px solid rgba(255, 255, 255, 0.05);
->>>>>>> 64a9bfa (fix: resolve search bar and control center button styling, align launcher window margins):libs/archvnde-common/src/theme/styles/quick_settings.css
     border-radius: 16px;
     padding: 10px 12px;
     color: #ffffff;
@@ -220,25 +210,15 @@ button.control-dnd-tile {
 }
 
 button.control-dnd-tile:hover {
-<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/control_center.css
     background-color: rgba(255, 255, 255, 0.08);
-=======
-    background-color: rgba(255, 255, 255, 0.06);
->>>>>>> 64a9bfa (fix: resolve search bar and control center button styling, align launcher window margins):libs/archvnde-common/src/theme/styles/quick_settings.css
     background-image: none;
     transform: translateY(-1px);
 }
 
 button.control-dnd-tile.active {
-<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/control_center.css
     background-color: rgba(59, 130, 246, 0.12);
     background-image: none;
     border-color: rgba(59, 130, 246, 0.22);
-=======
-    background-color: rgba(59, 130, 246, 0.15);
-    background-image: none;
-    border-color: rgba(59, 130, 246, 0.25);
->>>>>>> 64a9bfa (fix: resolve search bar and control center button styling, align launcher window margins):libs/archvnde-common/src/theme/styles/quick_settings.css
 }
 
 button.control-dnd-tile.active .control-icon-circle {
@@ -249,16 +229,10 @@ button.control-dnd-tile.active .control-icon-circle {
 }
 
 button.control-square-tile {
-<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/control_center.css
     background-color: rgba(255, 255, 255, 0.04);
     background-image: none;
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-top: 1px solid rgba(255, 255, 255, 0.10);
-=======
-    background-color: rgba(255, 255, 255, 0.03);
-    background-image: none;
-    border: 1px solid rgba(255, 255, 255, 0.05);
->>>>>>> 64a9bfa (fix: resolve search bar and control center button styling, align launcher window margins):libs/archvnde-common/src/theme/styles/quick_settings.css
     border-radius: 16px;
     padding: 12px 6px;
     color: #ffffff;
@@ -267,25 +241,15 @@ button.control-square-tile {
 }
 
 button.control-square-tile:hover {
-<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/control_center.css
     background-color: rgba(255, 255, 255, 0.08);
-=======
-    background-color: rgba(255, 255, 255, 0.06);
->>>>>>> 64a9bfa (fix: resolve search bar and control center button styling, align launcher window margins):libs/archvnde-common/src/theme/styles/quick_settings.css
     background-image: none;
     transform: translateY(-1px);
 }
 
 button.control-square-tile.active {
-<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/control_center.css
     background-color: rgba(59, 130, 246, 0.12);
     background-image: none;
     border-color: rgba(59, 130, 246, 0.22);
-=======
-    background-color: rgba(59, 130, 246, 0.15);
-    background-image: none;
-    border-color: rgba(59, 130, 246, 0.25);
->>>>>>> 64a9bfa (fix: resolve search bar and control center button styling, align launcher window margins):libs/archvnde-common/src/theme/styles/quick_settings.css
 }
 
 button.control-square-tile.active image {
@@ -354,7 +318,6 @@ button.control-square-tile.active image {
     color: rgba(255, 255, 255, 0.50);
 }
 
-<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/control_center.css
 .control-disk-card progressbar trough {
     min-height: 5px;
     border-radius: 9999px;
@@ -366,23 +329,75 @@ button.control-square-tile.active image {
     border-radius: 9999px;
     background-color: #10b981;
     background-image: linear-gradient(90deg, #10b981 0%, #34d399 100%);
-=======
-button.control-music-btn {
+}
+
+.control-lang-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #ffffff;
+    text-align: center;
+}
+
+/* --- Audio Control & Menu Styling --- */
+button.slider-mute-btn,
+button.slider-menu-btn {
     background-color: transparent;
     background-image: none;
     border: none;
-    color: #ffffff;
-    padding: 4px;
+    border-radius: 8px;
+    padding: 6px;
     min-width: 28px;
     min-height: 28px;
-    border-radius: 50%;
     box-shadow: none;
     transition: all 150ms ease;
+    align-self: center;
 }
 
-button.control-music-btn:hover {
-    background-color: rgba(255, 255, 255, 0.08);
+.audio-menu-popover {
+    padding: 4px;
+}
+
+.audio-menu-section-title {
+    font-size: 9px;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.45);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    margin-top: 4px;
+    padding-left: 6px;
+    letter-spacing: 0.5px;
+}
+
+button.audio-menu-item-btn {
+    background-color: transparent;
     background-image: none;
->>>>>>> 64a9bfa (fix: resolve search bar and control center button styling, align launcher window margins):libs/archvnde-common/src/theme/styles/quick_settings.css
+    border: none;
+    border-radius: 6px;
+    padding: 5px 8px;
+    color: rgba(255, 255, 255, 0.80);
+    box-shadow: none;
+    transition: all 120ms ease;
+    margin-bottom: 2px;
 }
 
+button.audio-menu-item-btn:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+button.audio-menu-item-btn.active {
+    background-color: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+}
+
+button.audio-menu-item-btn.active label {
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.audio-menu-item-check {
+    font-size: 11px;
+    font-weight: bold;
+    color: #3b82f6;
+    margin-right: 4px;
+}
