@@ -12,7 +12,7 @@ pub fn create_shutdown_button() -> gtk4::Button {
     let power_off = gtk4::Button::new();
     power_off.add_css_class("circle-btn");
     power_off.add_css_class("power-btn");
-    let power_icon = archvnde_icon::get_icon("power", 16);
+    let power_icon = archvnde_common::icon::get_icon("power", 16);
     power_off.set_child(Some(&power_icon));
     power_off.connect_clicked(|_| {
         trigger_shutdown();

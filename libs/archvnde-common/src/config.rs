@@ -1,13 +1,31 @@
-//! Configuration path resolvers.
-
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-<<<<<<< HEAD:libs/archvnde-common/src/config.rs
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ThemeConfig {
+    pub blur_radius: u32,
+    pub opacity: f64,
+    pub border_color: String,
+    pub border_width: u32,
+}
+
+impl Default for ThemeConfig {
+    fn default() -> Self {
+        Self {
+            blur_radius: 20,
+            opacity: 0.75,
+            border_color: "#ffffff".to_string(),
+            border_width: 1,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct ShellConfig {
+    pub theme: ThemeConfig,
+}
 
 // Helper to get configuration directory path (~/.config/archvnde)
-=======
-/// Resolves the absolute directory path to the user's config folder: `~/.config/archvnde/`.
->>>>>>> 52145a1 (refactor: clean up comments and add i18n support):libs/archvnde-common/src/core/config.rs
 pub fn get_archvnde_config_dir() -> PathBuf {
     dirs::config_dir()
         .unwrap_or_else(|| {
@@ -16,4 +34,3 @@ pub fn get_archvnde_config_dir() -> PathBuf {
         })
         .join("archvnde")
 }
-

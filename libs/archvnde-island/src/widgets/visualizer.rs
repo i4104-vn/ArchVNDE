@@ -20,25 +20,15 @@ pub fn create_visualizer() -> (gtk4::Box, Vec<gtk4::Box>) {
 }
 
 pub fn start_visualizer_animation(bars: Vec<gtk4::Box>, is_playing: Rc<Cell<bool>>) {
-    if bars.is_empty() {
-        return;
-    }
-    let start_time = std::cell::Cell::new(0i64);
-    bars[0].add_tick_callback(move |_w, clock| {
+    let mut step = 0;
+    glib::timeout_add_local(std::time::Duration::from_millis(120), move || {
         if is_playing.get() {
-            let now = clock.frame_time();
-            if start_time.get() == 0 {
-                start_time.set(now);
-            }
-            let elapsed_sec = (now - start_time.get()) as f64 / 1_000_000.0;
+            step += 1;
             for (i, bar) in bars.iter().enumerate() {
-                let speed = 15.0;
-                let phase = i as f64 * 1.5;
-                let val = (((elapsed_sec * speed + phase)).sin() * 5.0 + 7.0) as i32;
+                let val = (((step + i * 3) as f64 * 0.8).sin() * 5.0 + 7.0) as i32;
                 bar.set_size_request(2, val.max(2).min(12));
             }
         } else {
-            start_time.set(0);
             for bar in &bars {
                 bar.set_size_request(2, 2);
             }
