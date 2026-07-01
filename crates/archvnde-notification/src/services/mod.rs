@@ -1,7 +1,15 @@
+<<<<<<< HEAD:crates/archvnde-notification/src/services/mod.rs
+=======
+//! DBus system notifications server daemon.
+//! Listens for incoming desktop notifications on `org.freedesktop.Notifications`.
+
+use std::cell::RefCell;
+>>>>>>> 52145a1 (refactor: clean up comments and add i18n support):libs/archvnde-island/src/widgets/notification.rs
 use std::collections::HashMap;
 use std::thread;
 use zbus::interface;
 
+<<<<<<< HEAD:crates/archvnde-notification/src/services/mod.rs
 #[derive(Debug)]
 pub enum NotificationMsg {
     New {
@@ -11,8 +19,18 @@ pub enum NotificationMsg {
         timeout: i32,
     },
     Close,
+=======
+use crate::models::{ActiveNotification, NotificationMsg};
+
+thread_local! {
+    /// Holds reference to the active single dynamic popup notification.
+    pub static SHARED_NOTIFICATION: RefCell<Option<ActiveNotification>> = RefCell::new(None);
+    /// Holds rolling history of past system notifications.
+    pub static HISTORICAL_NOTIFICATIONS: RefCell<Vec<ActiveNotification>> = RefCell::new(Vec::new());
+>>>>>>> 52145a1 (refactor: clean up comments and add i18n support):libs/archvnde-island/src/widgets/notification.rs
 }
 
+/// DBus Notifications interface server object.
 pub struct NotificationService {
     sender: tokio::sync::mpsc::UnboundedSender<NotificationMsg>,
     current_id: std::sync::atomic::AtomicU32,
@@ -42,7 +60,6 @@ impl NotificationService {
 =======
         let mut icon = app_icon.to_string();
         if icon.is_empty() {
-            // Try searching desktop apps cache for a matching app
             let lower_name = app_name.to_lowercase();
             let apps = archvnde_common::desktop::find_desktop_apps();
             for app in apps {
@@ -123,12 +140,13 @@ pub fn spawn_dbus_listener(tx: tokio::sync::mpsc::UnboundedSender<NotificationMs
 <<<<<<< HEAD:crates/archvnde-notification/src/services/mod.rs
 =======
 
+/// Dismisses popup display window.
 pub fn close_notification_popup() {
-    // No-op: Notifications are managed directly inside the Dynamic Island notch
+    // Managed inside notch capsules, no-op
 }
 
+/// Registers the incoming desktop notification, caching it to the rolling historical notifications log.
 pub fn show_notification_popup(summary: &str, body: &str, icon_name: &str, app_name: &str, _timeout_ms: i32) {
-    // Save to historical notifications list
     let notif = ActiveNotification {
         title: summary.to_string(),
         body: body.to_string(),
@@ -145,8 +163,12 @@ pub fn show_notification_popup(summary: &str, body: &str, icon_name: &str, app_n
         let mut list_borrow = list.borrow_mut();
         list_borrow.push(notif);
         if list_borrow.len() > 50 {
-            list_borrow.remove(0); // Cap at 50 notifications
+            list_borrow.remove(0);
         }
     });
 }
+<<<<<<< HEAD:crates/archvnde-notification/src/services/mod.rs
 >>>>>>> c5c198c (perf: optimize desktop caching, tray polling, alt-tab switching and notification behaviors):libs/archvnde-island/src/widgets/notification.rs
+=======
+
+>>>>>>> 52145a1 (refactor: clean up comments and add i18n support):libs/archvnde-island/src/widgets/notification.rs

@@ -1,16 +1,24 @@
+//! StatusNotifierItem system tray server daemon.
+//! Implements DBuswatcher daemon specifications to allow client apps to register system tray items.
+
 use std::sync::{Arc, Mutex, OnceLock};
 use std::time::Duration;
 use zbus::interface;
 
+/// Representation of a registered system tray item.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TrayItem {
+    /// DBus destination service name.
     pub service: String,
+    /// Icon theme name or path string.
     pub icon_name: String,
+    /// Friendly tooltip title.
     pub title: String,
 }
 
 static TRAY_ITEMS: OnceLock<Arc<Mutex<Vec<TrayItem>>>> = OnceLock::new();
 
+/// Returns a cloned copy of all currently registered system tray items.
 pub fn get_tray_items() -> Vec<TrayItem> {
     let registry = TRAY_ITEMS.get_or_init(|| Arc::new(Mutex::new(Vec::new())));
     registry.lock().unwrap().clone()
@@ -32,6 +40,7 @@ trait StatusNotifierItem {
     fn title(&self) -> zbus::Result<String>;
 }
 
+/// DBus watcher object for org.kde.StatusNotifierWatcher.
 pub struct StatusNotifierWatcher;
 
 #[interface(name = "org.kde.StatusNotifierWatcher")]
@@ -43,8 +52,6 @@ impl StatusNotifierWatcher {
     ) {
         let sender = header.sender().map(|s| s.to_string()).unwrap_or_default();
         let target_service = if service.starts_with('/') {
-            // Some buggy apps register by passing object path instead of service name.
-            // In that case, fall back to the message sender's unique connection name.
             sender.clone()
         } else {
             service.clone()
@@ -98,7 +105,6 @@ impl StatusNotifierWatcher {
 
         let registry = TRAY_ITEMS.get_or_init(|| Arc::new(Mutex::new(Vec::new())));
         let mut lock = registry.lock().unwrap();
-        // Remove existing item with same service name to avoid duplicates
         lock.retain(|x| x.service != item.service);
         lock.push(item);
     }
@@ -151,9 +157,6 @@ pub fn spawn_watcher_service() {
                 }
             };
 
-            // Maintenance Loop: every 500ms:
-            //  1. Prune dead/unresponsive services (name_has_owner = false or timeout)
-            //  2. Re-query IconName + Title for alive items concurrently with a 150ms timeout
             loop {
                 tokio::time::sleep(Duration::from_secs(1)).await;
                 let registry = TRAY_ITEMS.get_or_init(|| Arc::new(Mutex::new(Vec::new())));
@@ -170,7 +173,6 @@ pub fn spawn_watcher_service() {
                         let dbus_proxy_clone = dbus_proxy.clone();
                         let handle = tokio::spawn(async move {
                             if let Ok(bus_name) = zbus::names::BusName::try_from(item.service.clone()) {
-                                // Check if owner exists with a short timeout to prevent hanging
                                 let has_owner = tokio::time::timeout(
                                     Duration::from_millis(100),
                                     dbus_proxy_clone.name_has_owner(bus_name.clone())
@@ -178,7 +180,6 @@ pub fn spawn_watcher_service() {
                                 
                                 match has_owner {
                                     Ok(Ok(true)) => {
-                                        // Re-query the icon name and title with a short timeout
                                         let query_fut = async {
                                             if let Ok(proxy) = StatusNotifierItemProxy::builder(&conn_clone)
                                                 .destination(bus_name)
@@ -265,11 +266,9 @@ pub fn activate_item(service: &str, x: i32, y: i32, is_right_click: bool) {
                     println!("Sending D-Bus context_menu({}, {}) to {}", x, y, service_str);
                     if let Err(e) = proxy.context_menu(x, y).await {
                         eprintln!("D-Bus context_menu call failed for {}: {}", service_str, e);
-                        // Fallback 1: Some apps use SecondaryActivate for menus
                         println!("Attempting fallback secondary_activate({}, {}) for {}", x, y, service_str);
                         if let Err(e2) = proxy.secondary_activate(x, y).await {
                             eprintln!("D-Bus secondary_activate call failed for {}: {}", service_str, e2);
-                            // Fallback 2: Some apps use Activate as a catch-all
                             println!("Attempting fallback activate({}, {}) for {}", x, y, service_str);
                             let _ = proxy.activate(x, y).await;
                         }
@@ -284,3 +283,4 @@ pub fn activate_item(service: &str, x: i32, y: i32, is_right_click: bool) {
         });
     });
 }
+

@@ -1,7 +1,10 @@
+//! Switcher collection list renderer component.
+
 use gtk4::prelude::*;
 use archvnde_common::desktop::DesktopApp;
 use crate::widgets::item::create_app_button;
 
+/// Populates a horizontal list of window switcher preview buttons from the list of running apps.
 pub fn build_apps_list(apps: &[DesktopApp]) -> (gtk4::Box, Vec<gtk4::Button>) {
     let icons_row = gtk4::Box::new(gtk4::Orientation::Horizontal, 16);
     icons_row.add_css_class("switcher-list-row");
@@ -18,3 +21,4 @@ pub fn build_apps_list(apps: &[DesktopApp]) -> (gtk4::Box, Vec<gtk4::Button>) {
 
     (icons_row, item_buttons)
 }
+
