@@ -1,11 +1,11 @@
 .calendar-box {
-    background-color: rgba(255, 255, 255, 0.98);
+    background-color: rgba(255, 255, 255, 0.82);
     background-image: linear-gradient(160deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.15) 100%);
     -gtk-background-blur: 24;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-top: 1px solid rgba(255, 255, 255, 0.28);
     border-radius: 24px;
-    color: rgba(28, 28, 30, 0.95);
+    color: rgba(255, 255, 255, 0.95);
     padding: 20px;
     box-shadow: none;
     min-width: 330px;
@@ -24,8 +24,8 @@
 
 .calendar-close-btn {
     background-color: rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: rgba(28, 28, 30, 0.75);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    color: rgba(0, 0, 0, 0.45);
     border-radius: 8px;
     padding: 4px 8px;
     min-height: 28px;
@@ -35,8 +35,8 @@
 }
 
 .calendar-close-btn:hover {
-    background-color: rgba(255, 255, 255, 0.12);
-    border-color: rgba(0, 0, 0, 0.08);
+    background-color: rgba(0, 0, 0, 0.09);
+    border-color: rgba(255, 255, 255, 0.14);
     color: #1c1c1e;
 }
 
@@ -86,7 +86,7 @@ calendar.calendar-widget header button {
     background-color: transparent;
     border: none;
     box-shadow: none;
-    color: rgba(28, 28, 30, 0.40);
+    color: rgba(255, 255, 255, 0.40);
     padding: 2px 4px;
     margin: 0;
     min-height: 20px;
@@ -96,8 +96,8 @@ calendar.calendar-widget header button {
 }
 
 calendar.calendar-widget header button:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.06);
     color: #1c1c1e;
 }
 
@@ -133,7 +133,7 @@ calendar.calendar-widget header button.next-year {
 }
 
 calendar.calendar-widget label.day-name {
-    color: rgba(28, 28, 30, 0.50);
+    color: rgba(255, 255, 255, 0.50);
     font-size: 11px;
     font-weight: 700;
     padding: 6px 0;
@@ -157,13 +157,13 @@ calendar.calendar-widget label.day {
 }
 
 calendar.calendar-widget label.day:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 calendar.calendar-widget label.day.other-month,
 calendar.calendar-widget .other-month {
-    color: rgba(28, 28, 30, 0.20) !important;
+    color: rgba(0, 0, 0, 0.06) !important;
     opacity: 1.0 !important;
 }
 
@@ -190,7 +190,7 @@ button.clear-all-btn {
     background-image: none;
     border: 1px solid rgba(255, 255, 255, 0.07);
     border-radius: 9999px;
-    color: rgba(28, 28, 30, 0.80);
+    color: rgba(255, 255, 255, 0.80);
     font-size: 11px;
     font-weight: 600;
     padding: 4px 12px;
@@ -220,7 +220,7 @@ scrolledwindow.notif-scroll viewport {
 }
 
 .notif-stack-item {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(0, 0, 0, 0.04);
     border: 1px solid rgba(0, 0, 0, 0.05);
     border-top: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 14px;
@@ -238,7 +238,7 @@ scrolledwindow.notif-scroll viewport {
 }
 
 .notif-item-icon {
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: rgba(0, 0, 0, 0.06);
     border: 1px solid rgba(0, 0, 0, 0.05);
     border-radius: 8px;
     padding: 6px;
@@ -258,14 +258,14 @@ scrolledwindow.notif-scroll viewport {
 .notif-item-body {
     font-size: 11px;
     font-weight: 500;
-    color: rgba(28, 28, 30, 0.60);
+    color: rgba(255, 255, 255, 0.60);
     line-height: 1.3;
 }
 
 .notif-empty-label {
     font-size: 12px;
     font-weight: 500;
-    color: rgba(28, 28, 30, 0.35);
+    color: rgba(0, 0, 0, 0.25);
     margin-top: 20px;
 }
 
@@ -284,8 +284,8 @@ scrolledwindow.notif-scroll viewport {
 }
 
 .notif-group-header:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.08);
+    background-color: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.06);
 }
 
 .notif-sub-box {
@@ -311,7 +311,7 @@ scrolledwindow.notif-scroll viewport {
 
 .notif-item-sub-time {
     font-size: 11px;
-    color: rgba(28, 28, 30, 0.40);
+    color: rgba(255, 255, 255, 0.40);
     align-self: center;
     margin-left: auto;
     margin-right: 4px;
@@ -319,7 +319,7 @@ scrolledwindow.notif-scroll viewport {
 
 .notif-stack-item-layered-1 {
     background-color: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.04);
     border-top: none;
     border-radius: 0 0 12px 12px;
     height: 4px;
@@ -338,3 +338,4 @@ scrolledwindow.notif-scroll viewport {
     margin-right: 6px;
     box-shadow: none;
 }
+
