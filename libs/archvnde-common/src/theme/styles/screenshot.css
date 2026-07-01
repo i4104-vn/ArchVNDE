@@ -56,7 +56,7 @@ button.screenshot-toolbar-btn colorwatch {
 }
 
 .color-dot-indicator {
-    border-radius: 50% !important;
+    border-radius: 9999px !important;
     width: 14px !important;
     height: 14px !important;
     min-width: 14px !important;
@@ -78,8 +78,8 @@ popover > contents {
 }
 
 /* Screenshot Toolbar Color Dots */
-.color-dot-btn {
-    border-radius: 50% !important;
+button.color-dot-btn {
+    border-radius: 9999px !important;
     width: 16px !important;
     height: 16px !important;
     min-width: 16px !important;
@@ -94,22 +94,22 @@ popover > contents {
     transition: all 150ms ease;
 }
 
-.color-dot-btn:hover {
+button.color-dot-btn:hover {
     transform: scale(1.2) !important;
     border-color: rgba(255, 255, 255, 0.6) !important;
 }
 
-.color-dot-btn.color-active {
-    border: 2px solid #ffffff;
-    transform: scale(1.1);
+button.color-dot-btn.color-active {
+    border: 2px solid #ffffff !important;
+    transform: scale(1.1) !important;
 }
 
 /* Color Palette Classes */
-.color-dot-red { background: #ef4444 !important; }
-.color-dot-orange { background: #f97316 !important; }
-.color-dot-yellow { background: #eab308 !important; }
-.color-dot-green { background: #22c55e !important; }
-.color-dot-blue { background: #3b82f6 !important; }
-.color-dot-purple { background: #a855f7 !important; }
-.color-dot-white { background: #ffffff !important; }
-.color-dot-black { background: #000000 !important; }
+button.color-dot-red { background-color: #ef4444 !important; background-image: none !important; }
+button.color-dot-orange { background-color: #f97316 !important; background-image: none !important; }
+button.color-dot-yellow { background-color: #eab308 !important; background-image: none !important; }
+button.color-dot-green { background-color: #22c55e !important; background-image: none !important; }
+button.color-dot-blue { background-color: #3b82f6 !important; background-image: none !important; }
+button.color-dot-purple { background-color: #a855f7 !important; background-image: none !important; }
+button.color-dot-white { background-color: #ffffff !important; background-image: none !important; }
+button.color-dot-black { background-color: #000000 !important; background-image: none !important; }

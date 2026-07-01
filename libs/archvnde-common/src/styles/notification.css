@@ -19,11 +19,14 @@ window.notification-popup-card {
     border-radius: 24px;
     color: rgba(255, 255, 255, 0.95);
     padding: 16px 20px;
+<<<<<<< HEAD:libs/archvnde-common/src/styles/notification.css
 <<<<<<< HEAD:crates/archvnde-common/src/styles/notification.css
 <<<<<<< HEAD:crates/archvnde-common/src/styles/notification.css
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65),
                 inset 0 1px 0 rgba(255, 255, 255, 0.04);
 =======
+=======
+>>>>>>> ec7a520 (fix: remove shadow from desktop notification popup card):crates/archvnde-common/src/styles/notification.css
     box-shadow: none;
     transform: scale(0.0);
     transform-origin: top center;

@@ -28,18 +28,14 @@ pub fn build_launcher_ui(app: &gtk4::Application) -> gtk4::ApplicationWindow {
         ],
         -1,
     );
-    window.set_margin(Edge::Top, 0);
-    window.set_margin(Edge::Left, 0);
+    window.set_margin(Edge::Top, 10);
+    window.set_margin(Edge::Left, 12);
 
     window.set_default_size(780, 560);
     window.add_css_class("launcher-window");
 
     let box_layout = gtk4::Box::new(gtk4::Orientation::Vertical, 12);
     box_layout.add_css_class("launcher-box");
-    box_layout.set_margin_top(10);
-    box_layout.set_margin_bottom(12);
-    box_layout.set_margin_start(12);
-    box_layout.set_margin_end(12);
 
     let search_entry = gtk4::Entry::new();
     search_entry.set_placeholder_text(Some("Tìm ứng dụng hoặc tệp tin..."));
