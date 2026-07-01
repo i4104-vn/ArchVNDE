@@ -137,9 +137,11 @@ fn close_and_fade(window: &gtk4::Window, container_box: &gtk4::Box) {
     });
 
     let win = window.clone();
-    archvnde_common::animation::css_genie_out(
+    archvnde_common::animation::genie_out(
         container_box.upcast_ref(),
-        400,
+        380,
+        76,
+        450,
         move || {
             win.close();
         }
@@ -249,8 +251,11 @@ pub fn show_notification_popup(summary: &str, body: &str, icon_name: &str, _time
 
     ACTIVE_POPUP.with(|p| *p.borrow_mut() = Some(window.clone()));
 
-    archvnde_common::animation::css_genie_in(
+    archvnde_common::animation::genie_in(
         container_box.upcast_ref(),
+        380,
+        76,
+        400,
     );
 
     let win_timer = window.clone();

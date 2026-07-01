@@ -12,7 +12,7 @@ pub fn run_playerctl(args: &[&str]) -> Option<String> {
     None
 }
 
-fn decode_uri(uri: &str) -> String {
+pub fn decode_uri(uri: &str) -> String {
     let mut decoded = String::new();
     let mut chars = uri.chars();
     while let Some(c) = chars.next() {
@@ -54,3 +54,19 @@ pub fn load_album_art(art_url: &str, size: i32) -> Option<gtk4::Image> {
     img.set_pixel_size(size);
     Some(img)
 }
+
+use gdk_pixbuf::prelude::*;
+
+pub fn load_album_art_from_bytes(bytes: &[u8], size: i32) -> Option<gtk4::Image> {
+    let loader = gdk_pixbuf::PixbufLoader::new();
+    loader.write(bytes).ok()?;
+    loader.close().ok()?;
+    let pb = loader.pixbuf()?;
+    let scaled_pb = pb.scale_simple(size, size, gdk_pixbuf::InterpType::Bilinear)?;
+    
+    let texture = gdk4::Texture::for_pixbuf(&scaled_pb);
+    let img = gtk4::Image::from_paintable(Some(&texture));
+    img.set_pixel_size(size);
+    Some(img)
+}
+

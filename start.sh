@@ -2,7 +2,8 @@
 
 # Ensure local bin is in PATH
 export PATH="$HOME/.local/bin:$PATH"
-export GSK_RENDERER=cairo
+# Enable hardware acceleration for GTK4 (comment out/remove Cairo CPU renderer)
+# export GSK_RENDERER=cairo
 
 # Write config files for labwc
 mkdir -p "$HOME/.config/labwc"
@@ -60,9 +61,10 @@ cat << 'EOF' > "$RC_FILE"
 EOF
 echo "Configured labwc rc.xml at $RC_FILE"
 
-# Run labwc with software rendering variables for virtual machine compatibility
-export WLR_RENDERER=pixman
-export WLR_NO_HARDWARE_CURSORS=1
+# Commented out software rendering to allow GPU hardware acceleration for 120 FPS.
+# Uncomment these if running in a VM without 3D acceleration.
+# export WLR_RENDERER=pixman
+# export WLR_NO_HARDWARE_CURSORS=1
 
 echo "============================================="
 echo "Starting labwc compositor with ArchVNDE..."

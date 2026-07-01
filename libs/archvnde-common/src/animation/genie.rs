@@ -1,5 +1,3 @@
-//! Genie-effect grow/shrink animations for popup windows.
-
 use gtk4::prelude::*;
 use super::easing;
 
@@ -9,6 +7,7 @@ pub fn genie_in(widget: &gtk4::Widget, target_width: i32, target_height: i32, du
     widget.set_overflow(gtk4::Overflow::Hidden);
     widget.set_opacity(0.0);
     widget.set_visible(true);
+    // Keep width at target_width, animate height starting from 20
     widget.set_size_request(target_width, 20);
 
     let start_time = std::cell::Cell::new(0i64);

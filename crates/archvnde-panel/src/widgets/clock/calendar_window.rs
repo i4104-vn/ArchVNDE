@@ -13,22 +13,20 @@ pub fn show_calendar_window(
     c_win.set_layer(Layer::Overlay);
     c_win.set_keyboard_mode(KeyboardMode::OnDemand);
 
-    // Anchor to all 4 edges to cover the entire screen transparently
+    // Anchor to Top-Right to display calendar dropdown on the right side
     c_win.set_anchor(Edge::Top, true);
     c_win.set_anchor(Edge::Bottom, true);
-    c_win.set_anchor(Edge::Left, true);
     c_win.set_anchor(Edge::Right, true);
+    c_win.set_margin(Edge::Top, 10);
+    c_win.set_margin(Edge::Bottom, 10);
+    c_win.set_margin(Edge::Right, 12);
+    c_win.set_default_size(360, -1);
     c_win.add_css_class("calendar-window");
 
     let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 12);
     main_box.add_css_class("calendar-box");
     main_box.set_vexpand(true);
     main_box.set_valign(gtk4::Align::Fill);
-    main_box.set_halign(gtk4::Align::End);
-    main_box.set_width_request(360);
-    main_box.set_margin_top(6);
-    main_box.set_margin_bottom(10);
-    main_box.set_margin_end(12);
 
     // 1. Header: Date on left
     let top_row = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
@@ -87,21 +85,6 @@ pub fn show_calendar_window(
 
     c_win.set_child(Some(&main_box));
 
-    // Dismiss when clicking outside the calendar box area
-    let click_gesture = gtk4::GestureClick::new();
-    let main_box_c = main_box.clone();
-    let window_c = c_win.clone();
-    click_gesture.connect_pressed(move |_, _, x, y| {
-        let picked = window_c.pick(x, y, gtk4::PickFlags::DEFAULT);
-        let inside = picked
-            .map(|w| w.is_ancestor(&main_box_c) || w == main_box_c)
-            .unwrap_or(false);
-        if !inside {
-            window_c.close();
-        }
-    });
-    c_win.add_controller(click_gesture);
-
     // Handle closing when window loses focus
     let cw_inner = cw_clone.clone();
     c_win.connect_is_active_notify(move |win| {
@@ -117,7 +100,7 @@ pub fn show_calendar_window(
     let main_box_clone = main_box.clone();
     c_win.connect_close_request(move |_| {
         if is_animating_clone.get() {
-            return glib::Propagation::Stop;
+            return glib::Propagation::Proceed;
         }
         is_animating_clone.set(true);
         if let Ok(mut borrow) = cw_inner_cb_clone.try_borrow_mut() {
@@ -129,7 +112,7 @@ pub fn show_calendar_window(
             main_box_clone.upcast_ref(),
             360,
             h,
-            400,
+            450,
             move || {
                 c_win_cb.destroy();
             }
@@ -140,7 +123,7 @@ pub fn show_calendar_window(
     let (_, natural_size) = main_box.preferred_size();
     let target_height = if natural_size.height() > 20 { natural_size.height() } else { 480 };
     c_win.present();
-    archvnde_common::animation::genie_in(main_box.upcast_ref(), 360, target_height, 400);
+    archvnde_common::animation::genie_in(main_box.upcast_ref(), 360, target_height, 450);
 
     c_win
 }

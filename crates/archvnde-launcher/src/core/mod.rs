@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 
 use crate::models::DesktopApp;
 
+<<<<<<< HEAD:crates/archvnde-launcher/src/core/mod.rs
 /// Scans standard Linux directories for `.desktop` files, parses their entries,
 /// and returns a sorted, deduplicated list of launchable desktop applications.
 pub fn find_desktop_apps() -> Vec<DesktopApp> {
@@ -17,27 +18,46 @@ pub fn find_desktop_apps() -> Vec<DesktopApp> {
             })
             .join("applications"),
     ];
+=======
+use std::sync::OnceLock;
+>>>>>>> dfa5c73 (perf: cache desktop apps and optimize player loop with async album art loading):libs/archvnde-common/src/core/desktop.rs
 
-    for path in paths {
-        if !path.exists() {
-            continue;
-        }
-        if let Ok(entries) = std::fs::read_dir(path) {
-            for entry in entries.flatten() {
-                let entry_path = entry.path();
-                if entry_path.extension().map(|e| e == "desktop").unwrap_or(false) {
-                    if let Some(app) = parse_desktop_file(&entry_path) {
-                        apps.push(app);
+static DESKTOP_APPS_CACHE: OnceLock<Vec<DesktopApp>> = OnceLock::new();
+
+pub fn find_desktop_apps() -> Vec<DesktopApp> {
+    DESKTOP_APPS_CACHE.get_or_init(|| {
+        let mut apps = Vec::new();
+        let paths = vec![
+            PathBuf::from("/usr/share/applications"),
+            dirs::data_dir()
+                .unwrap_or_else(|| {
+                    let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
+                    PathBuf::from(home).join(".local/share")
+                })
+                .join("applications"),
+        ];
+
+        for path in paths {
+            if !path.exists() {
+                continue;
+            }
+            if let Ok(entries) = std::fs::read_dir(path) {
+                for entry in entries.flatten() {
+                    let entry_path = entry.path();
+                    if entry_path.extension().map(|e| e == "desktop").unwrap_or(false) {
+                        if let Some(app) = parse_desktop_file(&entry_path) {
+                            apps.push(app);
+                        }
                     }
                 }
             }
         }
-    }
 
-    apps.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
-    apps.dedup_by(|a, b| a.name.to_lowercase() == b.name.to_lowercase());
+        apps.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+        apps.dedup_by(|a, b| a.name.to_lowercase() == b.name.to_lowercase());
 
-    apps
+        apps
+    }).clone()
 }
 
 /// Parses a single Linux `.desktop` configuration file to extract the application name,

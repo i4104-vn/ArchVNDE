@@ -101,7 +101,7 @@ pub fn setup_notifications_list(
             notif_stack_clear_clone.upcast_ref(),
             archvnde_common::animation::SlideDirection::Up,
             20,
-            250,
+            450,
             false,
             move || {
                 cb();
@@ -228,7 +228,7 @@ fn render_expanded_group(
             sub_box_c.upcast_ref(),
             archvnde_common::animation::SlideDirection::Up,
             15,
-            200,
+            400,
             false,
             move || {
                 ea_cb.borrow_mut().remove(&ak_cb);
@@ -242,7 +242,7 @@ fn render_expanded_group(
         sub_box.upcast_ref(),
         archvnde_common::animation::SlideDirection::Down,
         15,
-        250,
+        450,
     );
 
     group_container
