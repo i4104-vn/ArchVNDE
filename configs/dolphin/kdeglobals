@@ -33,22 +33,27 @@ Show hidden files=false
 Sort by=Name
 Sort directories first=true
 Sort reversed=false
-Speedbar Width=140
+Speedbar Width=188
 View Style=Simple
 
+[MainToolbar]
+IconSize=24
+ToolButtonStyle=0
+
 [Sounds]
-# Silence KDE system sounds for a minimal experience
 CompletionMode=1
 
+[Toolbar style]
+ToolButtonStyle=IconOnly
+
 [WM]
-# Window manager colors to match ArchVNDE panel aesthetics
-activeBackground=20,20,26
-activeBlend=20,20,26
-activeForeground=232,232,245
-activeFrame=32,32,44
-inactiveBackground=16,16,22
-inactiveBlend=16,16,22
-inactiveForeground=110,110,135
-inactiveFrame=24,24,34
-activeTitleBar=20,20,26
-inactiveTitleBar=16,16,22
+activeBackground=37,37,37
+activeBlend=37,37,37
+activeForeground=255,255,255
+activeFrame=48,48,48
+inactiveBackground=32,32,32
+inactiveBlend=32,32,32
+inactiveForeground=145,145,145
+inactiveFrame=40,40,40
+activeTitleBar=37,37,37
+inactiveTitleBar=32,32,32
