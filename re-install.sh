@@ -28,7 +28,6 @@ mkdir -p "$LOCAL_BIN"
 # 5. Kill any running instances first so the new binaries can be loaded
 echo "Stopping any running shell processes..."
 killall archvnde-panel || true
-killall archvnde-launcher || true
 killall archvnde-menu || true
 killall archvnde-switcher || true
 killall archvnde-notification || true
@@ -39,14 +38,15 @@ rm -f "$LOCAL_BIN/archvnde-notification"
 # 6. Reinstall the binaries
 echo "Overwriting binaries in $LOCAL_BIN..."
 cp target/release/archvnde-panel "$LOCAL_BIN/archvnde-panel"
-cp target/release/archvnde-launcher "$LOCAL_BIN/archvnde-launcher"
 cp target/release/archvnde-menu "$LOCAL_BIN/archvnde-menu"
 cp target/release/archvnde-switcher "$LOCAL_BIN/archvnde-switcher"
 
-# 7. Write/update labwc configuration files
-echo "Updating labwc configuration files..."
+# 7. Write/update labwc configuration files if they do not exist
 mkdir -p "$HOME/.config/labwc"
-cat << 'EOF' > "$HOME/.config/labwc/autostart"
+
+if [ ! -f "$HOME/.config/labwc/autostart" ]; then
+    echo "Creating default labwc autostart..."
+    cat << 'EOF' > "$HOME/.config/labwc/autostart"
 #!/bin/bash
 # Autostart configuration for labwc with ArchVNDE shell
 
@@ -60,9 +60,14 @@ awww img wallpaper.png &
 # Start ArchVNDE status panel
 ~/.local/bin/archvnde-panel &
 EOF
-chmod +x "$HOME/.config/labwc/autostart"
+    chmod +x "$HOME/.config/labwc/autostart"
+else
+    echo "labwc autostart already exists, skipping..."
+fi
 
-cat << 'EOF' > "$HOME/.config/labwc/rc.xml"
+if [ ! -f "$HOME/.config/labwc/rc.xml" ]; then
+    echo "Creating default labwc rc.xml..."
+    cat << 'EOF' > "$HOME/.config/labwc/rc.xml"
 <?xml version="1.0" encoding="UTF-8"?>
 <labwc_config>
   <keyboard>
@@ -70,6 +75,10 @@ cat << 'EOF' > "$HOME/.config/labwc/rc.xml"
     <!-- Override Alt-Tab with custom archvnde-switcher -->
     <keybind key="A-Tab">
       <action name="Execute" command="~/.local/bin/archvnde-switcher" />
+    </keybind>
+    <!-- Take screenshot with Win+Shift+S -->
+    <keybind key="W-S-s">
+      <action name="Execute" command="~/.local/bin/archvnde-screenshot" />
     </keybind>
   </keyboard>
   <mouse>
@@ -83,6 +92,9 @@ cat << 'EOF' > "$HOME/.config/labwc/rc.xml"
   </mouse>
 </labwc_config>
 EOF
+else
+    echo "labwc rc.xml already exists, skipping..."
+fi
 
 # 8. Reload configuration and restart panel
 echo "Reloading labwc configuration and starting panel..."
