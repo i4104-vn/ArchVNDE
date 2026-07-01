@@ -27,9 +27,10 @@ pub fn create_app_button(app_item: &DesktopApp) -> gtk4::Button {
 
     let preview_width = 320;
     let preview_height = 240;
+    let extended_width = 400; // 320 * 1.25 to account for 1.25 scaleX in CSS
 
     let base_widget: gtk4::Widget = if let Some(path) = screenshot_path {
-        if let Ok(pb) = gdk_pixbuf::Pixbuf::from_file_at_scale(&path, preview_width, preview_height, false) {
+        if let Ok(pb) = gdk_pixbuf::Pixbuf::from_file_at_scale(&path, extended_width, preview_height, false) {
             let texture = gdk4::Texture::for_pixbuf(&pb);
             let picture = gtk4::Picture::for_paintable(&texture);
             picture.set_size_request(preview_width, preview_height);
