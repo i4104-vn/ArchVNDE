@@ -1,14 +1,19 @@
 .launcher-window {
-    background-color: transparent;
-    background-image: none;
+    background-color:transparent;
+    background-image:none;
 }
 
 .launcher-box {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/launcher.css
     background-color: rgba(14, 14, 18, 0.96);
     background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.06) 0%, rgba(0, 0, 0, 0.15) 100%);
+=======
+    background-color:rgba(28, 28, 30, 0.82);
+    background-image:linear-gradient(160deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.15) 100%);
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/launcher.css
     -gtk-background-blur: 24;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-top: 1px solid rgba(255, 255, 255, 0.28);
+    border:1px solid rgba(0, 0, 0, 0.14);
+    border-top:1px solid rgba(0, 0, 0, 0.28);
     border-radius: 24px;
     color: #ffffff;
     padding: 0px;
@@ -18,10 +23,17 @@
 
 entry.launcher-search,
 entry.launcher-search > text {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/launcher.css
     background-color: rgba(255, 255, 255, 0.05);
     background-image: none;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-top: 1px solid rgba(255, 255, 255, 0.14);
+=======
+    background-color:rgba(0, 0, 0, 0.04);
+    background-image:none;
+    border:1px solid rgba(0, 0, 0, 0.06);
+    border-top:1px solid rgba(0, 0, 0, 0.14);
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/launcher.css
     border-radius: 14px;
     color: #ffffff;
     padding: 12px 16px;
@@ -33,11 +45,11 @@ entry.launcher-search > text {
 
 entry.launcher-search:focus,
 entry.launcher-search:focus > text {
-    background-color: rgba(255, 255, 255, 0.09);
-    border-color: rgba(96, 165, 250, 0.40);
+    background-color:rgba(28, 28, 30, 0.09);
+    border-color:rgba(96, 165, 250, 0.40);
     border-top-color: rgba(147, 197, 253, 0.55);
     box-shadow: none;
-    background-image: none;
+    background-image:none;
 }
 
 entry.launcher-search placeholder,
@@ -55,26 +67,36 @@ scrolledwindow {
 }
 
 button.launcher-grid-item {
-    background-color: transparent;
-    background-image: none;
-    border: none;
+    background-color:transparent;
+    background-image:none;
+    border:none;
     border-radius: 16px;
     padding: 12px 6px;
     transition: all 200ms ease;
-    color: rgba(255, 255, 255, 0.78);
+    color: rgba(28, 28, 30, 0.78);
     min-width: 84px;
 }
 
 button.launcher-grid-item:hover {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/launcher.css
     background-color: rgba(255, 255, 255, 0.07);
     border: 1px solid rgba(255, 255, 255, 0.08);
     color: #ffffff;
+=======
+    background-color:rgba(28, 28, 30, 0.07);
+    border:1px solid rgba(0, 0, 0, 0.06);
+    color: #1c1c1e;
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/launcher.css
     transform: scale(1.05) translateY(-2px);
     box-shadow: none;
 }
 
 button.launcher-grid-item:active {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/launcher.css
     background-color: rgba(255, 255, 255, 0.10);
+=======
+    background-color:rgba(0, 0, 0, 0.08);
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/launcher.css
     transform: scale(0.98) translateY(0);
 }
 
@@ -83,7 +105,7 @@ button.launcher-grid-item:active {
     font-weight: 600;
     text-align: center;
     margin-top: 6px;
-    color: rgba(255, 255, 255, 0.82);
+    color: rgba(28, 28, 30, 0.82);
 }
 
 button.launcher-grid-item:hover .launcher-grid-label {
@@ -91,14 +113,23 @@ button.launcher-grid-item:hover .launcher-grid-label {
 }
 
 .launcher-footer-separator {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/launcher.css
     background-color: rgba(255, 255, 255, 0.06);
+=======
+    background-color:rgba(0, 0, 0, 0.05);
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/launcher.css
     margin: 14px 0 8px 0;
 }
 
 .launcher-footer-box {
     padding: 6px 12px;
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/launcher.css
     background-color: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.06);
+=======
+    background-color:rgba(28, 28, 30, 0.03);
+    border:1px solid rgba(0, 0, 0, 0.05);
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/launcher.css
     border-radius: 14px;
 }
 
@@ -109,9 +140,15 @@ button.launcher-grid-item:hover .launcher-grid-label {
 }
 
 button.launcher-power-btn {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/launcher.css
     background-color: rgba(255, 255, 255, 0.04);
     background-image: none;
     border: 1px solid rgba(255, 255, 255, 0.07);
+=======
+    background-color:rgba(0, 0, 0, 0.03);
+    background-image:none;
+    border:1px solid rgba(0, 0, 0, 0.07);
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/launcher.css
     border-radius: 10px;
     padding: 6px;
     transition: all 180ms ease;
@@ -119,31 +156,38 @@ button.launcher-power-btn {
 }
 
 button.launcher-power-btn:hover {
-    background-color: rgba(239, 68, 68, 0.12);
-    border-color: rgba(239, 68, 68, 0.25);
+    background-color:rgba(239, 68, 68, 0.12);
+    border-color:rgba(239, 68, 68, 0.25);
     box-shadow: none;
 }
 
 .launcher-no-results {
-    color: rgba(255, 255, 255, 0.38);
+    color: rgba(28, 28, 30, 0.38);
     font-size: 12px;
     font-weight: 600;
     margin: 40px 0;
 }
 
 popover {
-    background-color: transparent;
+    background-color:transparent;
     padding: 0;
     margin: 0;
     box-shadow: none;
-    border: none;
+    border:none;
 }
 
 popover > contents {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/launcher.css
     background-color: rgba(255, 255, 255, 0.07);
     background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.02) 100%);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-top: 1px solid rgba(255, 255, 255, 0.20);
+=======
+    background-color:rgba(28, 28, 30, 0.07);
+    background-image:linear-gradient(160deg, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.02) 100%);
+    border:1px solid rgba(0, 0, 0, 0.09);
+    border-top:1px solid rgba(0, 0, 0, 0.06);
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/launcher.css
     border-radius: 14px;
     padding: 4px;
     box-shadow: none;
@@ -154,9 +198,9 @@ popover > contents {
 }
 
 button.launcher-menu-item-btn {
-    background-color: transparent;
-    background-image: none;
-    border: none;
+    background-color:transparent;
+    background-image:none;
+    border:none;
     border-radius: 8px;
     color: #ffffff;
     padding: 6px 14px;
@@ -168,8 +212,13 @@ button.launcher-menu-item-btn {
 }
 
 button.launcher-menu-item-btn:hover {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/launcher.css
     background-color: rgba(255, 255, 255, 0.08);
     color: #ffffff;
+=======
+    background-color:rgba(0, 0, 0, 0.06);
+    color: #1c1c1e;
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/launcher.css
 }
 
 .launcher-columns-box {
@@ -177,8 +226,13 @@ button.launcher-menu-item-btn:hover {
 }
 
 .launcher-left-column {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/launcher.css
     background-color: transparent;
     border-right: 1px solid rgba(255, 255, 255, 0.06);
+=======
+    background-color:transparent;
+    border-right:1px solid rgba(0, 0, 0, 0.05);
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/launcher.css
     padding-right: 12px;
 }
 
@@ -187,9 +241,9 @@ button.launcher-menu-item-btn:hover {
 }
 
 button.launcher-list-item {
-    background-color: transparent;
-    background-image: none;
-    border: none;
+    background-color:transparent;
+    background-image:none;
+    border:none;
     border-radius: 12px;
     padding: 6px 12px;
     margin: 2px 0;
@@ -199,14 +253,20 @@ button.launcher-list-item {
 }
 
 button.launcher-list-item:hover {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/launcher.css
     background-color: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.06);
     color: #ffffff;
+=======
+    background-color:rgba(0, 0, 0, 0.05);
+    border:1px solid rgba(0, 0, 0, 0.05);
+    color: #1c1c1e;
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/launcher.css
     transform: scale(1.02);
 }
 
 button.launcher-list-item:active {
-    background-color: rgba(255, 255, 255, 0.09);
+    background-color:rgba(28, 28, 30, 0.09);
     transform: scale(0.98);
 }
 
@@ -226,9 +286,9 @@ button.launcher-list-item:active {
 }
 
 button.launcher-browser-search-row {
-    background-color: rgba(59, 130, 246, 0.06);
-    background-image: none;
-    border: 1px dashed rgba(96, 165, 250, 0.20);
+    background-color:rgba(59, 130, 246, 0.06);
+    background-image:none;
+    border:1px dashed rgba(96, 165, 250, 0.20);
     border-radius: 12px;
     padding: 8px 12px;
     margin-top: 12px;
@@ -237,9 +297,15 @@ button.launcher-browser-search-row {
 }
 
 button.launcher-browser-search-row:hover {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/launcher.css
     background-color: rgba(59, 130, 246, 0.12);
     border-color: rgba(96, 165, 250, 0.40);
     color: #ffffff;
+=======
+    background-color:rgba(0, 122, 255, 0.12);
+    border-color:rgba(96, 165, 250, 0.40);
+    color: #1c1c1e;
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/launcher.css
     transform: scale(1.01);
     box-shadow: none;
 }
@@ -249,19 +315,24 @@ button.launcher-browser-search-row:active {
 }
 
 button.launcher-file-item {
-    background-color: transparent;
-    background-image: none;
-    border: none;
+    background-color:transparent;
+    background-image:none;
+    border:none;
     border-radius: 10px;
     padding: 6px 12px;
     margin: 1px 0;
-    color: rgba(255, 255, 255, 0.68);
+    color: rgba(28, 28, 30, 0.68);
     transition: all 150ms ease;
 }
 
 button.launcher-file-item:hover {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/launcher.css
     background-color: rgba(255, 255, 255, 0.05);
     color: #ffffff;
+=======
+    background-color:rgba(0, 0, 0, 0.04);
+    color: #1c1c1e;
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/launcher.css
     transform: scale(1.01);
 }
 
@@ -270,3 +341,19 @@ button.launcher-file-item:hover {
     font-weight: 500;
 }
 
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/launcher.css
+=======
+/* Style for keyboard navigation focus */
+button.launcher-list-item:focus,
+button.launcher-list-item.selected,
+button.launcher-file-item:focus,
+button.launcher-file-item.selected,
+button.launcher-browser-search-row:focus,
+button.launcher-browser-search-row.selected {
+    background-color:rgba(0, 0, 0, 0.09) !important;
+    border:1px solid rgba(96, 165, 250, 0.40) !important;
+    color: #1c1c1e !important;
+    outline: none;
+}
+
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/launcher.css

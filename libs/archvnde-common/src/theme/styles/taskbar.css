@@ -1,8 +1,14 @@
 /* Grouped Taskbar Styles */
 .taskbar-parent-box {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
     background-color: rgb(20, 20, 26);
     border: 1px solid rgba(255, 255, 255, 0.10);
     border-top: 1px solid rgba(255, 255, 255, 0.20);
+=======
+    background-color:rgba(28, 28, 30, 0.72);
+    border:1px solid rgba(0, 0, 0, 0.08);
+    border-top:1px solid rgba(0, 0, 0, 0.06);
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/taskbar.css
     border-radius: 9999px;
     padding: 3px 6px;
     min-height: 24px;
@@ -15,9 +21,15 @@
 }
 
 button.taskbar-app-btn {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
     background-color: rgb(20, 20, 26);
     background-image: none;
     border: none;
+=======
+    background-color:rgba(28, 28, 30, 0.72);
+    background-image:none;
+    border:none;
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/taskbar.css
     border-radius: 5px;
     padding: 5px;
     margin: 0 1px;
@@ -29,6 +41,7 @@ button.taskbar-app-btn {
 }
 
 button.taskbar-app-btn:hover {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
     background-color: rgba(36, 35, 35, 0.85);
     border-bottom: 2px solid #3b82f6;
 }
@@ -45,17 +58,40 @@ button.taskbar-app-btn.active:hover {
 
 popover.taskbar-popover {
     background-color: rgb(20, 20, 26);
+=======
+    background-color:rgba(0, 0, 0, 0.08);
+    border-bottom:2px solid #007aff;
+}
+
+button.taskbar-app-btn.active {
+    background-color:rgba(0, 0, 0, 0.12);
+    border-bottom:2px solid #007aff;
+}
+
+button.taskbar-app-btn.active:hover {
+    background-color:rgba(0, 0, 0, 0.15);
+    border-bottom:2px solid #3498db;
+}
+
+popover.taskbar-popover {
+    background-color:rgba(28, 28, 30, 0.72);
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/taskbar.css
     padding: 0;
     margin: 0;
-    border: none;
+    border:none;
     box-shadow: none;
 }
 
 popover.taskbar-popover>contents {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
     background-color: #14141c !important;
     background-image: none !important;
+=======
+    background-color:rgba(0, 0, 0, 0.45) !important;
+    background-image:none !important;
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/taskbar.css
     -gtk-background-blur: none !important;
-    border: none !important;
+    border:none !important;
     border-radius: 12px !important;
     padding: 8px !important;
     box-shadow: none !important;
@@ -67,7 +103,7 @@ popover.taskbar-popover>contents {
 .taskbar-previews-header-label {
     font-size: 12px;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.95);
+    color: rgba(28, 28, 30, 0.95);
     margin: 10px;
 }
 
@@ -81,8 +117,8 @@ popover.taskbar-popover>contents {
 }
 
 button.taskbar-preview-list-btn {
-    background-image: none;
-    border: none;
+    background-image:none;
+    border:none;
     border-radius: 6px;
     padding: 6px 10px;
     transition: all 150ms ease;
@@ -91,13 +127,17 @@ button.taskbar-preview-list-btn {
 }
 
 button.taskbar-preview-list-btn:hover {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
     background-color: rgba(36, 35, 35, 0.85);
+=======
+    background-color:rgba(0, 0, 0, 0.08);
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/taskbar.css
 }
 
 .taskbar-preview-title {
     font-size: 12px;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.95);
+    color: rgba(28, 28, 30, 0.95);
     text-shadow: none;
     margin: 0;
 }
@@ -112,9 +152,9 @@ button.taskbar-preview-list-btn:hover {
 }
 
 button.taskbar-popover-close-btn {
-    background-color: transparent;
-    background-image: none;
-    border: none;
+    background-color:transparent;
+    background-image:none;
+    border:none;
     box-shadow: none;
     border-radius: 4px;
     padding: 2px;
@@ -123,14 +163,14 @@ button.taskbar-popover-close-btn {
 }
 
 button.taskbar-popover-close-btn:hover {
-    background-color: rgba(239, 68, 68, 0.2);
+    background-color:rgba(239, 68, 68, 0.2);
     color: #ef4444;
 }
 
 button.taskbar-preview-list-kill-btn {
-    background-color: transparent;
-    background-image: none;
-    border: none;
+    background-color:transparent;
+    background-image:none;
+    border:none;
     box-shadow: none;
     border-radius: 6px;
     padding: 4px 8px;
@@ -139,13 +179,17 @@ button.taskbar-preview-list-kill-btn {
 }
 
 button.taskbar-preview-list-kill-btn:hover {
-    background-color: rgba(239, 68, 68, 0.2);
+    background-color:rgba(239, 68, 68, 0.2);
     color: #ef4444;
 }
 
 /* Taskbar Popover action elements (Close all, launch new) */
 .taskbar-preview-separator {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
     background-color: rgba(255, 255, 255, 0.12);
+=======
+    background-color:rgba(0, 0, 0, 0.09);
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/taskbar.css
     margin: 6px 4px;
     min-height: 1px;
 }
@@ -155,9 +199,9 @@ button.taskbar-preview-list-kill-btn:hover {
 }
 
 button.taskbar-preview-action-btn {
-    background-image: none;
-    background-color: transparent;
-    border: none;
+    background-image:none;
+    background-color:transparent;
+    border:none;
     border-radius: 6px;
     padding: 6px 8px;
     transition: all 150ms ease;
@@ -167,7 +211,11 @@ button.taskbar-preview-action-btn {
 }
 
 button.taskbar-preview-action-btn:hover {
+<<<<<<< HEAD:libs/archvnde-common/src/theme/styles/taskbar.css
     background-color: rgba(255, 255, 255, 0.08);
+=======
+    background-color:rgba(0, 0, 0, 0.06);
+>>>>>>> d77d9d9 (style(theme): correct text and border contrast colors in light mode):libs/archvnde-common/src/theme/styles/light/taskbar.css
 }
 
 .taskbar-preview-action-label {
