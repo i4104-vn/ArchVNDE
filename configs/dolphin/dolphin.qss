@@ -1,0 +1,262 @@
+/* ArchVNDE - Dolphin UOS-style dark file manager */
+
+* {
+    selection-background-color: #0078d7;
+    selection-color: #ffffff;
+    font-family: "Inter", "Segoe UI", "Noto Sans", sans-serif;
+}
+
+QMainWindow,
+QWidget,
+DolphinMainWindow,
+DolphinViewContainer,
+DolphinView,
+QStackedWidget,
+QSplitter {
+    background-color: #202020;
+    color: #d2d2d2;
+}
+
+QFrame,
+QAbstractScrollArea,
+QListView,
+QTreeView,
+QTableView {
+    background-color: #202020;
+    color: #d2d2d2;
+    border: none;
+    outline: none;
+}
+
+QScrollBar:vertical,
+QScrollBar:horizontal {
+    background: transparent;
+    border: none;
+    margin: 4px;
+    width: 8px;
+    height: 8px;
+}
+
+QScrollBar::handle:vertical,
+QScrollBar::handle:horizontal {
+    background: #4a4a4a;
+    border-radius: 4px;
+    min-height: 44px;
+    min-width: 44px;
+}
+
+QScrollBar::handle:vertical:hover,
+QScrollBar::handle:horizontal:hover {
+    background: #5a5a5a;
+}
+
+QScrollBar::add-line,
+QScrollBar::sub-line,
+QScrollBar::add-page,
+QScrollBar::sub-page {
+    background: transparent;
+    border: none;
+}
+
+/* Large rounded tiles like the directory cards in the mockup. */
+QListView {
+    padding: 24px 28px;
+    show-decoration-selected: 0;
+}
+
+QListView::item {
+    background-color: #303030;
+    border: 1px solid #303030;
+    border-radius: 18px;
+    color: #cfcfcf;
+    font-size: 12pt;
+    font-weight: 600;
+    margin: 10px 14px;
+    padding: 22px 24px 18px 24px;
+}
+
+QListView::item:hover {
+    background-color: #383838;
+    border-color: #3e3e3e;
+    color: #ffffff;
+}
+
+QListView::item:selected,
+QListView::item:selected:hover {
+    background-color: #0078d7;
+    border-color: #0078d7;
+    color: #ffffff;
+}
+
+QTreeView::item,
+QTableView::item {
+    color: #d0d0d0;
+    min-height: 34px;
+    padding: 6px 10px;
+    border-radius: 8px;
+}
+
+QTreeView::item:hover,
+QTableView::item:hover {
+    background-color: #303030;
+    color: #ffffff;
+}
+
+QTreeView::item:selected,
+QTableView::item:selected {
+    background-color: #0078d7;
+    color: #ffffff;
+}
+
+/* Left Places panel. */
+KFilePlacesView {
+    background-color: #242424;
+    border-right: 1px solid #202020;
+    color: #bcbcbc;
+    min-width: 188px;
+    padding: 8px 10px;
+    show-decoration-selected: 0;
+}
+
+KFilePlacesView::item {
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #bcbcbc;
+    font-size: 11pt;
+    font-weight: 600;
+    margin: 3px 12px;
+    padding: 10px 12px;
+}
+
+KFilePlacesView::item:hover {
+    background-color: #303030;
+    color: #ffffff;
+}
+
+KFilePlacesView::item:selected,
+KFilePlacesView::item:selected:hover {
+    background-color: #0078d7;
+    color: #ffffff;
+}
+
+/* Toolbar and window header. */
+QToolBar {
+    background-color: #252525;
+    border: none;
+    border-bottom: 1px solid #222222;
+    min-height: 58px;
+    padding: 8px 12px;
+    spacing: 10px;
+}
+
+QToolButton {
+    background-color: #303030;
+    border: 1px solid #303030;
+    border-radius: 10px;
+    color: #d6d6d6;
+    icon-size: 24px;
+    margin: 0 2px;
+    min-height: 42px;
+    min-width: 42px;
+    padding: 0;
+}
+
+QToolButton:hover {
+    background-color: #3b3b3b;
+    border-color: #3b3b3b;
+    color: #ffffff;
+}
+
+QToolButton:pressed,
+QToolButton:checked {
+    background-color: #0078d7;
+    border-color: #0078d7;
+    color: #ffffff;
+}
+
+QToolButton:disabled {
+    background-color: #292929;
+    border-color: #292929;
+    color: #5f5f5f;
+}
+
+QLineEdit,
+KUrlNavigator,
+KUrlNavigatorButton {
+    background-color: #252525;
+    border: none;
+    border-radius: 8px;
+    color: #d0d0d0;
+    min-height: 34px;
+    padding: 4px 8px;
+}
+
+QLineEdit:hover,
+QLineEdit:focus {
+    background-color: #303030;
+    color: #ffffff;
+}
+
+QMenuBar,
+QMenu {
+    background-color: #252525;
+    border: 1px solid #303030;
+    color: #d0d0d0;
+}
+
+QMenu::item {
+    padding: 8px 28px;
+}
+
+QMenu::item:selected {
+    background-color: #0078d7;
+    color: #ffffff;
+}
+
+/* Disk usage bars in Places/Computer views. */
+QProgressBar {
+    background-color: #2a2a2a;
+    border: none;
+    border-radius: 3px;
+    color: transparent;
+    height: 6px;
+    max-height: 6px;
+    min-height: 6px;
+    text-align: center;
+}
+
+QProgressBar::chunk {
+    background-color: #00a3ff;
+    border-radius: 3px;
+}
+
+QProgressBar:horizontal:disabled::chunk {
+    background-color: #ffdf1b;
+}
+
+QHeaderView::section {
+    background-color: #202020;
+    border: none;
+    border-bottom: 1px solid #303030;
+    color: #9f9f9f;
+    font-weight: 600;
+    padding: 8px 10px;
+}
+
+QLabel {
+    background: transparent;
+    color: #cfcfcf;
+}
+
+QStatusBar {
+    background-color: #202020;
+    border-top: 1px solid #353535;
+    color: #a8a8a8;
+    font-size: 10pt;
+    min-height: 26px;
+}
+
+QStatusBar::item {
+    border: none;
+}

@@ -1,0 +1,279 @@
+mod pam;
+
+use gtk4::prelude::*;
+use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
+use pam::verify_password;
+
+fn main() {
+    println!("Starting ArchVNDE Screen Locker...");
+
+    // 1. Simple argument parsing for custom wallpaper image
+    let args: Vec<String> = std::env::args().collect();
+    let mut custom_image = None;
+    if args.len() > 1 {
+        let mut i = 1;
+        while i < args.len() {
+            if (args[i] == "--image" || args[i] == "-i") && i + 1 < args.len() {
+                custom_image = Some(args[i + 1].clone());
+                i += 2;
+            } else if !args[i].starts_with('-') {
+                custom_image = Some(args[i].clone());
+                i += 1;
+            } else {
+                i += 1;
+            }
+        }
+    }
+
+    // Resolve wallpaper path (fallback to standard ~/.config/archvnde/wallpaper.png)
+    let home = std::env::var("HOME").unwrap_or_else(|_| "/home/i4104".to_string());
+    let wallpaper_path = if let Some(ref path) = custom_image {
+        if std::path::Path::new(path).exists() {
+            path.clone()
+        } else {
+            println!("Custom image at {} not found, falling back to default.", path);
+            format!("{}/.config/archvnde/wallpaper.png", home)
+        }
+    } else {
+        format!("{}/.config/archvnde/wallpaper.png", home)
+    };
+
+    let application = gtk4::Application::new(
+        Some("org.archvnde.lock"),
+        Default::default(),
+    );
+
+    let wallpaper_path_clone = wallpaper_path.clone();
+
+    application.connect_activate(move |app| {
+        // Initialize global styles
+        archvnde_common::init_theme();
+
+        // Inject dynamic wallpaper background CSS globally for all lock windows
+        let provider = gtk4::CssProvider::new();
+        let custom_css = format!(
+            ".lock-window {{ background-image: url('file://{}'); background-size: cover; background-position: center; }}",
+            wallpaper_path_clone
+        );
+        provider.load_from_data(&custom_css);
+        if let Some(display) = gtk4::gdk::Display::default() {
+            gtk4::style_context_add_provider_for_display(
+                &display,
+                &provider,
+                gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION,
+            );
+        }
+
+        // Get connected monitors
+        let display = gtk4::gdk::Display::default().expect("Failed to get default GDK display");
+        let monitors = display.monitors();
+        let num_monitors = monitors.n_items();
+
+        if num_monitors == 0 {
+            // Fallback for systems returning no monitor info
+            create_lock_window(app, None, true);
+        } else {
+            // Spawn a lock window on every monitor to ensure all screens are completely covered
+            for i in 0..num_monitors {
+                if let Some(monitor) = monitors.item(i).and_then(|obj| obj.downcast::<gtk4::gdk::Monitor>().ok()) {
+                    let is_primary = i == 0;
+                    create_lock_window(app, Some(&monitor), is_primary);
+                }
+            }
+        }
+    });
+
+    application.run_with_args::<&str>(&[]);
+}
+
+/// Spawns a lock window assigned to a specific monitor
+fn create_lock_window(
+    app: &gtk4::Application,
+    monitor: Option<&gtk4::gdk::Monitor>,
+    is_primary: bool,
+) {
+    let window = gtk4::ApplicationWindow::new(app);
+    window.init_layer_shell();
+    window.set_layer(Layer::Overlay);
+
+    if let Some(m) = monitor {
+        window.set_monitor(m);
+    }
+
+    // Only the primary window grabs keyboard inputs exclusively
+    if is_primary {
+        window.set_keyboard_mode(KeyboardMode::Exclusive);
+    } else {
+        window.set_keyboard_mode(KeyboardMode::None);
+    }
+
+    // Fullscreen constraints
+    window.set_anchor(Edge::Top, true);
+    window.set_anchor(Edge::Bottom, true);
+    window.set_anchor(Edge::Left, true);
+    window.set_anchor(Edge::Right, true);
+    window.add_css_class("lock-window");
+
+    // Prevent closing via OS shortcuts (e.g. Alt+F4)
+    window.connect_close_request(|_| {
+        glib::Propagation::Stop
+    });
+
+    // Dark tint overlay covering the monitor
+    let tint_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
+    tint_box.add_css_class("lock-tint");
+    tint_box.set_hexpand(true);
+    tint_box.set_vexpand(true);
+
+    // Center alignment container
+    let center_box = gtk4::Box::new(gtk4::Orientation::Vertical, 0);
+    center_box.set_valign(gtk4::Align::Center);
+    center_box.set_halign(gtk4::Align::Center);
+    center_box.set_hexpand(true);
+    center_box.set_vexpand(true);
+
+    if is_primary {
+        // Glassmorphic lock card container (Only on primary monitor)
+        let card_box = gtk4::Box::new(gtk4::Orientation::Vertical, 20);
+        card_box.add_css_class("lock-card");
+        card_box.set_valign(gtk4::Align::Center);
+        card_box.set_halign(gtk4::Align::Center);
+
+        // Clock labels
+        let clock_label = gtk4::Label::new(None);
+        clock_label.add_css_class("lock-clock");
+
+        let date_label = gtk4::Label::new(None);
+        date_label.add_css_class("lock-date");
+
+        // Clock updater
+        let update_clock = {
+            let clock_label = clock_label.clone();
+            let date_label = date_label.clone();
+            move || {
+                let now = chrono::Local::now();
+                clock_label.set_text(&now.format("%H:%M").to_string());
+                
+                let weekday = match now.format("%a").to_string().as_str() {
+                    "Mon" => "Thứ Hai",
+                    "Tue" => "Thứ Ba",
+                    "Wed" => "Thứ Tư",
+                    "Thu" => "Thứ Năm",
+                    "Fri" => "Thứ Sáu",
+                    "Sat" => "Thứ Bảy",
+                    "Sun" => "Chủ Nhật",
+                    _ => "Hôm nay",
+                };
+                let date_str = format!("{}, {} tháng {}, {}", weekday, now.format("%d"), now.format("%m"), now.format("%Y"));
+                date_label.set_text(&date_str);
+                glib::ControlFlow::Continue
+            }
+        };
+        update_clock();
+        glib::timeout_add_local(std::time::Duration::from_secs(1), update_clock);
+
+        // User profile avatar
+        let avatar_icon = archvnde_common::icon::get_icon("avatar-default", 80);
+        avatar_icon.add_css_class("lock-avatar");
+        avatar_icon.set_halign(gtk4::Align::Center);
+
+        // Username
+        let username = std::env::var("USER").unwrap_or_else(|_| "i4104".to_string());
+        let user_label = gtk4::Label::new(Some(&username));
+        user_label.add_css_class("lock-username");
+
+        // Password entry box
+        let entry = gtk4::Entry::new();
+        entry.set_visibility(false);
+        entry.set_placeholder_text(Some("Nhập mật khẩu để mở khóa..."));
+        entry.add_css_class("lock-input");
+        entry.set_halign(gtk4::Align::Center);
+        entry.set_max_length(100);
+
+        // Feedback label
+        let status_label = gtk4::Label::new(Some("Thiết bị đang bị khóa"));
+        status_label.add_css_class("lock-status");
+
+        card_box.append(&clock_label);
+        card_box.append(&date_label);
+        card_box.append(&avatar_icon);
+        card_box.append(&user_label);
+        card_box.append(&entry);
+        card_box.append(&status_label);
+
+        center_box.append(&card_box);
+
+        // Submit and verify password
+        let entry_clone = entry.clone();
+        let status_label_clone = status_label.clone();
+        let card_clone = card_box.clone();
+        let username_clone = username.clone();
+        
+        entry.connect_activate(move |_| {
+            let password = entry_clone.text().to_string();
+            entry_clone.set_text("");
+
+            if verify_password(&username_clone, &password) {
+                println!("Unlock verified successfully. Exiting locker...");
+                std::process::exit(0); // Exiting process terminates all spawned lock windows
+            } else {
+                status_label_clone.set_text("Mật khẩu không chính xác! Thử lại.");
+                status_label_clone.add_css_class("error");
+                card_clone.add_css_class("shake-error");
+
+                let status_lbl = status_label_clone.clone();
+                let card_box_ref = card_clone.clone();
+                glib::timeout_add_local_once(std::time::Duration::from_millis(1500), move || {
+                    status_lbl.set_text("Thiết bị đang bị khóa");
+                    status_lbl.remove_css_class("error");
+                    card_box_ref.remove_css_class("shake-error");
+                });
+            }
+        });
+
+        // Autofocus helper to grant instant keyboard grab focus on layout load
+        let entry_focus = entry.clone();
+        glib::timeout_add_local_once(std::time::Duration::from_millis(100), move || {
+            entry_focus.grab_focus();
+        });
+    } else {
+        // Secondary monitors display only wallpaper background, a dark tint, and a large centered Clock
+        let clock_label = gtk4::Label::new(None);
+        clock_label.add_css_class("lock-clock");
+
+        let date_label = gtk4::Label::new(None);
+        date_label.add_css_class("lock-date");
+
+        let update_clock = {
+            let clock_label = clock_label.clone();
+            let date_label = date_label.clone();
+            move || {
+                let now = chrono::Local::now();
+                clock_label.set_text(&now.format("%H:%M").to_string());
+                
+                let weekday = match now.format("%a").to_string().as_str() {
+                    "Mon" => "Thứ Hai",
+                    "Tue" => "Thứ Ba",
+                    "Wed" => "Thứ Tư",
+                    "Thu" => "Thứ Năm",
+                    "Fri" => "Thứ Sáu",
+                    "Sat" => "Thứ Bảy",
+                    "Sun" => "Chủ Nhật",
+                    _ => "Hôm nay",
+                };
+                let date_str = format!("{}, {} tháng {}, {}", weekday, now.format("%d"), now.format("%m"), now.format("%Y"));
+                date_label.set_text(&date_str);
+                glib::ControlFlow::Continue
+            }
+        };
+        update_clock();
+        glib::timeout_add_local(std::time::Duration::from_secs(1), update_clock);
+
+        center_box.append(&clock_label);
+        center_box.append(&date_label);
+    }
+
+    tint_box.append(&center_box);
+    window.set_child(Some(&tint_box));
+    window.present();
+}

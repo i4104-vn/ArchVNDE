@@ -1,0 +1,17 @@
+[package]
+name = "archvnde-lock"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+archvnde-common = { path = "../../libs/archvnde-common" }
+
+# GUI & Layer Shell
+gtk4 = { version = "0.9", features = ["v4_10"] }
+gtk4-layer-shell = "0.4.0"
+glib = "0.20"
+gio = "0.20"
+
+# Systems dependencies
+libc = "0.2"
+chrono = "0.4"
