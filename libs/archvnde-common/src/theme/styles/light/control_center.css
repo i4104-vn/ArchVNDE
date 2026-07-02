@@ -449,7 +449,7 @@ button.control-tile-right-btn {
     background-color: transparent;
     background-image: none;
     border: none !important;
-    border-left: 1px solid rgba(0, 0, 0, 0.05) !important;
+    border-left: none !important;
     border-radius: 0 12px 12px 0;
     padding: 8px 12px;
     color: #1c1c1e;
@@ -464,7 +464,7 @@ button.control-tile-right-btn:active {
     background-color: rgba(0, 0, 0, 0.08);
     background-image: none;
     border: none !important;
-    border-left: 1px solid rgba(0, 0, 0, 0.05) !important;
+    border-left: none !important;
     box-shadow: none !important;
     outline: none !important;
 }
@@ -583,4 +583,51 @@ button.control-tile-right-btn:active {
     border: none !important;
     box-shadow: none !important;
     outline: none !important;
+}
+
+scrolledwindow,
+scrolledwindow trough,
+scrolledwindow slider,
+scrollbar,
+scrollbar button,
+scrollbar trough,
+scrollbar slider {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
+}
+
+listbox,
+listrow,
+listrow:hover,
+listrow:focus,
+listrow:active,
+listrow:selected {
+    background-color: transparent !important;
+    border: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    outline-color: transparent !important;
+}
+
+popover,
+popover.taskbar-popover {
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+popover > arrow {
+    background-color: transparent !important;
+    border: none !important;
 }

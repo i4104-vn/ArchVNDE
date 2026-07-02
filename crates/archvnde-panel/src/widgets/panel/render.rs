@@ -33,7 +33,7 @@ pub fn build_status_indicators_ui() -> (gtk4::Box, gtk4::Button, gtk4::Label, gt
     let net_icon = archvnde_common::icon::get_icon("wifi", 14);
     net_icon.add_css_class("status-icon");
     
-    let vol_icon = if super::sliders::is_muted() {
+    let vol_icon = if super::items::volume::is_muted() {
         archvnde_common::icon::get_icon("volume-mute", 14)
     } else {
         archvnde_common::icon::get_icon("volume", 14)

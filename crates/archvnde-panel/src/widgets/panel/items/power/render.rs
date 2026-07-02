@@ -1,9 +1,5 @@
-//! UI rendering components for power options and control center action headers.
-
 use gtk4::prelude::*;
 
-/// Creates the Control Center header row, including the language toggle,
-/// settings triggers, and the shutdown button.
 pub fn create_header_row() -> gtk4::Box {
     let header_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
     header_box.set_hexpand(true);
@@ -59,7 +55,6 @@ pub fn create_header_row() -> gtk4::Box {
     header_box
 }
 
-/// Creates the power off (shutdown) button.
 fn create_shutdown_button() -> gtk4::Button {
     let power_off = gtk4::Button::new();
     power_off.add_css_class("circle-btn");
@@ -71,4 +66,3 @@ fn create_shutdown_button() -> gtk4::Button {
     });
     power_off
 }
-
