@@ -245,7 +245,7 @@ pub fn create_slider_row(
     initial_val: f64,
     on_popover_toggled: Option<Rc<dyn Fn(bool)>>,
     on_changed: impl Fn(f64) + 'static,
-) -> gtk4::Box {
+) -> (gtk4::Box, gtk4::Scale) {
     let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
     main_box.add_css_class("control-slider-card");
 
@@ -385,5 +385,5 @@ pub fn create_slider_row(
 
     main_box.append(&header_box);
     main_box.append(&row_box);
-    main_box
+    (main_box, scale)
 }

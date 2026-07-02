@@ -9,6 +9,11 @@ fn has_battery() -> bool {
             let path = entry.path();
             if let Ok(kind) = std::fs::read_to_string(path.join("type")) {
                 if kind.trim() == "Battery" {
+                    if let Ok(scope) = std::fs::read_to_string(path.join("scope")) {
+                        if scope.trim().eq_ignore_ascii_case("Device") {
+                            continue;
+                        }
+                    }
                     return true;
                 }
             }
