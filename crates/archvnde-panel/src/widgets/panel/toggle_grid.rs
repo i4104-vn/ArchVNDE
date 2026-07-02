@@ -451,8 +451,11 @@ fn refresh_wifi_popover_list(
         main_box.remove(&child);
     }
 
+    main_box.set_size_request(260, -1);
+    main_box.add_css_class("audio-menu-popover");
+
     let title = gtk4::Label::new(Some("Wi-Fi Networks"));
-    title.add_css_class("wifi-popover-title");
+    title.add_css_class("audio-menu-section-title");
     title.set_xalign(0.0);
     main_box.append(&title);
 
@@ -514,8 +517,11 @@ fn build_wifi_list_ui(
         main_box.remove(&child);
     }
 
+    main_box.set_size_request(260, -1);
+    main_box.add_css_class("audio-menu-popover");
+
     let title = gtk4::Label::new(Some("Wi-Fi Networks"));
-    title.add_css_class("wifi-popover-title");
+    title.add_css_class("audio-menu-section-title");
     title.set_xalign(0.0);
     main_box.append(&title);
 
@@ -524,7 +530,7 @@ fn build_wifi_list_ui(
 
     for (ssid, security, signal, is_connected) in networks {
         let row_btn = gtk4::Button::new();
-        row_btn.add_css_class("wifi-network-item");
+        row_btn.add_css_class("audio-menu-item-btn");
         if is_connected {
             row_btn.add_css_class("active");
         }
@@ -532,25 +538,32 @@ fn build_wifi_list_ui(
         let item_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
         item_box.set_valign(gtk4::Align::Center);
 
-        let wifi_icon = archvnde_common::icon::get_icon("wifi", 12);
+        let icon_color = if is_connected { "#ffffff" } else { "rgba(255, 255, 255, 0.5)" };
+        let wifi_icon = archvnde_common::icon::get_icon_colored("wifi", 14, icon_color);
         item_box.append(&wifi_icon);
 
         let name_label = gtk4::Label::new(Some(&ssid));
+        name_label.set_ellipsize(gtk4::pango::EllipsizeMode::End);
         name_label.set_hexpand(true);
-        name_label.set_xalign(0.0);
+        name_label.set_halign(gtk4::Align::Start);
         item_box.append(&name_label);
 
         let is_secured = security != "open";
         if is_secured {
-            let lock_icon = archvnde_common::icon::get_icon("lock", 10);
-            lock_icon.set_opacity(0.6);
+            let lock_icon = archvnde_common::icon::get_icon_colored("lock", 12, "rgba(255, 255, 255, 0.4)");
             item_box.append(&lock_icon);
         }
 
-        let sig_label = gtk4::Label::new(Some(&signal));
-        sig_label.set_opacity(0.6);
-        sig_label.set_xalign(1.0);
-        item_box.append(&sig_label);
+        if is_connected {
+            let check_label = gtk4::Label::new(Some("✓"));
+            check_label.add_css_class("audio-menu-item-check");
+            item_box.append(&check_label);
+        } else {
+            let sig_label = gtk4::Label::new(Some(&signal));
+            sig_label.set_opacity(0.4);
+            sig_label.set_xalign(1.0);
+            item_box.append(&sig_label);
+        }
 
         row_btn.set_child(Some(&item_box));
 
@@ -613,8 +626,11 @@ fn show_connecting_state(main_box: &gtk4::Box, ssid: &str) {
         main_box.remove(&child);
     }
     
+    main_box.set_size_request(260, -1);
+    main_box.add_css_class("audio-menu-popover");
+
     let label = gtk4::Label::new(Some(&format!("Connecting to {}...", ssid)));
-    label.add_css_class("wifi-popover-title");
+    label.add_css_class("audio-menu-section-title");
     label.set_margin_bottom(10);
     main_box.append(&label);
 
@@ -638,12 +654,17 @@ fn show_credentials_form(
         main_box.remove(&child);
     }
 
+    main_box.set_size_request(260, -1);
+    main_box.add_css_class("audio-menu-popover");
+
     let title = gtk4::Label::new(Some(&format!("Connect to {}", ssid)));
-    title.add_css_class("wifi-popover-title");
+    title.add_css_class("audio-menu-section-title");
     title.set_xalign(0.0);
     main_box.append(&title);
 
     let form_box = gtk4::Box::new(gtk4::Orientation::Vertical, 6);
+    form_box.set_margin_start(6);
+    form_box.set_margin_end(6);
 
     let username_entry = if security == "8021x" {
         let entry = gtk4::Entry::new();
