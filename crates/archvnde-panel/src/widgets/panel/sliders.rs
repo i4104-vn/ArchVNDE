@@ -9,7 +9,7 @@ struct AudioDevice {
     is_default: bool,
 }
 
-fn is_muted() -> bool {
+pub fn is_muted() -> bool {
     if let Ok(output) = std::process::Command::new("wpctl")
         .args(&["get-volume", "@DEFAULT_AUDIO_SINK@"])
         .output()
@@ -25,18 +25,6 @@ fn is_muted() -> bool {
         return stdout.contains("Mute: yes");
     }
     false
-}
-
-fn toggle_mute() {
-    let _ = std::process::Command::new("wpctl")
-        .args(&["set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"])
-        .spawn();
-    let _ = std::process::Command::new("pactl")
-        .args(&["set-sink-mute", "@DEFAULT_SINK@", "toggle"])
-        .spawn();
-    let _ = std::process::Command::new("amixer")
-        .args(&["set", "Master", "toggle"])
-        .spawn();
 }
 
 fn get_audio_devices(is_source: bool) -> Vec<AudioDevice> {
@@ -245,7 +233,8 @@ pub fn create_slider_row(
     initial_val: f64,
     on_popover_toggled: Option<Rc<dyn Fn(bool)>>,
     on_changed: impl Fn(f64) + 'static,
-) -> gtk4::Box {
+    on_mute_toggled: Option<impl Fn(bool) + 'static>,
+) -> (gtk4::Box, gtk4::Scale) {
     let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
     main_box.add_css_class("control-slider-card");
 
@@ -274,16 +263,18 @@ pub fn create_slider_row(
     let icon_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
     icon_container.set_valign(gtk4::Align::Center);
 
+    let muted_state = Rc::new(std::cell::Cell::new(is_muted()));
+
     let update_mute_icon = {
         let icon_container = icon_container.clone();
         let icon_name = icon_name.to_string();
-        Rc::new(move || {
+        Rc::new(move |is_muted_val: bool| {
             if icon_name == "volume" {
                 if let Some(old) = icon_container.first_child() {
                     icon_container.remove(&old);
                 }
-                let icon_widget = if is_muted() {
-                    archvnde_common::icon::get_system_or_file_icon("audio-volume-muted-symbolic", "image-missing")
+                let icon_widget = if is_muted_val {
+                    archvnde_common::icon::get_icon("volume-mute", 16)
                 } else {
                     archvnde_common::icon::get_icon("volume", 16)
                 };
@@ -299,9 +290,28 @@ pub fn create_slider_row(
         mute_btn.set_child(Some(&icon_container));
         
         let update_mute_icon_clone = update_mute_icon.clone();
+        let on_mute_toggled_clone = on_mute_toggled.map(Rc::new);
+        let muted_state_clone = muted_state.clone();
         mute_btn.connect_clicked(move |_| {
-            toggle_mute();
-            update_mute_icon_clone();
+            let new_mute = !muted_state_clone.get();
+            muted_state_clone.set(new_mute);
+
+            let mute_val = if new_mute { "1" } else { "0" };
+            let _ = std::process::Command::new("wpctl")
+                .args(&["set-mute", "@DEFAULT_AUDIO_SINK@", mute_val])
+                .spawn();
+            let _ = std::process::Command::new("pactl")
+                .args(&["set-sink-mute", "@DEFAULT_SINK@", mute_val])
+                .spawn();
+            let _ = std::process::Command::new("amixer")
+                .args(&["set", "Master", if new_mute { "mute" } else { "unmute" }])
+                .spawn();
+
+            update_mute_icon_clone(new_mute);
+
+            if let Some(ref cb) = on_mute_toggled_clone {
+                cb(new_mute);
+            }
         });
         
         row_box.append(&mute_btn);
@@ -313,10 +323,11 @@ pub fn create_slider_row(
     }
 
     // Set initial icon
-    update_mute_icon();
+    update_mute_icon(muted_state.get());
 
     // --- Slider Scale ---
     let scale = gtk4::Scale::with_range(gtk4::Orientation::Horizontal, 0.0, 100.0, 1.0);
+    scale.adjustment().set_page_increment(5.0);
     scale.set_value(initial_val);
     scale.set_hexpand(true);
     scale.set_draw_value(false);
@@ -366,7 +377,13 @@ pub fn create_slider_row(
         let update_mute_clone = update_mute_icon.clone();
         let on_popover_toggled_c = on_popover_toggled.clone();
         menu_btn.connect_clicked(move |_| {
-            populate_audio_menu(&popover_clone, update_mute_clone.clone());
+            let update_mute_wrapper = {
+                let update_mute_clone = update_mute_clone.clone();
+                Rc::new(move || {
+                    update_mute_clone(is_muted());
+                }) as Rc<dyn Fn()>
+            };
+            populate_audio_menu(&popover_clone, update_mute_wrapper);
             popover_clone.popup();
             if let Some(ref cb) = on_popover_toggled_c {
                 cb(true);
@@ -385,5 +402,5 @@ pub fn create_slider_row(
 
     main_box.append(&header_box);
     main_box.append(&row_box);
-    main_box
+    (main_box, scale)
 }

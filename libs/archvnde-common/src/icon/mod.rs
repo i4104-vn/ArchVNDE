@@ -79,6 +79,8 @@ pub const DARK_USER_SVG: &str = include_str!("assets/dark/user.svg");
 pub const LIGHT_USER_SVG: &str = include_str!("assets/light/user.svg");
 pub const DARK_VOLUME_SVG: &str = include_str!("assets/dark/volume.svg");
 pub const LIGHT_VOLUME_SVG: &str = include_str!("assets/light/volume.svg");
+pub const DARK_VOLUME_MUTE_SVG: &str = include_str!("assets/dark/volume-mute.svg");
+pub const LIGHT_VOLUME_MUTE_SVG: &str = include_str!("assets/light/volume-mute.svg");
 pub const DARK_WIFI_SVG: &str = include_str!("assets/dark/wifi.svg");
 pub const LIGHT_WIFI_SVG: &str = include_str!("assets/light/wifi.svg");
 
@@ -208,6 +210,8 @@ pub fn get_icon(name: &str, size: i32) -> gtk4::Image {
         ("user", true) => Some(LIGHT_USER_SVG),
         ("volume", false) => Some(DARK_VOLUME_SVG),
         ("volume", true) => Some(LIGHT_VOLUME_SVG),
+        ("volume-mute", false) | ("volume_mute", false) => Some(DARK_VOLUME_MUTE_SVG),
+        ("volume-mute", true) | ("volume_mute", true) => Some(LIGHT_VOLUME_MUTE_SVG),
         ("wifi", false) => Some(DARK_WIFI_SVG),
         ("wifi", true) => Some(LIGHT_WIFI_SVG),
         _ => None,

@@ -11,6 +11,9 @@ fn main() {
     // Initialize D-Bus StatusNotifierWatcher system tray listener daemon
     archvnde_tray::spawn_watcher_service();
 
+    // Detect DDC/CI bus for desktop monitors on startup
+    widgets::panel::detect_ddc_bus();
+
     // Spawn a background thread to refresh desktop apps cache asynchronously on startup
     std::thread::spawn(|| {
         println!("Background thread refreshing desktop apps cache...");
