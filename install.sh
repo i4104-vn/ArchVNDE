@@ -109,8 +109,11 @@ cat << 'EOF' > "$HOME/.config/labwc/rc.xml"
     <keybind key="W-q">
       <action name="Execute" command="~/.local/bin/archvnde-launcher" />
     </keybind>
-    <!-- Take screenshot with Win+F12 -->
+    <!-- Take screenshot with Win+F12 or Print key -->
     <keybind key="W-F12">
+      <action name="Execute" command="~/.local/bin/archvnde-screenshot" />
+    </keybind>
+    <keybind key="Print">
       <action name="Execute" command="~/.local/bin/archvnde-screenshot" />
     </keybind>
     <!-- Lock screen with Win+L -->
