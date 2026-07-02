@@ -621,7 +621,7 @@ popover.taskbar-popover {
     box-shadow: none !important;
 }
 
-popover > arrow {
+popover>arrow {
     background-color: transparent !important;
     border: none !important;
 }
