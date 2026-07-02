@@ -1,185 +1,52 @@
 use gtk4::prelude::*;
+use std::rc::Rc;
+use super::items;
 
-fn create_tile_row(
-    icon_name: &str,
-    title: &str,
-    subtitle: &str,
-    is_active: bool,
-    active_class: &str,
-    on_click: Option<impl Fn() + 'static>,
-) -> gtk4::Button {
-    let btn = gtk4::Button::new();
-    btn.add_css_class("control-tile-row");
-    if is_active {
-        btn.add_css_class(active_class);
-    }
-    btn.set_hexpand(true);
-    btn.set_vexpand(true);
-    btn.set_valign(gtk4::Align::Fill);
+pub fn create_control_center_grid(on_popover_toggled: Option<Rc<dyn Fn(bool) + 'static>>) -> gtk4::Box {
+    let main_layout = gtk4::Box::new(gtk4::Orientation::Horizontal, 10);
+    main_layout.add_css_class("control-center-grid");
+    main_layout.set_hexpand(true);
+    main_layout.set_valign(gtk4::Align::Fill);
+    main_layout.set_vexpand(true);
 
-    let main_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 10);
-    main_box.set_valign(gtk4::Align::Center);
+    let left_box = create_left_box_toggles(on_popover_toggled);
+    let right_grid = gtk4::Grid::new();
+    right_grid.set_column_spacing(10);
+    right_grid.set_row_spacing(10);
+    right_grid.set_hexpand(true);
+    right_grid.set_vexpand(true);
+    right_grid.set_valign(gtk4::Align::Fill);
 
-    // Icon Circle wrapper
-    let circle = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-    circle.add_css_class("control-icon-circle");
-    if is_active {
-        circle.add_css_class("active");
-    }
-    
-    let initial_color = if is_active { "#ffffff" } else { "rgba(255, 255, 255, 0.7)" };
-    let icon_widget = archvnde_common::icon::get_icon_colored(icon_name, 14, initial_color);
-    circle.append(&icon_widget);
-    main_box.append(&circle);
+    let dnd_btn = create_dnd_tile();
+    right_grid.attach(&dnd_btn, 0, 0, 2, 1);
 
-    // Text box
-    let text_box = gtk4::Box::new(gtk4::Orientation::Vertical, 1);
-    let title_label = gtk4::Label::new(Some(title));
-    title_label.set_xalign(0.0);
-    title_label.add_css_class("tile-title");
+    let small_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 10);
+    small_box.set_hexpand(true);
+    small_box.set_vexpand(true);
+    small_box.set_valign(gtk4::Align::Fill);
 
-    let sub_label = gtk4::Label::new(Some(subtitle));
-    sub_label.set_xalign(0.0);
-    sub_label.add_css_class("tile-subtitle");
+    let night_btn = create_night_light_tile();
+    let theme_btn = items::darkmode::render::create_small_theme_toggle_tile();
 
-    text_box.append(&title_label);
-    text_box.append(&sub_label);
-    main_box.append(&text_box);
+    small_box.append(&theme_btn);
+    small_box.append(&night_btn);
+    right_grid.attach(&small_box, 0, 1, 2, 1);
 
-    btn.set_child(Some(&main_box));
-
-    let act_class = active_class.to_string();
-    let icon_name_str = icon_name.to_string();
-    let circle_clone = circle.clone();
-    let icon_widget_clone = icon_widget.clone();
-
-    let on_click_opt = std::rc::Rc::new(std::cell::RefCell::new(on_click));
-
-    btn.connect_clicked(move |b| {
-        let is_now_active = if b.has_css_class(&act_class) {
-            b.remove_css_class(&act_class);
-            circle_clone.remove_css_class("active");
-            false
-        } else {
-            b.add_css_class(&act_class);
-            circle_clone.add_css_class("active");
-            true
-        };
-
-        let color = if is_now_active { "#ffffff" } else { "rgba(255, 255, 255, 0.7)" };
-        let new_img = archvnde_common::icon::get_icon_colored(&icon_name_str, 14, color);
-        if let Some(paintable) = new_img.paintable() {
-            icon_widget_clone.set_paintable(Some(&paintable));
-        }
-
-        if let Some(ref cb) = *on_click_opt.borrow() {
-            cb();
-        }
-    });
-
-    btn
+    main_layout.append(&left_box);
+    main_layout.append(&right_grid);
+    main_layout
 }
 
-pub fn create_small_theme_toggle_tile() -> gtk4::Button {
-    let btn = gtk4::Button::new();
-    btn.add_css_class("control-square-tile");
-    btn.set_hexpand(true);
-    btn.set_valign(gtk4::Align::Fill);
-    btn.set_vexpand(true);
-
-    let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
-    main_box.set_valign(gtk4::Align::Center);
-    main_box.set_halign(gtk4::Align::Center);
-
-    let is_dark_init = gtk4::Settings::default()
-        .map(|s| s.is_gtk_application_prefer_dark_theme())
-        .unwrap_or(true);
-
-    if is_dark_init {
-        btn.add_css_class("active");
-    }
-
-    // Use an icon container Box so we can swap the entire widget on toggle
-    let icon_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-    icon_container.set_halign(gtk4::Align::Center);
-
-    let initial_icon_name = if is_dark_init { "dark-mode" } else { "brightness" };
-    let initial_color = if is_dark_init { "#ffffff" } else { "rgba(255, 255, 255, 0.8)" };
-    let icon_widget = archvnde_common::icon::get_icon_colored(initial_icon_name, 16, initial_color);
-    icon_container.append(&icon_widget);
-
-    let label = gtk4::Label::new(Some(&archvnde_common::i18n::t("control.dark_mode")));
-    label.add_css_class("control-square-label");
-    label.set_halign(gtk4::Align::Center);
-
-    main_box.append(&icon_container);
-    main_box.append(&label);
-    btn.set_child(Some(&main_box));
-
-    btn.connect_clicked(move |b| {
-        let settings = gtk4::Settings::default();
-        let current_dark = settings.as_ref()
-            .map(|s| s.is_gtk_application_prefer_dark_theme())
-            .unwrap_or(true);
-        let new_dark = !current_dark;
-
-        // Write gsettings synchronously FIRST so the value is settled before the
-        // gtk_application_prefer_dark_theme_notify signal fires and reloads CSS.
-        // Also ensures separate binaries (screenshot, switcher, etc.) launched
-        // afterwards will read the correct color-scheme via init_theme().
-        let scheme = if new_dark { "prefer-dark" } else { "prefer-light" };
-        let _ = std::process::Command::new("gsettings")
-            .args(&["set", "org.gnome.desktop.interface", "color-scheme", scheme])
-            .output(); // .output() blocks until done — gsettings is fast (~5ms)
-
-        // Now trigger the signal; is_dark_mode() reads the GTK in-process setting
-        // which is about to be updated to new_dark.
-        if let Some(ref s) = settings {
-            s.set_gtk_application_prefer_dark_theme(new_dark);
-        }
-
-        // Swap icon widget inside the container
-        if let Some(old) = icon_container.first_child() {
-            icon_container.remove(&old);
-        }
-        if new_dark {
-            b.add_css_class("active");
-            let new_img = archvnde_common::icon::get_icon_colored("dark-mode", 16, "#ffffff");
-            icon_container.append(&new_img);
-        } else {
-            b.remove_css_class("active");
-            let new_img = archvnde_common::icon::get_icon_colored("brightness", 16, "rgba(255, 255, 255, 0.8)");
-            icon_container.append(&new_img);
-        }
-    });
-
-    btn
-}
-
-pub fn create_left_box_toggles() -> gtk4::Box {
+fn create_left_box_toggles(on_popover_toggled: Option<Rc<dyn Fn(bool) + 'static>>) -> gtk4::Box {
     let container = gtk4::Box::new(gtk4::Orientation::Vertical, 10);
     container.add_css_class("control-left-toggles-box");
     container.set_valign(gtk4::Align::Fill);
     container.set_vexpand(true);
 
-    let wifi_btn = create_tile_row(
-        "wifi",
-        &archvnde_common::i18n::t("control.network"),
-        &archvnde_common::i18n::t("control.connected"),
-        true,
-        "active",
-        None::<fn()>,
-    );
-    let bt_btn = create_tile_row(
-        "bluetooth",
-        &archvnde_common::i18n::t("control.bluetooth"),
-        &archvnde_common::i18n::t("control.not_connected"),
-        false,
-        "active",
-        None::<fn()>,
-    );
+    let wifi_tile = items::wifi::render::create_wifi_tile(on_popover_toggled);
+    let bt_btn = items::bluetooth::render::create_bluetooth_tile();
 
-    container.append(&wifi_btn);
+    container.append(&wifi_tile);
     container.append(&bt_btn);
     container
 }
@@ -209,74 +76,65 @@ pub fn create_dnd_tile() -> gtk4::Button {
     btn.set_valign(gtk4::Align::Fill);
     btn.set_vexpand(true);
 
-    let main_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 10);
+    let main_box = gtk4::Box::new(gtk4::Orientation::Vertical, 4);
     main_box.set_valign(gtk4::Align::Center);
+    main_box.set_halign(gtk4::Align::Center);
 
-    let circle = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
-    circle.add_css_class("control-icon-circle");
-
-    let is_active_init = is_dnd_active();
-    if is_active_init {
+    let active = is_dnd_active();
+    if active {
         btn.add_css_class("active");
-        circle.add_css_class("active");
     }
 
-    let initial_icon = if is_active_init { "bell-off" } else { "bell" };
-    let initial_color = if is_active_init { "#ffffff" } else { "rgba(255, 255, 255, 0.7)" };
-    let icon_widget = archvnde_common::icon::get_icon_colored(initial_icon, 14, initial_color);
-    circle.append(&icon_widget);
-    main_box.append(&circle);
+    let icon_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
+    icon_container.set_halign(gtk4::Align::Center);
 
-    let text_box = gtk4::Box::new(gtk4::Orientation::Vertical, 1);
-    let title_label = gtk4::Label::new(Some(&archvnde_common::i18n::t("control.dnd")));
-    title_label.set_xalign(0.0);
-    title_label.add_css_class("tile-title");
+    let icon_color = if active { "#ffffff" } else { "rgba(255, 255, 255, 0.8)" };
+    let icon_widget = archvnde_common::icon::get_icon_colored("bell-off", 18, icon_color);
+    icon_container.append(&icon_widget);
 
-    let initial_status = if is_active_init { "control.on" } else { "control.off" };
-    let sub_label = gtk4::Label::new(Some(&archvnde_common::i18n::t(initial_status)));
-    sub_label.set_xalign(0.0);
-    sub_label.add_css_class("tile-subtitle");
+    let label = gtk4::Label::new(Some(&archvnde_common::i18n::t("control.dnd")));
+    label.add_css_class("control-dnd-label");
+    label.set_halign(gtk4::Align::Center);
 
-    text_box.append(&title_label);
-    text_box.append(&sub_label);
-    main_box.append(&text_box);
-
+    main_box.append(&icon_container);
+    main_box.append(&label);
     btn.set_child(Some(&main_box));
 
-    let circle_clone = circle.clone();
-    let icon_widget_clone = icon_widget.clone();
-    let sub_label_clone = sub_label.clone();
-
     btn.connect_clicked(move |b| {
-        if b.has_css_class("active") {
-            b.remove_css_class("active");
-            circle_clone.remove_css_class("active");
-            sub_label_clone.set_text(&archvnde_common::i18n::t("control.off"));
-            let new_img = archvnde_common::icon::get_icon_colored("bell", 14, "rgba(255, 255, 255, 0.7)");
-            if let Some(paintable) = new_img.paintable() {
-                icon_widget_clone.set_paintable(Some(&paintable));
-            }
-            let _ = std::process::Command::new("dunstctl").args(&["set-paused", "false"]).spawn();
-            let _ = std::process::Command::new("makoctl").args(&["mode", "-r", "dnd"]).spawn();
-        } else {
+        let current_active = b.has_css_class("active");
+        let new_active = !current_active;
+
+        if new_active {
             b.add_css_class("active");
-            circle_clone.add_css_class("active");
-            sub_label_clone.set_text(&archvnde_common::i18n::t("control.on"));
-            let new_img = archvnde_common::icon::get_icon_colored("bell-off", 14, "#ffffff");
-            if let Some(paintable) = new_img.paintable() {
-                icon_widget_clone.set_paintable(Some(&paintable));
-            }
-            let _ = std::process::Command::new("dunstctl").args(&["set-paused", "true"]).spawn();
+            let _ = std::process::Command::new("dunstctl").arg("set-paused").arg("true").spawn();
             let _ = std::process::Command::new("makoctl").args(&["mode", "-a", "dnd"]).spawn();
+        } else {
+            b.remove_css_class("active");
+            let _ = std::process::Command::new("dunstctl").arg("set-paused").arg("false").spawn();
+            let _ = std::process::Command::new("makoctl").args(&["mode", "-r", "dnd"]).spawn();
         }
+
+        if let Some(old) = icon_container.first_child() {
+            icon_container.remove(&old);
+        }
+        let color = if new_active { "#ffffff" } else { "rgba(255, 255, 255, 0.8)" };
+        let new_img = archvnde_common::icon::get_icon_colored("bell-off", 18, color);
+        icon_container.append(&new_img);
     });
 
     btn
 }
 
-fn is_process_running(name: &str) -> bool {
-    if let Ok(output) = std::process::Command::new("pgrep").arg(name).output() {
-        return !output.stdout.is_empty();
+fn is_night_light_active() -> bool {
+    if let Ok(output) = std::process::Command::new("pgrep").arg("-x").arg("gammastep").output() {
+        if output.status.success() {
+            return true;
+        }
+    }
+    if let Ok(output) = std::process::Command::new("pgrep").arg("-x").arg("wl-gammarelay").output() {
+        if output.status.success() {
+            return true;
+        }
     }
     false
 }
@@ -292,17 +150,16 @@ pub fn create_night_light_tile() -> gtk4::Button {
     main_box.set_valign(gtk4::Align::Center);
     main_box.set_halign(gtk4::Align::Center);
 
-    let is_active_init = is_process_running("gammastep") || is_process_running("wlsunset");
-    if is_active_init {
+    let active = is_night_light_active();
+    if active {
         btn.add_css_class("active");
     }
 
-    // Use an icon container Box so we can swap the widget on toggle
     let icon_container = gtk4::Box::new(gtk4::Orientation::Horizontal, 0);
     icon_container.set_halign(gtk4::Align::Center);
 
-    let initial_color = if is_active_init { "#ffffff" } else { "rgba(255, 255, 255, 0.8)" };
-    let icon_widget = archvnde_common::icon::get_icon_colored("night-light", 16, initial_color);
+    let icon_color = if active { "#ffffff" } else { "rgba(255, 255, 255, 0.8)" };
+    let icon_widget = archvnde_common::icon::get_icon_colored("night-light", 16, icon_color);
     icon_container.append(&icon_widget);
 
     let label = gtk4::Label::new(Some(&archvnde_common::i18n::t("control.night_light")));
@@ -314,55 +171,24 @@ pub fn create_night_light_tile() -> gtk4::Button {
     btn.set_child(Some(&main_box));
 
     btn.connect_clicked(move |b| {
-        if b.has_css_class("active") {
-            b.remove_css_class("active");
-            if let Some(old) = icon_container.first_child() { icon_container.remove(&old); }
-            let new_img = archvnde_common::icon::get_icon_colored("night-light", 16, "rgba(255, 255, 255, 0.8)");
-            icon_container.append(&new_img);
-            let _ = std::process::Command::new("pkill").arg("-x").arg("gammastep").spawn();
-            let _ = std::process::Command::new("pkill").arg("-x").arg("wlsunset").spawn();
-        } else {
+        let current_active = b.has_css_class("active");
+        let new_active = !current_active;
+
+        if new_active {
             b.add_css_class("active");
-            if let Some(old) = icon_container.first_child() { icon_container.remove(&old); }
-            let new_img = archvnde_common::icon::get_icon_colored("night-light", 16, "#ffffff");
-            icon_container.append(&new_img);
-            let _ = std::process::Command::new("gammastep")
-                .args(&["-O", "4000", "-l", "0:0"])
-                .spawn();
-            let _ = std::process::Command::new("wlsunset")
-                .args(&["-t", "4000", "-T", "6500"])
-                .spawn();
+            let _ = std::process::Command::new("gammastep").args(&["-O", "4500", "-b", "1.0:1.0"]).spawn();
+        } else {
+            b.remove_css_class("active");
+            let _ = std::process::Command::new("pkill").arg("-x").arg("gammastep").status();
         }
+
+        if let Some(old) = icon_container.first_child() {
+            icon_container.remove(&old);
+        }
+        let color = if new_active { "#ffffff" } else { "rgba(255, 255, 255, 0.8)" };
+        let new_img = archvnde_common::icon::get_icon_colored("night-light", 16, color);
+        icon_container.append(&new_img);
     });
 
     btn
-}
-
-
-pub fn create_control_center_grid() -> gtk4::Grid {
-    let grid = gtk4::Grid::new();
-    grid.set_row_spacing(10);
-    grid.set_column_spacing(10);
-    grid.set_row_homogeneous(true);
-    grid.set_column_homogeneous(true);
-
-    let left_box = create_left_box_toggles();
-    grid.attach(&left_box, 0, 0, 1, 2);
-
-    let dnd_btn = create_dnd_tile();
-    grid.attach(&dnd_btn, 1, 0, 1, 1);
-
-    let small_box = gtk4::Box::new(gtk4::Orientation::Horizontal, 8);
-    small_box.set_homogeneous(true);
-    small_box.set_valign(gtk4::Align::Fill);
-    small_box.set_vexpand(true);
-
-    let theme_btn = create_small_theme_toggle_tile();
-    let night_btn = create_night_light_tile();
-
-    small_box.append(&theme_btn);
-    small_box.append(&night_btn);
-    grid.attach(&small_box, 1, 1, 1, 1);
-
-    grid
 }
