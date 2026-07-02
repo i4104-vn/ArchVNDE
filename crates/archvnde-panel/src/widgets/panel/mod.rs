@@ -302,7 +302,7 @@ fn rebuild_control_center_contents(
     main_box.append(&create_header_row());
 
     // 3. Append grid
-    main_box.append(&create_control_center_grid());
+    main_box.append(&create_control_center_grid(on_popover_toggled.clone()));
 
     // 4. Append volume slider
     let initial_volume = get_current_volume();
